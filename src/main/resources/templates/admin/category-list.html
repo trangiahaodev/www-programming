@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý danh mục mỹ phẩm - Admin</title>
+    <style>
+        :root {
+            --primary-color: #e83e8c;
+            --primary-hover: #d63384;
+            --bg-light: #f8f9fa;
+            --text-dark: #212529;
+            --border-color: #dee2e6;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg-light); color: var(--text-dark); padding: 24px; }
+        .container { max-width: 1200px; margin: 0 auto; background: #ffffff; padding: 24px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--border-color); }
+        .header h1 { font-size: 24px; color: var(--primary-color); }
+        .btn { padding: 8px 16px; border-radius: 4px; border: none; cursor: pointer; text-decoration: none; font-size: 14px; font-weight: 500; display: inline-block; }
+        .btn-primary { background-color: var(--primary-color); color: #fff; }
+        .btn-primary:hover { background-color: var(--primary-hover); }
+        .btn-secondary { background-color: #6c757d; color: #fff; }
+        .btn-secondary:hover { background-color: #5a6268; }
+        .search-bar { display: flex; gap: 8px; margin-bottom: 20px; }
+        .search-bar input { flex: 1; padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 14px; }
+        .table-responsive { width: 100%; overflow-x: auto; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th, td { padding: 12px; border-bottom: 1px solid var(--border-color); }
+        th { background-color: #f1f3f5; font-weight: 600; color: #495057; }
+        tr:hover { background-color: #f8f9fa; }
+        .badge { padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+        .badge-success { background-color: #d4edda; color: #155724; }
+        .badge-danger { background-color: #f8d7da; color: #721c24; }
+        .pagination { display: flex; justify-content: center; align-items: center; gap: 6px; margin-top: 20px; }
+        .pagination a, .pagination span { padding: 6px 12px; border: 1px solid var(--border-color); border-radius: 4px; text-decoration: none; color: var(--text-dark); font-size: 14px; }
+        .pagination .active { background-color: var(--primary-color); color: white; border-color: var(--primary-color); }
+        .empty-state { text-align: center; padding: 40px; color: #6c757d; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Quản lý danh mục mỹ phẩm</h1>
+        <a th:href="@{/admin/categories/create}" class="btn btn-primary">+ Thêm mới danh mục</a>
+    </div>
+
+    <!-- Thanh tìm kiếm -->
+    <form th:action="@{/admin/categories}" method="get" class="search-bar">
+        <input type="text" name="keyword" th:value="${keyword}" placeholder="Tìm kiếm theo mã danh mục hoặc tên danh mục...">
+        <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+        <a th:if="${keyword != null and keyword != ''}" th:href="@{/admin/categories}" class="btn btn-secondary">Xóa bộ lọc</a>
+    </form>
+
+    <!-- Bảng danh mục -->
+    <div class="table-responsive">
+        <table>
+            <thead>
+            <tr>
+                <th>Mã danh mục</th>
+                <th>Tên danh mục</th>
+                <th>Mô tả</th>
+                <th>Số lượng SP</th>
+                <th>Trạng thái</th>
+                <th>Ngày tạo</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="cat : ${categories}">
+                <td th:text="${cat.categoryCode}" style="font-weight: bold; color: #495057;">DM26000001</td>
+                <td th:text="${cat.name}">Chăm sóc da mặt</td>
+                <td th:text="${cat.description != null ? cat.description : '-'}">Các sản phẩm dưỡng da</td>
+                <td th:text="${cat.productCount}">0</td>
+                <td>
+                    <span th:if="${cat.active}" class="badge badge-success">Đang hoạt động</span>
+                    <span th:unless="${cat.active}" class="badge badge-danger">Ngừng hoạt động</span>
+                </td>
+                <td th:text="${cat.createdAt != null ? #temporals.format(cat.createdAt, 'dd/MM/yyyy HH:mm') : '-'}">01/01/2026</td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(categories)}">
+                <td colspan="6" class="empty-state">
+                    <p>Không tìm thấy danh mục mỹ phẩm nào phù hợp.</p>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Phân trang -->
+    <div class="pagination" th:if="${totalPages > 1}">
+        <a th:if="${currentPage > 0}"
+           th:href="@{/admin/categories(page=${currentPage - 1}, keyword=${keyword}, size=${size})}">&laquo; Trước</a>
+
+        <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+            <a th:if="${i != currentPage}"
+               th:href="@{/admin/categories(page=${i}, keyword=${keyword}, size=${size})}"
+               th:text="${i + 1}">1</a>
+            <span th:if="${i == currentPage}" class="active" th:text="${i + 1}">1</span>
+        </span>
+
+        <a th:if="${currentPage < totalPages - 1}"
+           th:href="@{/admin/categories(page=${currentPage + 1}, keyword=${keyword}, size=${size})}">Sau &raquo;</a>
+    </div>
+</div>
+
+</body>
+</html>
