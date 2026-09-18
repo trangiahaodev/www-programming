@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,11 +26,10 @@ public class AdminCategoryController {
             @RequestParam(name = "size", defaultValue = "10") int size,
             Model model) {
 
-        // Giới hạn giá trị page và size hợp lệ
         int pageNumber = Math.max(0, page);
         int pageSize = (size <= 0 || size > 100) ? 10 : size;
 
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
         Page<CategoryResponseDTO> categoryPage = categoryService.getCategories(keyword, pageable);
 
         model.addAttribute("categories", categoryPage.getContent());
@@ -39,7 +37,7 @@ public class AdminCategoryController {
         model.addAttribute("totalPages", categoryPage.getTotalPages());
         model.addAttribute("totalElements", categoryPage.getTotalElements());
         model.addAttribute("size", pageSize);
-        model.addAttribute("keyword", keyword != null ? keyword.trim() : "");
+        model.addAttribute("keyword", keyword);
 
         return "admin/category-list";
     }
