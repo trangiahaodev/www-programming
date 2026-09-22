@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/customer-layout :: layout(~{::main})}"
+      lang="vi">
+<head>
+    <title>PinkyCloud - Mỹ Phẩm Chính Hãng &amp; Chăm Sóc Da Cao Cấp</title>
+</head>
+<body>
+    <main class="homepage-container">
+
+        <!-- 1. FULL-WIDTH HERO BANNER (MATCHING REACT) -->
+        <section class="hero-banner" id="heroBanner">
+            <!-- Floating Hotdeal & Vouchers Popup -->
+            <div class="hero-hotdeal">
+                <button type="button" class="hero-hotdeal-btn" id="hotdealBtn" aria-label="Mở danh sách voucher ưu đãi">
+                    🔥 Hotdeal Ưu Đãi
+                </button>
+
+                <div class="hero-voucher-popup" id="voucherPopup">
+                    <div style="font-weight: 800; font-size: 15px; color: #7a2d49; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+                        <span>🎟️ Mã Giảm Giá Đang Áp Dụng</span>
+                        <span style="font-size: 12px; color: #888; font-weight: 500;">Nhấn để sao chép</span>
+                    </div>
+                    <div class="hero-voucher-grid">
+                        <div th:each="voucher : ${hotVouchers}"
+                             class="hero-voucher-card"
+                             th:style="'background: ' + ${voucher.accent}">
+                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+                                <div>
+                                    <div class="hero-voucher-label">VOUCHER HOT</div>
+                                    <h4 class="hero-voucher-title" th:text="${voucher.title}">Giảm 15% toàn bộ đơn hàng</h4>
+                                    <div class="hero-voucher-detail" th:text="${voucher.detail}">Áp dụng cho đơn từ 499.000₫</div>
+                                </div>
+                                <div class="hero-voucher-code"
+                                     th:text="${voucher.code}"
+                                     th:attr="data-code=${voucher.code}"
+                                     onclick="copyCode(this.getAttribute('data-code'), this)"
+                                     title="Nhấn để sao chép">
+                                    PINKY15
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seamless Infinite Slider Track -->
+            <div class="hero-slider-wrapper">
+                <div class="hero-slider-mask">
+                    <div class="hero-slider-track" id="heroBannerTrack"
+                         th:style="'width: ' + (${#lists.size(banners) + 1} * 100) + '%;'">
+                        <!-- Slides 0 to N-1 -->
+                        <div th:each="banner, iter : ${banners}"
+                             class="hero-slide"
+                             th:style="'width: ' + (100.0 / (${#lists.size(banners) + 1})) + '%;'">
+                            <img th:src="@{${banner}}" th:alt="'PinkyCloud Banner ' + ${iter.index + 1}" class="hero-slide-image" loading="lazy">
+                        </div>
+                        <!-- Cloned first slide for seamless infinite loop (1-2-3-4-5-6-7-1) -->
+                        <div class="hero-slide"
+                             th:if="${banners != null and !banners.isEmpty()}"
+                             th:style="'width: ' + (100.0 / (${#lists.size(banners) + 1})) + '%;'">
+                            <img th:src="@{${banners[0]}}" alt="PinkyCloud Banner Clone" class="hero-slide-image">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Continuous Gradient Overlay (smooth left dissolve matching React) -->
+                <div class="hero-overlay-left"></div>
+                <div class="hero-overlay-right"></div>
+                <div class="hero-overlay-bottom"></div>
+            </div>
+
+            <!-- Left Foreground Content Column -->
+            <div class="hero-content-col">
+                <div class="hero-badge">
+                    🌸 PinkyCloud Office &bull; Beauty &amp; Skincare
+                </div>
+
+                <h1 class="hero-title">
+                    Chăm sóc sắc đẹp,<br>
+                    nâng tầm trải nghiệm
+                </h1>
+
+                <p class="hero-description">
+                    Hiện có <strong th:text="${totalProducts != null ? totalProducts : 56}">56</strong> sản phẩm chất lượng trong 
+                    <strong th:text="${productCategoryCount != null ? productCategoryCount : 6}">6</strong> danh mục. 
+                    Khám phá dịch vụ và tin tức mới nhất từ hệ thống PinkyCloud.
+                </p>
+
+                <div class="hero-action-buttons">
+                    <a href="#featured-multi-brands" class="hero-primary-btn">
+                        Khám phá sản phẩm
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+                    </a>
+                    <a href="#news" class="hero-secondary-btn">
+                        Xem tin mới
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    </a>
+                </div>
+
+                <!-- Search form on Hero Banner -->
+                <form th:action="@{/san-pham}" method="GET" class="pl-hero-search hero-banner-search-form" style="max-width: 580px; margin: 0;">
+                    <input type="text"
+                           name="keyword"
+                           placeholder="Tìm sản phẩm, thương hiệu (Anessa, Serum, Retinol)..."
+                           aria-label="Tìm kiếm sản phẩm">
+                    <button type="submit">Tìm Kiếm</button>
+                </form>
+            </div>
+
+            <!-- Bottom Navigation Bar Pinned to Banner (Matching React) -->
+            <div class="banner-bottom-nav-container">
+                <a href="#news" class="banner-bottom-nav-item">CẨM NANG</a>
+                <a href="#office" class="banner-bottom-nav-item">VỀ CHÚNG TÔI</a>
+                <a href="#office" class="banner-bottom-nav-item">LIÊN HỆ</a>
+            </div>
+        </section>
+
+        <!-- 2. BRAND SHOWCASE WITH ASYMMETRICAL BENTO GRID (PHÁ CÁCH THEO REACT) -->
+        <section id="featured-multi-brands">
+            <div class="section-head-wrap">
+                <div>
+                    <h2 class="section-title">Sản phẩm nổi bật từ nhiều nhãn hàng</h2>
+                    <div class="section-subtitle">
+                        Nhấn vào bất kỳ sản phẩm nào để xem chi tiết hoặc khám phá các dòng chăm sóc chuyên sâu của nhãn hàng.
+                    </div>
+                </div>
+                <div class="brand-head-actions">
+                    <button type="button" class="brand-directory-btn" onclick="openBrandModal()" title="Xem tất cả nhãn hàng theo thứ tự A-Z">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        Tất cả nhãn hàng A-Z
+                    </button>
+                    <a th:href="@{/san-pham}" class="flash-deals-viewall">
+                        Xem tất cả sản phẩm
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Brand Pills Bar with Navigation Controls & Mouse Wheel Scroll -->
+            <div class="brand-pills-container">
+                <button type="button" class="brand-nav-btn brand-nav-prev" id="brandPrevBtn" aria-label="Xem nhãn hàng trước" title="Nhãn hàng trước">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </button>
+                
+                <div class="brand-pills-row" id="brandPillsTrack">
+                    <a th:each="b : ${brands}"
+                       th:href="@{/san-pham(keyword=${b})}"
+                       class="brand-pill"
+                       th:title="'Khám phá mỹ phẩm ' + ${b}">
+                        <span class="brand-pill-icon">💎</span>
+                        <span th:text="${b}">Anessa</span>
+                    </a>
+                    <a th:href="@{/san-pham}" class="brand-pill brand-pill-all" title="Khám phá trọn bộ các thương hiệu">
+                        <span class="brand-pill-icon">✨</span>
+                        <span>Tất cả thương hiệu &rarr;</span>
+                    </a>
+                </div>
+
+                <button type="button" class="brand-nav-btn brand-nav-next" id="brandNextBtn" aria-label="Xem nhãn hàng tiếp theo" title="Nhãn hàng tiếp theo">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Asymmetrical Bento Grid (Card 1: 2x2, Card 2: 1x2, Card 3: 1x1, Card 4: 1x1) -->
+            <div class="featured-showcase-grid" th:if="${featuredBrandProducts != null and !featuredBrandProducts.isEmpty()}">
+                <a th:each="prod, iter : ${featuredBrandProducts}"
+                   th:if="${iter.index < 4}"
+                   th:href="@{/san-pham/{id}(id=${prod.id})}"
+                   class="featured-showcase-card"
+                   th:classappend="'featured-showcase-card-' + ${iter.index + 1}">
+                    
+                    <div class="featured-showcase-image-wrap">
+                        <div th:if="${prod.discount != null and prod.discount > 0}"
+                             class="featured-showcase-discount-badge"
+                             th:text="'-' + ${prod.discount} + '%'">
+                            -15%
+                        </div>
+                        <img th:src="@{${prod.image}}" th:alt="${prod.name}" class="featured-showcase-image" loading="lazy">
+                    </div>
+
+                    <div class="featured-showcase-content">
+                        <div class="featured-showcase-brand" th:text="${prod.brand}">Anessa</div>
+                        <h3 class="featured-showcase-title" th:text="${prod.name}">Tên sản phẩm nổi bật</h3>
+                        <div class="featured-showcase-price-wrap">
+                            <span class="featured-showcase-sale-price" th:text="${prod.formattedPrice}">463.000₫</span>
+                            <span class="featured-showcase-old-price" th:if="${prod.formattedOriginalPrice != null}" th:text="${prod.formattedOriginalPrice}">545.000₫</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <!-- 3. FLASH DEALS SECTION (WITH COUNTDOWN TIMER & PROGRESS) -->
+        <section id="hot-promotions">
+            <div class="flash-deals-head">
+                <div class="flash-deals-title-wrap">
+                    <h2 class="flash-deals-title">🔥 FLASH DEALS HÔM NAY</h2>
+                    <div class="flash-deals-timer" id="flashTimer">
+                        <span class="flash-time-chip" id="timerHours">02</span>
+                        <span class="flash-time-sep">:</span>
+                        <span class="flash-time-chip" id="timerMinutes">45</span>
+                        <span class="flash-time-sep">:</span>
+                        <span class="flash-time-chip" id="timerSeconds">30</span>
+                    </div>
+                </div>
+                <a th:href="@{/san-pham(sort='hot')}" class="flash-deals-viewall">
+                    Xem tất cả ưu đãi
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </a>
+            </div>
+
+            <!-- Hot Deals Grid (6 products per row) -->
+            <div class="flash-deals-grid">
+                <div th:each="prod, iter : ${hotProducts}" class="flash-deal-item-shell">
+                    <div class="pc" style="box-shadow: none; border: none; background: transparent;">
+                        <a th:href="@{/san-pham/{id}(id=${prod.id})}" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; flex: 1;">
+                            <div class="pc-img-wrap" style="background: transparent;">
+                                <img th:src="@{${prod.image}}" th:alt="${prod.name}" class="pc-img" loading="lazy">
+                                <span th:if="${prod.discount != null and prod.discount > 0}" class="pc-badge pc-badge--sale" th:text="'⚡ -' + ${prod.discount} + '%'">-20%</span>
+                            </div>
+                            <div class="pc-body" style="padding: 10px 4px 4px 4px;">
+                                <div class="pc-meta" th:text="${prod.brand}">Thương hiệu</div>
+                                <h3 class="pc-name" style="font-size: 0.9rem; height: 2.7em;" th:text="${prod.name}">Tên sản phẩm</h3>
+                                <div class="pc-price-row" style="margin-bottom: 4px;">
+                                    <span class="pc-price" style="color: #e24f76;" th:text="${prod.formattedPrice}">350.000₫</span>
+                                    <span class="pc-old" th:if="${prod.formattedOriginalPrice != null}" th:text="${prod.formattedOriginalPrice}">450.000₫</span>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- Savings badge & Sold progress bar -->
+                    <div class="flash-deal-saving-badge" th:if="${prod.discount != null and prod.discount > 0}">
+                        ⚡ Tiết kiệm <span th:text="${prod.discount} + '%'">15%</span>
+                    </div>
+                    <div class="flash-deal-progress" role="presentation">
+                        <span th:style="'width: ' + ${40 + (iter.index * 9)} + '%'"></span>
+                    </div>
+                    <div class="flash-deal-progress-text" th:text="'Đã bán ' + ${40 + (iter.index * 9)} + '%'">Đã bán 65%</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. PINKYCLOUD OFFICES & SHOWROOM BRANCHES (CHI NHÁNH) -->
+        <section id="office">
+            <div class="section-head-wrap">
+                <div>
+                    <h2 class="section-title">Hệ Thống Chi Nhánh &amp; Văn Phòng PinkyCloud</h2>
+                    <div class="section-subtitle">
+                        Xem thông tin liên hệ, trải nghiệm soi da AI miễn phí và đặt lịch hẹn tư vấn mua sắm trực tiếp tại showroom.
+                    </div>
+                </div>
+            </div>
+
+            <div class="office-grid">
+                <div th:each="office : ${offices}" class="office-card">
+                    <div>
+                        <div class="office-image-wrap">
+                            <img th:src="@{${office.image}}" th:alt="${office.title}" class="office-image" loading="lazy">
+                            <div class="office-image-overlay"></div>
+                            <div class="office-chip">Beauty Office</div>
+                        </div>
+
+                        <div class="office-body pb-0">
+                            <div class="office-meta">Hệ thống PinkyCloud</div>
+                            <h3 class="office-title" th:text="${office.title}">Văn phòng chính</h3>
+                            <p class="office-description" th:text="${office.description}">Địa chỉ chi nhánh...</p>
+
+                            <!-- Perks at counter -->
+                            <div class="office-perks-section">
+                                <div class="office-perks-heading">✨ Gói trải nghiệm tại quầy:</div>
+                                <ul class="office-perks-list">
+                                    <li th:each="perk : ${office.perks}" class="office-perk-item" th:text="${perk}">🔍 Soi da miễn phí</li>
+                                </ul>
+                            </div>
+
+                            <!-- Coupon code with copy button -->
+                            <div class="office-coupon-box">
+                                <div style="display: flex; flex-direction: column;">
+                                    <span class="office-coupon-label">Mã ưu đãi chi nhánh:</span>
+                                    <span class="office-coupon-code" th:text="${office.coupon}">PINKY_GOVAP</span>
+                                </div>
+                                <button type="button"
+                                        class="office-copy-btn"
+                                        th:attr="data-code=${office.coupon}"
+                                        onclick="copyCode(this.getAttribute('data-code'), this)">
+                                    Sao chép
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact & Booking action -->
+                    <div class="office-body pt-0">
+                        <div class="office-contact-info">
+                            <div>✉️ Email: <strong th:text="${office.email}">support@pinkycloud.vn</strong></div>
+                            <div>📞 Hotline: <strong th:text="${office.phone}">1900 633 950</strong></div>
+                            <div>⏰ Giờ mở cửa: <span th:text="${office.workingHours}">08:00 - 21:00</span></div>
+                        </div>
+
+                        <button type="button"
+                                class="office-action-btn"
+                                th:attr="data-branch=${office.title}"
+                                onclick="openBookingModal(this.getAttribute('data-branch'))">
+                            📅 Đặt hẹn tư vấn và mua sắm
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. FEATURED ARTICLES & BEAUTY NEWS (BÀI VIẾT NỔI BẬT) -->
+        <section id="news">
+            <div class="section-head-wrap">
+                <div>
+                    <h2 class="section-title">Cẩm Nang &amp; Tin Tức Làm Đẹp Nổi Bật</h2>
+                    <div class="section-subtitle">
+                        Cập nhật xu hướng làm đẹp khoa học và mua sắm nhanh các sản phẩm chất lượng được khuyên dùng trong bài viết.
+                    </div>
+                </div>
+            </div>
+
+            <div class="news-grid">
+                <div th:each="news : ${newsList}" class="news-card">
+                    <div>
+                        <div class="news-image-wrap">
+                            <img th:src="@{${news.image}}" th:alt="${news.title}" class="news-image" loading="lazy">
+                            <div class="news-category-tag" th:text="${news.category}">Xu hướng làm đẹp</div>
+                        </div>
+
+                        <div class="news-card-body pb-0">
+                            <div class="news-date" th:text="'📅 ' + ${news.date} + ' &bull; ' + ${news.readTime}">12/04/2026</div>
+                            <h3 class="news-title" th:text="${news.title}">Tiêu đề bài viết</h3>
+                            <p class="news-excerpt" th:text="${news.excerpt}">Nội dung tóm tắt...</p>
+                        </div>
+                    </div>
+
+                    <div class="news-card-body pt-0">
+                        <!-- Linked products inside article (Matching React commercialization) -->
+                        <div class="news-linked-products" th:if="${news.linkedProducts != null and !news.linkedProducts.isEmpty()}">
+                            <div class="news-linked-title">🛍️ Mua sản phẩm trong bài:</div>
+                            <div class="news-linked-list">
+                                <a th:each="p : ${news.linkedProducts}"
+                                   th:href="@{/san-pham/{id}(id=${p.id})}"
+                                   class="news-linked-item">
+                                    <img th:src="@{${p.image}}" th:alt="${p.name}" class="news-linked-thumb">
+                                    <div class="news-linked-info">
+                                        <div class="news-linked-name" th:text="${p.name}">Tên sản phẩm</div>
+                                        <div class="news-linked-price" th:text="${p.formattedPrice}">350.000₫</div>
+                                    </div>
+                                    <span style="font-size: 13px; color: #f76c85; font-weight: bold; margin-left: 6px;">Xem &rarr;</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <a th:href="@{/san-pham}" class="news-btn">
+                            Xem chi tiết bài viết
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- BOOKING APPOINTMENT MODAL -->
+        <div class="ob-modal-overlay" id="bookingModal">
+            <div class="ob-modal-content">
+                <button type="button" class="ob-modal-close" onclick="closeBookingModal()">&times;</button>
+                <div style="font-size: 1.25rem; font-weight: 800; color: #f76c85; margin-bottom: 6px;">
+                    📅 Đặt Hẹn Tư Vấn &amp; Soi Da Miễn Phí
+                </div>
+                <p style="font-size: 0.88rem; color: #666; margin-bottom: 20px;">
+                    Điền thông tin bên dưới để PinkyCloud chuẩn bị sẵn quà tặng check-in và chuyên viên đồng hành cùng bạn.
+                </p>
+
+                <form id="bookingForm" onsubmit="handleBookingSubmit(event)">
+                    <div class="ob-form-group">
+                        <label for="bookingBranch">Chi nhánh trải nghiệm:</label>
+                        <select id="bookingBranch" required>
+                            <option value="Văn phòng chính (Showroom TP. HCM)">Văn phòng chính (Showroom Gò Vấp - TP. HCM)</option>
+                            <option value="Chi nhánh Hà Nội (Showroom Hoàn Kiếm)">Chi nhánh Hà Nội (Showroom Hàng Bài - Hoàn Kiếm)</option>
+                            <option value="Trung tâm CSKH & Tư vấn Trực Tuyến">Tư vấn trực tuyến qua Video/Hotline 1:1</option>
+                        </select>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                        <div class="ob-form-group">
+                            <label for="bookingName">Họ và tên của bạn:</label>
+                            <input type="text" id="bookingName" placeholder="Nguyễn Văn A" required>
+                        </div>
+                        <div class="ob-form-group">
+                            <label for="bookingPhone">Số điện thoại:</label>
+                            <input type="tel" id="bookingPhone" placeholder="0901 234 567" required>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                        <div class="ob-form-group">
+                            <label for="bookingDate">Ngày hẹn:</label>
+                            <input type="date" id="bookingDate" required>
+                        </div>
+                        <div class="ob-form-group">
+                            <label for="bookingTime">Khung giờ:</label>
+                            <select id="bookingTime">
+                                <option value="09:00 - 11:00">09:00 - 11:00</option>
+                                <option value="11:00 - 13:00">11:00 - 13:00</option>
+                                <option value="14:00 - 16:00" selected>14:00 - 16:00</option>
+                                <option value="16:00 - 18:00">16:00 - 18:00</option>
+                                <option value="18:00 - 20:00">18:00 - 20:00</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="ob-form-group">
+                        <label for="bookingNotes">Tình trạng da / Yêu cầu thêm (nếu có):</label>
+                        <textarea id="bookingNotes" rows="2" placeholder="Ví dụ: Da dầu mụn nhạy cảm, muốn tư vấn kem chống nắng và serum..."></textarea>
+                    </div>
+
+                    <button type="submit" class="office-action-btn" style="margin-top: 10px;">
+                        ✨ Xác Nhận Đặt Hẹn Ngay
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- BRAND DIRECTORY MODAL (A-Z) -->
+        <div class="brand-modal-backdrop" id="brandModal">
+            <div class="brand-modal-content">
+                <div class="brand-modal-header">
+                    <div>
+                        <h3 class="brand-modal-title">💎 Danh Bạ Thương Hiệu PinkyCloud</h3>
+                        <p class="brand-modal-sub">Khám phá mỹ phẩm chính hãng từ các nhãn hàng danh tiếng thế giới</p>
+                    </div>
+                    <button type="button" class="booking-modal-close" onclick="closeBrandModal()" aria-label="Đóng">&times;</button>
+                </div>
+                <div class="brand-modal-search-wrap">
+                    <input type="text" id="brandFilterInput" placeholder="Nhập tên thương hiệu cần tìm (Anessa, Cosrx, Vichy, Cetaphil)..." class="brand-modal-search-input">
+                </div>
+                <div class="brand-modal-grid" id="brandModalList">
+                    <a th:each="b : ${brands}"
+                       th:href="@{/san-pham(keyword=${b})}"
+                       class="brand-modal-chip"
+                       th:data-brand="${#strings.toLowerCase(b)}">
+                        <span class="brand-chip-dot"></span>
+                        <span th:text="${b}">Anessa</span>
+                    </a>
+                </div>
+                <div class="brand-modal-footer">
+                    <a th:href="@{/san-pham}" class="brand-modal-all-link">Xem toàn bộ mỹ phẩm trong bộ sưu tập &rarr;</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- FLOATING CUSTOM TOAST NOTIFICATION -->
+        <div class="custom-toast-notification" id="customToast">
+            <span style="font-size: 16px;">✨</span>
+            <span id="customToastMsg">Thông báo</span>
+        </div>
+
+        <!-- CUSTOM INTERACTIVE JAVASCRIPT (INSIDE MAIN SO THYMELEAF INCLUDES IT) -->
+        <script th:inline="javascript">
+            // 1. Toast Notification Helper
+            function showToast(message) {
+                const toast = document.getElementById('customToast');
+                const msgEl = document.getElementById('customToastMsg');
+                if (!toast || !msgEl) return;
+                msgEl.textContent = message;
+                toast.classList.add('show');
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 2500);
+            }
+
+            // 2. Copy Code to Clipboard with feedback
+            function copyCode(code, element) {
+                if (!code) return;
+                navigator.clipboard.writeText(code).then(() => {
+                    const originalText = element.textContent;
+                    element.textContent = 'Đã copy!';
+                    showToast('Đã sao chép mã ưu đãi: ' + code);
+                    setTimeout(() => {
+                        element.textContent = originalText;
+                    }, 1800);
+                }).catch(() => {
+                    showToast('Mã ưu đãi: ' + code);
+                });
+            }
+
+            // 3. Hotdeal Voucher Popup Toggle
+            const hotdealBtn = document.getElementById('hotdealBtn');
+            const voucherPopup = document.getElementById('voucherPopup');
+            if (hotdealBtn && voucherPopup) {
+                hotdealBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    voucherPopup.classList.toggle('show');
+                });
+                document.addEventListener('click', (e) => {
+                    if (!voucherPopup.contains(e.target) && e.target !== hotdealBtn) {
+                        voucherPopup.classList.remove('show');
+                    }
+                });
+            }
+
+            // 4. Continuous Seamless Auto Slider (1-2-3-4-5-6-7-1-2-3...)
+            (function initBannerSlider() {
+                const track = document.getElementById('heroBannerTrack');
+                if (!track) return;
+                const slides = track.querySelectorAll('.hero-slide');
+                const totalSlides = slides.length;
+                if (totalSlides <= 1) return;
+
+                const bannerCount = totalSlides - 1; // 7 original banners
+                let activeSlide = 0;
+                const stepPercent = 100.0 / totalSlides;
+
+                function goToSlide(index, withTransition = true) {
+                    if (withTransition) {
+                        track.style.transition = 'transform 1100ms cubic-bezier(0.22, 0.61, 0.36, 1)';
+                    } else {
+                        track.style.transition = 'none';
+                    }
+                    track.style.transform = 'translate3d(-' + (index * stepPercent) + '%, 0, 0)';
+                }
+
+                track.addEventListener('transitionend', () => {
+                    if (activeSlide >= bannerCount) {
+                        activeSlide = 0;
+                        goToSlide(0, false);
+                    }
+                });
+
+                setInterval(() => {
+                    activeSlide++;
+                    goToSlide(activeSlide, true);
+                }, 4200);
+            })();
+
+            // 5. Flash Deals Countdown Timer
+            (function initFlashTimer() {
+                let totalSeconds = 2 * 3600 + 45 * 60 + 30;
+                const hEl = document.getElementById('timerHours');
+                const mEl = document.getElementById('timerMinutes');
+                const sEl = document.getElementById('timerSeconds');
+                if (!hEl || !mEl || !sEl) return;
+
+                setInterval(() => {
+                    if (totalSeconds <= 0) {
+                        totalSeconds = 3 * 3600;
+                    } else {
+                        totalSeconds--;
+                    }
+                    const h = Math.floor(totalSeconds / 3600);
+                    const m = Math.floor((totalSeconds % 3600) / 60);
+                    const s = totalSeconds % 60;
+
+                    hEl.textContent = String(h).padStart(2, '0');
+                    mEl.textContent = String(m).padStart(2, '0');
+                    sEl.textContent = String(s).padStart(2, '0');
+                }, 1000);
+            })();
+
+            // 6. Booking Modal Handlers
+            const bookingModal = document.getElementById('bookingModal');
+            const bookingBranch = document.getElementById('bookingBranch');
+
+            function openBookingModal(branchName) {
+                if (bookingModal) {
+                    if (branchName && bookingBranch) {
+                        for (let opt of bookingBranch.options) {
+                            if (opt.value.includes(branchName) || branchName.includes(opt.value)) {
+                                bookingBranch.value = opt.value;
+                                break;
+                            }
+                        }
+                    }
+                    // Set default date to tomorrow
+                    const tomorrow = new Date();
+                    tomorrow.setDate(tomorrow.getDate() + 1);
+                    const dateEl = document.getElementById('bookingDate');
+                    if (dateEl) {
+                        dateEl.value = tomorrow.toISOString().split('T')[0];
+                    }
+                    bookingModal.classList.add('show');
+                }
+            }
+
+            function closeBookingModal() {
+                if (bookingModal) {
+                    bookingModal.classList.remove('show');
+                }
+            }
+
+            if (bookingModal) {
+                bookingModal.addEventListener('click', (e) => {
+                    if (e.target === bookingModal) closeBookingModal();
+                });
+            }
+
+            function handleBookingSubmit(e) {
+                e.preventDefault();
+                closeBookingModal();
+                showToast('🎉 Đặt hẹn thành công! PinkyCloud đã ghi nhận lịch hẹn của bạn.');
+                document.getElementById('bookingForm').reset();
+            }
+
+            // 7. Brand Pills Scroll Controls (Prev, Next, Wheel, Drag) & Directory Modal
+            const brandPillsTrack = document.getElementById('brandPillsTrack');
+            const brandPrevBtn = document.getElementById('brandPrevBtn');
+            const brandNextBtn = document.getElementById('brandNextBtn');
+
+            function updateBrandNavButtons() {
+                if (!brandPillsTrack || !brandPrevBtn || !brandNextBtn) return;
+                const maxScroll = brandPillsTrack.scrollWidth - brandPillsTrack.clientWidth;
+                if (maxScroll <= 5) {
+                    brandPrevBtn.style.display = 'none';
+                    brandNextBtn.style.display = 'none';
+                    return;
+                }
+                brandPrevBtn.style.display = 'flex';
+                brandNextBtn.style.display = 'flex';
+                brandPrevBtn.disabled = brandPillsTrack.scrollLeft <= 5;
+                brandNextBtn.disabled = brandPillsTrack.scrollLeft >= maxScroll - 5;
+            }
+
+            if (brandPillsTrack && brandPrevBtn && brandNextBtn) {
+                brandPrevBtn.addEventListener('click', () => {
+                    brandPillsTrack.scrollBy({ left: -320, behavior: 'smooth' });
+                });
+                brandNextBtn.addEventListener('click', () => {
+                    brandPillsTrack.scrollBy({ left: 320, behavior: 'smooth' });
+                });
+                brandPillsTrack.addEventListener('scroll', updateBrandNavButtons, { passive: true });
+                window.addEventListener('resize', updateBrandNavButtons, { passive: true });
+
+                // Mouse wheel scroll horizontally
+                brandPillsTrack.addEventListener('wheel', (e) => {
+                    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+                        e.preventDefault();
+                        brandPillsTrack.scrollLeft += e.deltaY;
+                    }
+                }, { passive: false });
+
+                // Drag-to-scroll interaction
+                let isBrandDown = false;
+                let brandStartX, brandScrollLeft;
+
+                brandPillsTrack.addEventListener('mousedown', (e) => {
+                    isBrandDown = true;
+                    brandPillsTrack.classList.add('is-dragging');
+                    brandStartX = e.pageX - brandPillsTrack.offsetLeft;
+                    brandScrollLeft = brandPillsTrack.scrollLeft;
+                });
+                brandPillsTrack.addEventListener('mouseleave', () => {
+                    isBrandDown = false;
+                    brandPillsTrack.classList.remove('is-dragging');
+                });
+                brandPillsTrack.addEventListener('mouseup', () => {
+                    isBrandDown = false;
+                    brandPillsTrack.classList.remove('is-dragging');
+                });
+                brandPillsTrack.addEventListener('mousemove', (e) => {
+                    if (!isBrandDown) return;
+                    e.preventDefault();
+                    const x = e.pageX - brandPillsTrack.offsetLeft;
+                    const walk = (x - brandStartX) * 1.5;
+                    brandPillsTrack.scrollLeft = brandScrollLeft - walk;
+                });
+
+                setTimeout(updateBrandNavButtons, 200);
+            }
+
+            // Brand Directory Modal Handlers
+            const brandModal = document.getElementById('brandModal');
+            const brandFilterInput = document.getElementById('brandFilterInput');
+            const brandModalList = document.getElementById('brandModalList');
+
+            function openBrandModal() {
+                if (brandModal) {
+                    brandModal.classList.add('show');
+                    if (brandFilterInput) {
+                        brandFilterInput.value = '';
+                        filterBrandChips('');
+                        setTimeout(() => brandFilterInput.focus(), 150);
+                    }
+                }
+            }
+
+            function closeBrandModal() {
+                if (brandModal) {
+                    brandModal.classList.remove('show');
+                }
+            }
+
+            function filterBrandChips(q) {
+                if (!brandModalList) return;
+                const query = q.trim().toLowerCase();
+                const chips = brandModalList.querySelectorAll('.brand-modal-chip');
+                chips.forEach(chip => {
+                    const name = chip.getAttribute('data-brand') || chip.textContent.toLowerCase();
+                    if (!query || name.includes(query)) {
+                        chip.style.display = 'inline-flex';
+                    } else {
+                        chip.style.display = 'none';
+                    }
+                });
+            }
+
+            if (brandFilterInput) {
+                brandFilterInput.addEventListener('input', (e) => {
+                    filterBrandChips(e.target.value);
+                });
+            }
+
+            if (brandModal) {
+                brandModal.addEventListener('click', (e) => {
+                    if (e.target === brandModal) closeBrandModal();
+                });
+            }
+        </script>
+    </main>
+</body>
+</html>
