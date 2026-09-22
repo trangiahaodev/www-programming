@@ -1,0 +1,100 @@
+package iuh.wwwprogramming.repository;
+
+import iuh.wwwprogramming.entity.Product;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.util.List;
+import java.util.Optional;
+
+public interface ProductRepository extends JpaRepository<Product, String> {
+
+    @Query(
+        value = """
+            SELECT p FROM Product p
+            JOIN FETCH p.category c
+            WHERE p.active = true
+              AND (:keyword IS NULL OR :keyword = ''
+                   OR LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                   OR LOWER(p.brand) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                   OR LOWER(p.productCode) LIKE LOWER(CONCAT('%', :keyword, '%')))
+              AND (:categoryId IS NULL OR :categoryId = '' OR :categoryId = 'all' 
+                   OR c.id = :categoryId OR c.categoryCode = :categoryId OR LOWER(c.name) = LOWER(:categoryId))
+        """,
+        countQuery = """
+            SELECT COUNT(p) FROM Product p
+            JOIN p.category c
+            WHERE p.active = true
+              AND (:keyword IS NULL OR :keyword = ''
+                   OR LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                   OR LOWER(p.brand) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                   OR LOWER(p.productCode) LIKE LOWER(CONCAT('%', :keyword, '%')))
+              AND (:categoryId IS NULL OR :categoryId = '' OR :categoryId = 'all' 
+                   OR c.id = :categoryId OR c.categoryCode = :categoryId OR LOWER(c.name) = LOWER(:categoryId))
+        """
+    )
+    Page<Product> searchProducts(
+        @Param("keyword") String keyword,
+        @Param("categoryId") String categoryId,
+        Pageable pageable
+    );
+
+    @Query("SELECT p FROM Product p JOIN FETCH p.category WHERE p.id = :id AND p.active = true")
+    Optional<Product> findByIdWithCategory(@Param("id") String id);
+
+    @Query("SELECT p FROM Product p JOIN FETCH p.category WHERE p.productCode = :productCode AND p.active = true")
+    Optional<Product> findByProductCodeWithCategory(@Param("productCode") String productCode);
+
+    @Query(
+        value = """
+            SELECT p FROM Product p
+            JOIN FETCH p.category c
+            WHERE p.active = true
+              AND c.id = :categoryId
+              AND p.id <> :excludeProductId
+        """
+    )
+    List<Product> findRelatedProducts(
+        @Param("categoryId") String categoryId,
+        @Param("excludeProductId") String excludeProductId,
+        Pageable pageable
+    );
+
+    @Query(
+        value = """
+            SELECT p FROM Product p
+            JOIN FETCH p.category c
+            WHERE p.active = true AND (p.isHot = true OR p.discount >= 15)
+        """
+    )
+    List<Product> findHotProducts(Pageable pageable);
+
+    @Query(
+        value = """
+            SELECT p FROM Product p
+            JOIN FETCH p.category c
+            WHERE p.active = true AND p.isNew = true
+        """
+    )
+    List<Product> findNewProducts(Pageable pageable);
+
+    @Query(
+        value = """
+            SELECT p FROM Product p
+            JOIN FETCH p.category c
+            WHERE p.active = true
+              AND p.brand IN ('Anessa', 'Vichy', 'MartiDerm', 'L''Oreal Paris', 'La Roche-Posay', 'Skin1004', 'Cosrx', 'Torriden', 'CeraVe', '3CE', 'Maybelline')
+        """
+    )
+    List<Product> findFeaturedBrandProducts(Pageable pageable);
+
+    @Query("SELECT DISTINCT p.brand FROM Product p WHERE p.active = true ORDER BY p.brand ASC")
+    List<String> findDistinctBrands();
+
+    boolean existsByProductCode(String productCode);
+
+    boolean existsByName(String name);
+}

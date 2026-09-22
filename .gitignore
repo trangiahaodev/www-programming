@@ -32,5 +32,13 @@ build/
 ### VS Code ###
 .vscode/
 
-AGENTS.md
+### Agents ###
+agents/
 .agents/
+AGENTS.md
+agents.rar
+*.rar
+
+### Python Helper Scripts & Logs ###
+*.py
+*.log
