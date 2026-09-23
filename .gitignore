@@ -34,3 +34,4 @@ build/
 
 AGENTS.md
 .agents/
+.planning/
