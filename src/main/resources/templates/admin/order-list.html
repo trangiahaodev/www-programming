@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/admin-layout :: layout(~{::main})}"
+      lang="vi">
+<head>
+    <title>Quản lý đơn hàng - Cosmetic Admin</title>
+</head>
+<body>
+
+<main class="page-container">
+    <!-- Header Area -->
+    <header class="page-header">
+        <div>
+            <nav class="breadcrumb" aria-label="Breadcrumb">
+                <a th:href="@{/admin}">Trang chủ</a>
+                <span>/</span>
+                <span>Quản lý bán hàng</span>
+                <span>/</span>
+                <span style="color: var(--slate-800); font-weight: 500;">Đơn hàng</span>
+            </nav>
+            <div style="display: flex; align-items: center; gap: 12px; margin-top: 4px;">
+                <h1 class="page-title" style="margin: 0;">Quản lý đơn hàng</h1>
+                <span class="badge" style="background-color: var(--primary-light); color: var(--primary); border: 1px solid var(--primary-border); font-size: 13px; padding: 4px 12px; border-radius: 20px; font-weight: 600;">
+                    Tổng cộng: <span th:text="${totalElements}">0</span> đơn hàng
+                </span>
+            </div>
+            <p class="page-subtitle">Theo dõi, kiểm tra và xử lý các đơn hàng đặt trực tuyến trong hệ thống</p>
+        </div>
+    </header>
+
+    <!-- Flash Messages & Alerts -->
+    <div th:if="${successMessage}" class="alert alert-success" role="alert">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            </svg>
+            <span th:text="${successMessage}">Thao tác thành công!</span>
+        </div>
+    </div>
+
+    <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+            </svg>
+            <span th:text="${errorMessage}">Đã xảy ra lỗi!</span>
+        </div>
+    </div>
+
+    <!-- Main Content Card -->
+    <div class="card">
+        <!-- Multi-criteria Filter Toolbar -->
+        <div class="toolbar">
+            <form th:action="@{/admin/orders}" method="get" class="filter-grid">
+                <input type="hidden" name="size" th:value="${size}">
+
+                <!-- Search Input -->
+                <div class="search-input-wrapper" style="min-width: 260px; flex: 1.5;">
+                    <svg class="search-icon" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <input type="text"
+                           name="keyword"
+                           th:value="${filter != null ? filter.keyword : ''}"
+                           class="search-input"
+                           placeholder="Tìm theo mã đơn, tên hoặc số điện thoại..."
+                           aria-label="Tìm kiếm đơn hàng">
+                </div>
+
+                <!-- Status Filter -->
+                <div class="filter-item">
+                    <select name="status" class="filter-select" aria-label="Lọc theo trạng thái">
+                        <option value="">Tất cả trạng thái</option>
+                        <option th:each="st : ${orderStatuses}"
+                                th:value="${st}"
+                                th:text="${st.displayName}"
+                                th:selected="${filter != null && filter.status == st}">
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Date Range -->
+                <div class="filter-item">
+                    <input type="date"
+                           name="fromDate"
+                           th:value="${filter != null && filter.fromDate != null ? filter.fromDate : ''}"
+                           class="filter-date"
+                           title="Từ ngày"
+                           aria-label="Từ ngày">
+                    <span style="color: var(--slate-400);">&ndash;</span>
+                    <input type="date"
+                           name="toDate"
+                           th:value="${filter != null && filter.toDate != null ? filter.toDate : ''}"
+                           class="filter-date"
+                           title="Đến ngày"
+                           aria-label="Đến ngày">
+                </div>
+
+                <!-- Filter Actions -->
+                <div class="filter-item" style="gap: 8px;">
+                    <button type="submit" class="btn btn-primary" style="padding: 8px 16px;">
+                        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                        </svg>
+                        Lọc
+                    </button>
+                    <a th:href="@{/admin/orders}" class="btn btn-secondary" style="padding: 8px 14px; text-decoration: none;">Đặt lại</a>
+                </div>
+
+                <!-- Page Size Selector -->
+                <div class="page-size-selector" style="margin-left: auto;">
+                    <label for="pageSizeSelect">Hiển thị:</label>
+                    <select id="pageSizeSelect" onchange="location.href=this.value;">
+                        <option th:value="@{/admin/orders(keyword=${filter != null ? filter.keyword : ''}, status=${filter != null ? filter.status : ''}, fromDate=${filter != null ? filter.fromDate : ''}, toDate=${filter != null ? filter.toDate : ''}, size=10, page=0)}"
+                                th:selected="${size == 10}">10</option>
+                        <option th:value="@{/admin/orders(keyword=${filter != null ? filter.keyword : ''}, status=${filter != null ? filter.status : ''}, fromDate=${filter != null ? filter.fromDate : ''}, toDate=${filter != null ? filter.toDate : ''}, size=20, page=0)}"
+                                th:selected="${size == 20}">20</option>
+                        <option th:value="@{/admin/orders(keyword=${filter != null ? filter.keyword : ''}, status=${filter != null ? filter.status : ''}, fromDate=${filter != null ? filter.fromDate : ''}, toDate=${filter != null ? filter.toDate : ''}, size=50, page=0)}"
+                                th:selected="${size == 50}">50</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+
+        <!-- Orders Data Table -->
+        <div class="table-responsive">
+            <table>
+                <thead>
+                <tr>
+                    <th style="width: 140px;">Mã đơn hàng</th>
+                    <th style="min-width: 180px;">Khách hàng</th>
+                    <th style="width: 160px;">Ngày đặt hàng</th>
+                    <th style="width: 150px;">Trạng thái</th>
+                    <th style="width: 110px; text-align: center;">Số lượng</th>
+                    <th style="width: 150px; text-align: right;">Tổng tiền</th>
+                    <th style="width: 100px; text-align: center;">Thao tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                <!-- Rows -->
+                <tr th:each="order : ${orders}">
+                    <td>
+                        <a th:href="@{/admin/orders/{id}(id=${order.id})}"
+                           class="order-code-link"
+                           th:text="${order.orderCode}"
+                           title="Xem chi tiết đơn hàng">ORD26000001</a>
+                    </td>
+                    <td>
+                        <div class="customer-cell">
+                            <span class="customer-name" th:text="${order.customerName}">Nguyễn Thị Lan</span>
+                            <span class="customer-phone" th:text="${order.customerPhone}">0987654321</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="date-cell" th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy HH:mm')}">24/09/2026 10:30</span>
+                    </td>
+                    <td>
+                        <span class="status-badge"
+                              th:classappend="${order.status != null ? (order.status.name() == 'PENDING' ? 'status-pending' : (order.status.name() == 'PROCESSING' ? 'status-processing' : (order.status.name() == 'SHIPPED' ? 'status-shipped' : (order.status.name() == 'DELIVERED' ? 'status-delivered' : 'status-cancelled')))) : 'status-inactive'}">
+                            <span class="dot"></span>
+                            <span th:text="${order.statusDisplay}">Chờ xác nhận</span>
+                        </span>
+                    </td>
+                    <td style="text-align: center;">
+                        <span class="count-badge" th:text="${order.totalItems + ' sp'}">3 sp</span>
+                    </td>
+                    <td class="amount-cell" th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'POINT', 0, 'COMMA') + ' ₫'}">
+                        850.000 ₫
+                    </td>
+                    <td style="text-align: center;">
+                        <a th:href="@{/admin/orders/{id}(id=${order.id})}"
+                           class="btn-view-detail"
+                           th:attr="aria-label='Xem chi tiết đơn hàng ' + ${order.orderCode}"
+                           title="Xem chi tiết">
+                            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                        </a>
+                    </td>
+                </tr>
+
+                <!-- Empty State -->
+                <tr th:if="${#lists.isEmpty(orders)}">
+                    <td colspan="7">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                                </svg>
+                            </div>
+                            <h3 class="empty-state-title">Chưa có đơn hàng nào phù hợp</h3>
+                            <p class="empty-state-text">
+                                Không tìm thấy đơn hàng nào khớp với điều kiện tìm kiếm hoặc lọc hiện tại.
+                            </p>
+                            <div>
+                                <a th:href="@{/admin/orders}" class="btn btn-secondary">
+                                    Xóa tất cả bộ lọc
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Footer & Pagination -->
+        <div class="pagination-wrapper" th:if="${totalPages > 0}">
+            <div class="pagination-info">
+                Hiển thị <span th:text="${orders.size()}">0</span> trên tổng số <strong th:text="${totalElements}">0</strong> đơn hàng
+            </div>
+            <div class="pagination-controls" th:if="${totalPages > 1}">
+                <!-- First & Prev -->
+                <a th:href="@{/admin/orders(page=0, size=${size}, keyword=${filter != null ? filter.keyword : ''}, status=${filter != null ? filter.status : ''}, fromDate=${filter != null ? filter.fromDate : ''}, toDate=${filter != null ? filter.toDate : ''})}"
+                   class="page-btn"
+                   th:classappend="${currentPage == 0} ? 'disabled' : ''"
+                   title="Trang đầu">&laquo;</a>
+                <a th:href="@{/admin/orders(page=${currentPage - 1}, size=${size}, keyword=${filter != null ? filter.keyword : ''}, status=${filter != null ? filter.status : ''}, fromDate=${filter != null ? filter.fromDate : ''}, toDate=${filter != null ? filter.toDate : ''})}"
+                   class="page-btn"
+                   th:classappend="${currentPage == 0} ? 'disabled' : ''"
+                   title="Trang trước">&lsaquo;</a>
+
+                <!-- Page numbers -->
+                <th:block th:each="p : ${#numbers.sequence(0, totalPages - 1)}">
+                    <a th:if="${p >= currentPage - 2 && p <= currentPage + 2}"
+                       th:href="@{/admin/orders(page=${p}, size=${size}, keyword=${filter != null ? filter.keyword : ''}, status=${filter != null ? filter.status : ''}, fromDate=${filter != null ? filter.fromDate : ''}, toDate=${filter != null ? filter.toDate : ''})}"
+                       class="page-btn"
+                       th:classappend="${p == currentPage} ? 'active' : ''"
+                       th:text="${p + 1}">1</a>
+                </th:block>
+
+                <!-- Next & Last -->
+                <a th:href="@{/admin/orders(page=${currentPage + 1}, size=${size}, keyword=${filter != null ? filter.keyword : ''}, status=${filter != null ? filter.status : ''}, fromDate=${filter != null ? filter.fromDate : ''}, toDate=${filter != null ? filter.toDate : ''})}"
+                   class="page-btn"
+                   th:classappend="${currentPage >= totalPages - 1} ? 'disabled' : ''"
+                   title="Trang sau">&rsaquo;</a>
+                <a th:href="@{/admin/orders(page=${totalPages - 1}, size=${size}, keyword=${filter != null ? filter.keyword : ''}, status=${filter != null ? filter.status : ''}, fromDate=${filter != null ? filter.fromDate : ''}, toDate=${filter != null ? filter.toDate : ''})}"
+                   class="page-btn"
+                   th:classappend="${currentPage >= totalPages - 1} ? 'disabled' : ''"
+                   title="Trang cuối">&raquo;</a>
+            </div>
+        </div>
+    </div>
+</main>
+
+</body>
+</html>
