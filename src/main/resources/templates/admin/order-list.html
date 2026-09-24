@@ -52,7 +52,6 @@
         <!-- Multi-criteria Filter Toolbar -->
         <div class="toolbar">
             <form th:action="@{/admin/orders}" method="get" class="filter-grid" th:object="${filter}">
-                <input type="hidden" name="size" th:value="${size}">
                 <input type="hidden" name="page" value="0">
 
                 <!-- Search Input -->
@@ -84,15 +83,21 @@
                            th:field="*{fromDate}"
                            class="filter-date"
                            placeholder="dd/MM/yyyy"
+                           inputmode="numeric"
+                           autocomplete="off"
                            title="Từ ngày"
-                           aria-label="Từ ngày">
+                           aria-label="Từ ngày"
+                           data-datepicker="fromDate">
                     <span class="date-separator">&ndash;</span>
                     <input type="text"
                            th:field="*{toDate}"
                            class="filter-date"
                            placeholder="dd/MM/yyyy"
+                           inputmode="numeric"
+                           autocomplete="off"
                            title="Đến ngày"
-                           aria-label="Đến ngày">
+                           aria-label="Đến ngày"
+                           data-datepicker="toDate">
                 </div>
                 <div class="order-filter-error"
                      th:if="${#fields.hasErrors('fromDate') || #fields.hasErrors('toDate') || #fields.hasGlobalErrors()}">
@@ -115,13 +120,13 @@
                 <!-- Page Size Selector -->
                 <div class="page-size-selector order-page-size-selector">
                     <label for="pageSizeSelect">Hiển thị:</label>
-                    <select id="pageSizeSelect" onchange="location.href=this.value;">
-                        <option th:value="@{/admin/orders(keyword=${filter != null ? filter.keyword : ''}, status=${filter != null ? filter.status : ''}, fromDate=${filter != null && filter.fromDate != null ? #temporals.format(filter.fromDate, 'dd/MM/yyyy') : ''}, toDate=${filter != null && filter.toDate != null ? #temporals.format(filter.toDate, 'dd/MM/yyyy') : ''}, size=10, page=0)}"
-                                th:selected="${size == 10}">10</option>
-                        <option th:value="@{/admin/orders(keyword=${filter != null ? filter.keyword : ''}, status=${filter != null ? filter.status : ''}, fromDate=${filter != null && filter.fromDate != null ? #temporals.format(filter.fromDate, 'dd/MM/yyyy') : ''}, toDate=${filter != null && filter.toDate != null ? #temporals.format(filter.toDate, 'dd/MM/yyyy') : ''}, size=20, page=0)}"
-                                th:selected="${size == 20}">20</option>
-                        <option th:value="@{/admin/orders(keyword=${filter != null ? filter.keyword : ''}, status=${filter != null ? filter.status : ''}, fromDate=${filter != null && filter.fromDate != null ? #temporals.format(filter.fromDate, 'dd/MM/yyyy') : ''}, toDate=${filter != null && filter.toDate != null ? #temporals.format(filter.toDate, 'dd/MM/yyyy') : ''}, size=50, page=0)}"
-                                th:selected="${size == 50}">50</option>
+                    <select id="pageSizeSelect"
+                            th:field="*{size}"
+                            class="filter-select"
+                            onchange="this.form.submit();">
+                        <option th:value="10">10</option>
+                        <option th:value="20">20</option>
+                        <option th:value="50">50</option>
                     </select>
                 </div>
             </form>
