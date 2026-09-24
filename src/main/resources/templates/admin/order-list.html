@@ -16,11 +16,11 @@
                 <span>/</span>
                 <span>Quản lý bán hàng</span>
                 <span>/</span>
-                <span style="color: var(--slate-800); font-weight: 500;">Đơn hàng</span>
+                <span class="breadcrumb-current">Đơn hàng</span>
             </nav>
-            <div style="display: flex; align-items: center; gap: 12px; margin-top: 4px;">
-                <h1 class="page-title" style="margin: 0;">Quản lý đơn hàng</h1>
-                <span class="badge" style="background-color: var(--primary-light); color: var(--primary); border: 1px solid var(--primary-border); font-size: 13px; padding: 4px 12px; border-radius: 20px; font-weight: 600;">
+            <div class="order-title-row">
+                <h1 class="page-title page-title-no-margin">Quản lý đơn hàng</h1>
+                <span class="badge order-total-badge">
                     Tổng cộng: <span th:text="${totalElements}">0</span> đơn hàng
                 </span>
             </div>
@@ -51,17 +51,17 @@
     <div class="card">
         <!-- Multi-criteria Filter Toolbar -->
         <div class="toolbar">
-            <form th:action="@{/admin/orders}" method="get" class="filter-grid">
+            <form th:action="@{/admin/orders}" method="get" class="filter-grid" th:object="${filter}">
                 <input type="hidden" name="size" th:value="${size}">
+                <input type="hidden" name="page" value="0">
 
                 <!-- Search Input -->
-                <div class="search-input-wrapper" style="min-width: 260px; flex: 1.5;">
+                <div class="search-input-wrapper order-search-input-wrapper">
                     <svg class="search-icon" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                     <input type="text"
-                           name="keyword"
-                           th:value="${filter != null ? filter.keyword : ''}"
+                           th:field="*{keyword}"
                            class="search-input"
                            placeholder="Tìm theo mã đơn, tên hoặc số điện thoại..."
                            aria-label="Tìm kiếm đơn hàng">
@@ -69,53 +69,58 @@
 
                 <!-- Status Filter -->
                 <div class="filter-item">
-                    <select name="status" class="filter-select" aria-label="Lọc theo trạng thái">
+                    <select th:field="*{status}" class="filter-select" aria-label="Lọc theo trạng thái">
                         <option value="">Tất cả trạng thái</option>
                         <option th:each="st : ${orderStatuses}"
                                 th:value="${st}"
-                                th:text="${st.displayName}"
-                                th:selected="${filter != null && filter.status == st}">
+                                th:text="${st.displayName}">
                         </option>
                     </select>
                 </div>
 
                 <!-- Date Range -->
-                <div class="filter-item">
-                    <input type="date"
-                           name="fromDate"
-                           th:value="${filter != null && filter.fromDate != null ? filter.fromDate : ''}"
+                <div class="filter-item order-date-range">
+                    <input type="text"
+                           th:field="*{fromDate}"
                            class="filter-date"
+                           placeholder="dd/MM/yyyy"
                            title="Từ ngày"
                            aria-label="Từ ngày">
-                    <span style="color: var(--slate-400);">&ndash;</span>
-                    <input type="date"
-                           name="toDate"
-                           th:value="${filter != null && filter.toDate != null ? filter.toDate : ''}"
+                    <span class="date-separator">&ndash;</span>
+                    <input type="text"
+                           th:field="*{toDate}"
                            class="filter-date"
+                           placeholder="dd/MM/yyyy"
                            title="Đến ngày"
                            aria-label="Đến ngày">
                 </div>
+                <div class="order-filter-error"
+                     th:if="${#fields.hasErrors('fromDate') || #fields.hasErrors('toDate') || #fields.hasGlobalErrors()}">
+                    <span th:if="${#fields.hasErrors('fromDate')}" th:errors="*{fromDate}"></span>
+                    <span th:if="${#fields.hasErrors('toDate')}" th:errors="*{toDate}"></span>
+                    <span th:if="${#fields.hasGlobalErrors()}" th:text="${#fields.globalErrors()[0].defaultMessage}"></span>
+                </div>
 
                 <!-- Filter Actions -->
-                <div class="filter-item" style="gap: 8px;">
-                    <button type="submit" class="btn btn-primary" style="padding: 8px 16px;">
+                <div class="filter-item order-filter-actions">
+                    <button type="submit" class="btn btn-primary order-filter-btn">
                         <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                         </svg>
                         Lọc
                     </button>
-                    <a th:href="@{/admin/orders}" class="btn btn-secondary" style="padding: 8px 14px; text-decoration: none;">Đặt lại</a>
+                    <a th:href="@{/admin/orders}" class="btn btn-secondary order-reset-btn">Đặt lại bộ lọc</a>
                 </div>
 
                 <!-- Page Size Selector -->
-                <div class="page-size-selector" style="margin-left: auto;">
+                <div class="page-size-selector order-page-size-selector">
                     <label for="pageSizeSelect">Hiển thị:</label>
                     <select id="pageSizeSelect" onchange="location.href=this.value;">
-                        <option th:value="@{/admin/orders(keyword=${filter != null ? filter.keyword : ''}, status=${filter != null ? filter.status : ''}, fromDate=${filter != null ? filter.fromDate : ''}, toDate=${filter != null ? filter.toDate : ''}, size=10, page=0)}"
+                        <option th:value="@{/admin/orders(keyword=${filter != null ? filter.keyword : ''}, status=${filter != null ? filter.status : ''}, fromDate=${filter != null && filter.fromDate != null ? #temporals.format(filter.fromDate, 'dd/MM/yyyy') : ''}, toDate=${filter != null && filter.toDate != null ? #temporals.format(filter.toDate, 'dd/MM/yyyy') : ''}, size=10, page=0)}"
                                 th:selected="${size == 10}">10</option>
-                        <option th:value="@{/admin/orders(keyword=${filter != null ? filter.keyword : ''}, status=${filter != null ? filter.status : ''}, fromDate=${filter != null ? filter.fromDate : ''}, toDate=${filter != null ? filter.toDate : ''}, size=20, page=0)}"
+                        <option th:value="@{/admin/orders(keyword=${filter != null ? filter.keyword : ''}, status=${filter != null ? filter.status : ''}, fromDate=${filter != null && filter.fromDate != null ? #temporals.format(filter.fromDate, 'dd/MM/yyyy') : ''}, toDate=${filter != null && filter.toDate != null ? #temporals.format(filter.toDate, 'dd/MM/yyyy') : ''}, size=20, page=0)}"
                                 th:selected="${size == 20}">20</option>
-                        <option th:value="@{/admin/orders(keyword=${filter != null ? filter.keyword : ''}, status=${filter != null ? filter.status : ''}, fromDate=${filter != null ? filter.fromDate : ''}, toDate=${filter != null ? filter.toDate : ''}, size=50, page=0)}"
+                        <option th:value="@{/admin/orders(keyword=${filter != null ? filter.keyword : ''}, status=${filter != null ? filter.status : ''}, fromDate=${filter != null && filter.fromDate != null ? #temporals.format(filter.fromDate, 'dd/MM/yyyy') : ''}, toDate=${filter != null && filter.toDate != null ? #temporals.format(filter.toDate, 'dd/MM/yyyy') : ''}, size=50, page=0)}"
                                 th:selected="${size == 50}">50</option>
                     </select>
                 </div>
@@ -212,11 +217,11 @@
             </div>
             <div class="pagination-controls" th:if="${totalPages > 1}">
                 <!-- First & Prev -->
-                <a th:href="@{/admin/orders(page=0, size=${size}, keyword=${filter != null ? filter.keyword : ''}, status=${filter != null ? filter.status : ''}, fromDate=${filter != null ? filter.fromDate : ''}, toDate=${filter != null ? filter.toDate : ''})}"
+                <a th:href="@{/admin/orders(page=0, size=${size}, keyword=${filter != null ? filter.keyword : ''}, status=${filter != null ? filter.status : ''}, fromDate=${filter != null && filter.fromDate != null ? #temporals.format(filter.fromDate, 'dd/MM/yyyy') : ''}, toDate=${filter != null && filter.toDate != null ? #temporals.format(filter.toDate, 'dd/MM/yyyy') : ''})}"
                    class="page-btn"
                    th:classappend="${currentPage == 0} ? 'disabled' : ''"
                    title="Trang đầu">&laquo;</a>
-                <a th:href="@{/admin/orders(page=${currentPage - 1}, size=${size}, keyword=${filter != null ? filter.keyword : ''}, status=${filter != null ? filter.status : ''}, fromDate=${filter != null ? filter.fromDate : ''}, toDate=${filter != null ? filter.toDate : ''})}"
+                <a th:href="@{/admin/orders(page=${currentPage - 1}, size=${size}, keyword=${filter != null ? filter.keyword : ''}, status=${filter != null ? filter.status : ''}, fromDate=${filter != null && filter.fromDate != null ? #temporals.format(filter.fromDate, 'dd/MM/yyyy') : ''}, toDate=${filter != null && filter.toDate != null ? #temporals.format(filter.toDate, 'dd/MM/yyyy') : ''})}"
                    class="page-btn"
                    th:classappend="${currentPage == 0} ? 'disabled' : ''"
                    title="Trang trước">&lsaquo;</a>
@@ -224,18 +229,18 @@
                 <!-- Page numbers -->
                 <th:block th:each="p : ${#numbers.sequence(0, totalPages - 1)}">
                     <a th:if="${p >= currentPage - 2 && p <= currentPage + 2}"
-                       th:href="@{/admin/orders(page=${p}, size=${size}, keyword=${filter != null ? filter.keyword : ''}, status=${filter != null ? filter.status : ''}, fromDate=${filter != null ? filter.fromDate : ''}, toDate=${filter != null ? filter.toDate : ''})}"
+                       th:href="@{/admin/orders(page=${p}, size=${size}, keyword=${filter != null ? filter.keyword : ''}, status=${filter != null ? filter.status : ''}, fromDate=${filter != null && filter.fromDate != null ? #temporals.format(filter.fromDate, 'dd/MM/yyyy') : ''}, toDate=${filter != null && filter.toDate != null ? #temporals.format(filter.toDate, 'dd/MM/yyyy') : ''})}"
                        class="page-btn"
                        th:classappend="${p == currentPage} ? 'active' : ''"
                        th:text="${p + 1}">1</a>
                 </th:block>
 
                 <!-- Next & Last -->
-                <a th:href="@{/admin/orders(page=${currentPage + 1}, size=${size}, keyword=${filter != null ? filter.keyword : ''}, status=${filter != null ? filter.status : ''}, fromDate=${filter != null ? filter.fromDate : ''}, toDate=${filter != null ? filter.toDate : ''})}"
+                <a th:href="@{/admin/orders(page=${currentPage + 1}, size=${size}, keyword=${filter != null ? filter.keyword : ''}, status=${filter != null ? filter.status : ''}, fromDate=${filter != null && filter.fromDate != null ? #temporals.format(filter.fromDate, 'dd/MM/yyyy') : ''}, toDate=${filter != null && filter.toDate != null ? #temporals.format(filter.toDate, 'dd/MM/yyyy') : ''})}"
                    class="page-btn"
                    th:classappend="${currentPage >= totalPages - 1} ? 'disabled' : ''"
                    title="Trang sau">&rsaquo;</a>
-                <a th:href="@{/admin/orders(page=${totalPages - 1}, size=${size}, keyword=${filter != null ? filter.keyword : ''}, status=${filter != null ? filter.status : ''}, fromDate=${filter != null ? filter.fromDate : ''}, toDate=${filter != null ? filter.toDate : ''})}"
+                <a th:href="@{/admin/orders(page=${totalPages - 1}, size=${size}, keyword=${filter != null ? filter.keyword : ''}, status=${filter != null ? filter.status : ''}, fromDate=${filter != null && filter.fromDate != null ? #temporals.format(filter.fromDate, 'dd/MM/yyyy') : ''}, toDate=${filter != null && filter.toDate != null ? #temporals.format(filter.toDate, 'dd/MM/yyyy') : ''})}"
                    class="page-btn"
                    th:classappend="${currentPage >= totalPages - 1} ? 'disabled' : ''"
                    title="Trang cuối">&raquo;</a>

@@ -17,12 +17,20 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 @Controller
 @RequestMapping("/admin/orders")
 @RequiredArgsConstructor
 public class AdminOrderController {
+
+    private static final List<Integer> ALLOWED_PAGE_SIZES = List.of(10, 20, 50);
+    private static final Sort DEFAULT_SORT = Sort.by(
+            Sort.Order.desc("createdAt"),
+            Sort.Order.desc("id")
+    );
 
     private final OrderService orderService;
 
@@ -33,11 +41,21 @@ public class AdminOrderController {
             Model model) {
 
         int pageNumber = Math.max(0, filterDTO.getPage());
-        int pageSize = (filterDTO.getSize() <= 0 || filterDTO.getSize() > 100) ? 10 : filterDTO.getSize();
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
+        int pageSize = ALLOWED_PAGE_SIZES.contains(filterDTO.getSize()) ? filterDTO.getSize() : 10;
+        filterDTO.setPage(pageNumber);
+        filterDTO.setSize(pageSize);
 
-        model.addAttribute("orderStatuses", OrderStatus.values());
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, DEFAULT_SORT);
+
+        model.addAttribute("orderStatuses", Arrays.stream(OrderStatus.values()).toList());
         model.addAttribute("size", pageSize);
+
+        if (!bindingResult.hasFieldErrors("fromDate")
+                && !bindingResult.hasFieldErrors("toDate")
+                && filterDTO.isDateRangeInvalid()) {
+            bindingResult.reject("dateRange.invalid",
+                    "Khoảng thời gian không hợp lệ: Ngày bắt đầu phải nhỏ hơn hoặc bằng ngày kết thúc.");
+        }
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("orders", Collections.emptyList());
@@ -49,6 +67,11 @@ public class AdminOrderController {
 
         try {
             Page<OrderResponseDTO> orderPage = orderService.getOrders(filterDTO, pageable);
+            if (orderPage.getTotalPages() > 0 && pageNumber >= orderPage.getTotalPages()) {
+                pageable = PageRequest.of(orderPage.getTotalPages() - 1, pageSize, DEFAULT_SORT);
+                filterDTO.setPage(orderPage.getTotalPages() - 1);
+                orderPage = orderService.getOrders(filterDTO, pageable);
+            }
             model.addAttribute("orders", orderPage.getContent());
             model.addAttribute("currentPage", orderPage.getNumber());
             model.addAttribute("totalPages", orderPage.getTotalPages());
