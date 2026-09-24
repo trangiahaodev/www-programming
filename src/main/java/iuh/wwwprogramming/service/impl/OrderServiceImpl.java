@@ -23,6 +23,11 @@ import java.time.LocalTime;
 @Transactional(readOnly = true)
 public class OrderServiceImpl implements OrderService {
 
+    private static final Sort DEFAULT_SORT = Sort.by(
+            Sort.Order.desc("createdAt"),
+            Sort.Order.desc("id")
+    );
+
     private final OrderRepository orderRepository;
 
     @Override
@@ -52,7 +57,7 @@ public class OrderServiceImpl implements OrderService {
                 : PageRequest.of(
                         pageable != null ? pageable.getPageNumber() : 0,
                         pageable != null ? pageable.getPageSize() : 10,
-                        Sort.by(Sort.Direction.DESC, "createdAt")
+                        DEFAULT_SORT
                 );
 
         Page<Order> orderPage = orderRepository.searchOrders(
