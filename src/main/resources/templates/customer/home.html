@@ -481,12 +481,20 @@
                 navigator.clipboard.writeText(code).then(() => {
                     const originalText = element.textContent;
                     element.textContent = 'Đã copy!';
-                    showToast('Đã sao chép mã ưu đãi: ' + code);
+                    if (window.showToast) {
+                        window.showToast('Sao chép thành công', 'Đã sao chép mã ưu đãi ' + code + ' vào bộ nhớ tạm!', 'success');
+                    } else {
+                        showToast('Đã sao chép mã ưu đãi: ' + code);
+                    }
                     setTimeout(() => {
                         element.textContent = originalText;
                     }, 1800);
                 }).catch(() => {
-                    showToast('Mã ưu đãi: ' + code);
+                    if (window.showToast) {
+                        window.showToast('Mã ưu đãi', 'Mã ưu đãi: ' + code, 'success');
+                    } else {
+                        showToast('Mã ưu đãi: ' + code);
+                    }
                 });
             }
 

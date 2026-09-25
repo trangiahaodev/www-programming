@@ -96,6 +96,34 @@
                 </button>
             </div>
 
+            <!-- ACTIVE FILTER CHIPS (GOOGLE UX PATTERN) -->
+            <div class="pl-active-filters-wrap" th:if="${(keyword != null and !keyword.isEmpty()) or (selectedCategory != null and selectedCategory != 'all' and !selectedCategory.isEmpty())}">
+                <span class="pl-active-label">Đang lọc:</span>
+
+                <!-- Category Chip -->
+                <a th:if="${selectedCategory != null and selectedCategory != 'all' and !selectedCategory.isEmpty()}"
+                   th:href="@{/san-pham(keyword=${keyword}, sort=${sortBy})}"
+                   class="pl-filter-chip"
+                   title="Bỏ lọc danh mục này">
+                    <span>Danh mục: <strong th:text="${selectedCategory}">Chống nắng</strong></span>
+                    <span class="pl-chip-remove" aria-label="Xóa bộ lọc danh mục">✕</span>
+                </a>
+
+                <!-- Keyword Chip -->
+                <a th:if="${keyword != null and !keyword.isEmpty()}"
+                   th:href="@{/san-pham(category=${selectedCategory}, sort=${sortBy})}"
+                   class="pl-filter-chip"
+                   title="Bỏ lọc từ khóa này">
+                    <span>Từ khóa: &ldquo;<strong th:text="${keyword}">Anessa</strong>&rdquo;</span>
+                    <span class="pl-chip-remove" aria-label="Xóa bộ lọc từ khóa">✕</span>
+                </a>
+
+                <!-- Clear All Link -->
+                <a th:href="@{/san-pham}" class="pl-clear-all-chip">
+                    Xóa tất cả bộ lọc
+                </a>
+            </div>
+
             <!-- 3. SORT & RESULTS BAR -->
             <div class="pl-sort-container">
                 <div class="pl-results-count">
@@ -169,15 +197,27 @@
                 </div>
             </div>
 
-            <!-- EMPTY STATE WHEN NO RESULTS -->
+            <!-- EMPTY STATE WHEN NO RESULTS (GOOGLE UX HEURISTICS) -->
             <div class="pl-empty-state" th:if="${products == null or products.isEmpty()}">
-                <div class="pl-empty-icon">🔍</div>
-                <h3 class="pl-empty-title">Không tìm thấy sản phẩm phù hợp</h3>
-                <p style="color: var(--pl-text-muted); max-width: 460px; margin: 0 auto 20px auto;">
-                    Rất tiếc, chúng tôi không tìm thấy sản phẩm nào khớp với tiêu chí tìm kiếm của bạn. Hãy thử từ khóa khác hoặc làm mới bộ lọc.
+                <div class="pl-empty-state-icon">🔍</div>
+                <h2 class="pl-empty-state-title">Không tìm thấy sản phẩm phù hợp</h2>
+                <p class="pl-empty-state-desc">
+                    Rất tiếc, PinkyCloud không tìm thấy kết quả nào
+                    <span th:if="${keyword != null and !keyword.isEmpty()}"> cho từ khóa <strong>&ldquo;<span th:text="${keyword}"></span>&rdquo;</strong></span>
+                    <span th:if="${selectedCategory != null and selectedCategory != 'all' and !selectedCategory.isEmpty()}"> trong danh mục <strong><span th:text="${selectedCategory}"></span></strong></span>.
+                    Bạn thử tìm các từ khóa gợi ý phổ biến bên dưới xem sao nhé!
                 </p>
-                <a th:href="@{/san-pham}" class="pl-category-btn is-active" style="display: inline-flex;">
-                    🌸 Xem tất cả sản phẩm
+                <div class="pl-empty-state-keywords">
+                    <span style="font-size: 0.82rem; color: #94a3b8; font-weight: 600;">Gợi ý:</span>
+                    <a th:href="@{/san-pham(keyword='Anessa')}" class="pl-empty-keyword-tag">Anessa</a>
+                    <a th:href="@{/san-pham(keyword='Serum')}" class="pl-empty-keyword-tag">Serum dưỡng ẩm</a>
+                    <a th:href="@{/san-pham(keyword='Kem chống nắng')}" class="pl-empty-keyword-tag">Kem chống nắng</a>
+                    <a th:href="@{/san-pham(keyword='Sữa rửa mặt')}" class="pl-empty-keyword-tag">Sữa rửa mặt</a>
+                    <a th:href="@{/san-pham(keyword='Son dưỡng')}" class="pl-empty-keyword-tag">Son dưỡng</a>
+                </div>
+                <a th:href="@{/san-pham}" class="pl-empty-state-btn">
+                    <span>🌸</span>
+                    <span>Khám Phá Tất Cả Sản Phẩm</span>
                 </a>
             </div>
 

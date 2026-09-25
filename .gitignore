@@ -35,6 +35,7 @@ build/
 ### Agents ###
 agents/
 .agents/
+.planning/
 AGENTS.md
 .agents/
 .planning/

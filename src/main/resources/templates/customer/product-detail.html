@@ -400,11 +400,6 @@
                         </div>
                     </div>
 
-                    <!-- Toast Success Notification -->
-                    <div id="toastSuccess" style="display: none; margin-bottom: 20px; background: linear-gradient(135deg, #e8faf0 0%, #d4f7e2 100%); border: 1.5px solid #2ed573; color: #15803d; padding: 14px 20px; border-radius: var(--pl-radius-full); font-weight: 700; font-size: 0.94rem; text-align: center; box-shadow: 0 4px 14px rgba(46, 213, 115, 0.2);">
-                        ✓ Đã thêm <strong th:text="${product.name}">sản phẩm</strong> vào giỏ hàng thành công!
-                    </div>
-
                     <!-- Store Perks Banner -->
                     <div class="pd-perks-banner">
                         <div class="pd-perk-item">
@@ -584,40 +579,98 @@
                 });
             });
 
-            // Quantity selector +/- logic
+            // Elements
             const minusBtn = document.getElementById('btnMinus');
             const plusBtn = document.getElementById('btnPlus');
             const qtyInput = document.getElementById('qtyInput');
             const addBtn = document.getElementById('btnAddToCart');
             const buyNowBtn = document.getElementById('btnBuyNow');
-            const toast = document.getElementById('toastSuccess');
             const wishlistBtn = document.getElementById('btnWishlist');
-
-            if (minusBtn && plusBtn && qtyInput) {
-                const maxVal = parseInt(qtyInput.getAttribute('max')) || 99;
-                minusBtn.addEventListener('click', () => {
-                    let val = parseInt(qtyInput.value) || 1;
-                    if (val > 1) qtyInput.value = val - 1;
-                });
-                plusBtn.addEventListener('click', () => {
-                    let val = parseInt(qtyInput.value) || 1;
-                    if (val < maxVal) qtyInput.value = val + 1;
-                });
-            }
-
-            // Dynamic Product Variant Selection
             const variantPills = document.querySelectorAll('.pd-variant-pill');
             const currentVariantLabel = document.getElementById('currentVariantLabel');
             const priceContainer = document.getElementById('pdPriceContainer');
             const pdPriceMain = document.getElementById('pdPriceMain');
             const pdPriceOld = document.getElementById('pdPriceOld');
             const variantStockText = document.getElementById('variantStockText');
+            const stockDot = document.querySelector('.pd-stock-dot');
+
             let selectedVariantName = currentVariantLabel ? currentVariantLabel.textContent.trim() : '';
 
             function formatVndPrice(num) {
                 return new Intl.NumberFormat('vi-VN').format(Math.round(num)) + '₫';
             }
 
+            // Function to update Stock Status & Purchase Buttons
+            function updateStockAndButtons(stock) {
+                const stockNum = parseInt(stock) || 0;
+                if (stockNum <= 0) {
+                    if (variantStockText) {
+                        variantStockText.textContent = 'Tạm thời hết hàng cho phân loại này';
+                        variantStockText.style.color = '#ef4444';
+                    }
+                    if (stockDot) stockDot.classList.add('out-of-stock');
+
+                    if (addBtn) {
+                        addBtn.disabled = true;
+                        addBtn.classList.add('disabled');
+                        const span = addBtn.querySelector('span');
+                        if (span) span.textContent = 'Tạm hết hàng';
+                    }
+                    if (buyNowBtn) {
+                        buyNowBtn.disabled = true;
+                        buyNowBtn.classList.add('disabled');
+                    }
+                    if (qtyInput) {
+                        qtyInput.value = 0;
+                        qtyInput.setAttribute('max', 0);
+                    }
+                } else {
+                    if (variantStockText) {
+                        variantStockText.textContent = `Còn sẵn ${stockNum} sản phẩm trong kho`;
+                        variantStockText.style.color = '';
+                    }
+                    if (stockDot) stockDot.classList.remove('out-of-stock');
+
+                    if (addBtn) {
+                        addBtn.disabled = false;
+                        addBtn.classList.remove('disabled');
+                        const span = addBtn.querySelector('span');
+                        if (span) span.textContent = 'Thêm Vào Giỏ';
+                    }
+                    if (buyNowBtn) {
+                        buyNowBtn.disabled = false;
+                        buyNowBtn.classList.remove('disabled');
+                    }
+                    if (qtyInput) {
+                        qtyInput.setAttribute('max', stockNum);
+                        if (parseInt(qtyInput.value) <= 0) qtyInput.value = 1;
+                        if (parseInt(qtyInput.value) > stockNum) qtyInput.value = stockNum;
+                    }
+                }
+            }
+
+            // Quantity selector +/- logic with Stock Guard
+            if (minusBtn && plusBtn && qtyInput) {
+                minusBtn.addEventListener('click', () => {
+                    let val = parseInt(qtyInput.value) || 1;
+                    if (val > 1) {
+                        qtyInput.value = val - 1;
+                    }
+                });
+                plusBtn.addEventListener('click', () => {
+                    const maxVal = parseInt(qtyInput.getAttribute('max')) || 99;
+                    let val = parseInt(qtyInput.value) || 1;
+                    if (val < maxVal) {
+                        qtyInput.value = val + 1;
+                    } else {
+                        if (window.showToast) {
+                            window.showToast('Thông báo số lượng', `Bạn đã chọn số lượng tối đa hiện có (${maxVal} sản phẩm)`, 'warning');
+                        }
+                    }
+                });
+            }
+
+            // Dynamic Product Variant Selection
             if (variantPills.length > 0 && priceContainer) {
                 const basePrice = parseFloat(priceContainer.getAttribute('data-base-price')) || 0;
                 const origPrice = parseFloat(priceContainer.getAttribute('data-original-price')) || 0;
@@ -644,56 +697,72 @@
                         if (pdPriceOld && origPrice > 0) {
                             pdPriceOld.textContent = formatVndPrice(origPrice * mult);
                         }
-                        if (variantStockText) {
-                            variantStockText.textContent = `Còn sẵn ${stock} sản phẩm trong kho`;
-                        }
+
+                        // Apply dynamic out of stock logic
+                        updateStockAndButtons(stock);
                     });
                 });
             }
 
             // Add to cart click
-            if (addBtn && toast) {
+            if (addBtn) {
                 addBtn.addEventListener('click', () => {
-                    const count = qtyInput ? qtyInput.value : 1;
-                    toast.innerHTML = `🎉 Đã thêm ${count} sản phẩm (${selectedVariantName}) vào giỏ hàng thành công!`;
-                    toast.style.display = 'block';
-                    addBtn.innerHTML = `✓ Đã thêm ${count} sp`;
+                    if (addBtn.disabled) return;
+                    const count = parseInt(qtyInput ? qtyInput.value : 1) || 1;
+
+                    // Trigger global floating toast & cart badge bump
+                    if (window.showToast) {
+                        window.showToast(
+                            'Đã thêm vào giỏ hàng',
+                            `Đã thêm ${count} sản phẩm ${selectedVariantName ? ' (' + selectedVariantName + ')' : ''} vào giỏ hàng của bạn!`,
+                            'success'
+                        );
+                    }
+                    if (window.bumpCartCount) {
+                        window.bumpCartCount(count);
+                    }
+
+                    // Button micro-interaction
+                    const originalHtml = addBtn.innerHTML;
+                    addBtn.innerHTML = `<span>✓ Đã thêm ${count} sp</span>`;
                     setTimeout(() => {
-                        toast.style.display = 'none';
-                        addBtn.innerHTML = `
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                                <circle cx="9" cy="21" r="1"></circle>
-                                <circle cx="20" cy="21" r="1"></circle>
-                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                            </svg>
-                            <span>Thêm Vào Giỏ</span>
-                        `;
-                    }, 2500);
+                        addBtn.innerHTML = originalHtml;
+                    }, 1800);
                 });
             }
 
             // Buy now click
-            if (buyNowBtn && toast) {
+            if (buyNowBtn) {
                 buyNowBtn.addEventListener('click', () => {
-                    toast.innerHTML = '⚡ Đang chuyển hướng đến trang thanh toán an toàn...';
-                    toast.style.display = 'block';
-                    setTimeout(() => {
-                        toast.style.display = 'none';
-                    }, 3000);
+                    if (buyNowBtn.disabled) return;
+                    if (window.showToast) {
+                        window.showToast(
+                            'Chuyển hướng đặt hàng',
+                            `Đang chuẩn bị đơn hàng cho sản phẩm ${selectedVariantName ? ' (' + selectedVariantName + ')' : ''}...`,
+                            'success'
+                        );
+                    }
                 });
             }
 
-            // Wishlist toggle
+            // Wishlist toggle with interactive feedback
             if (wishlistBtn) {
                 wishlistBtn.addEventListener('click', () => {
                     wishlistBtn.classList.toggle('active');
                     const svg = wishlistBtn.querySelector('svg');
-                    if (wishlistBtn.classList.contains('active')) {
+                    const isActive = wishlistBtn.classList.contains('active');
+                    if (isActive) {
                         svg.setAttribute('fill', '#ff4757');
                         svg.setAttribute('stroke', '#ff4757');
+                        if (window.showToast) {
+                            window.showToast('Yêu thích', 'Đã lưu sản phẩm vào danh sách yêu thích của bạn!', 'success');
+                        }
                     } else {
                         svg.setAttribute('fill', 'none');
                         svg.setAttribute('stroke', 'currentColor');
+                        if (window.showToast) {
+                            window.showToast('Yêu thích', 'Đã bỏ sản phẩm khỏi danh sách yêu thích', 'warning');
+                        }
                     }
                 });
             }

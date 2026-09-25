@@ -108,4 +108,13 @@ class CustomerProductIntegrationTest {
                 .andExpect(model().attributeExists("product"))
                 .andExpect(model().attributeExists("relatedProducts"));
     }
+
+    @Test
+    @DisplayName("Nhiệm vụ 2: Truy cập ID sản phẩm không tồn tại được redirect an toàn kèm flash error message")
+    void testProductDetailNotFoundRedirect() throws Exception {
+        mockMvc.perform(get("/san-pham/non-existent-id-99999"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/san-pham"))
+                .andExpect(flash().attributeExists("errorMessage"));
+    }
 }

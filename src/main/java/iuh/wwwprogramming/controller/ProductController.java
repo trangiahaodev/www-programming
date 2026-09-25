@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -70,7 +71,8 @@ public class ProductController {
     @GetMapping("/{id}")
     public String productDetail(
             @PathVariable("id") String id,
-            Model model
+            Model model,
+            RedirectAttributes redirectAttributes
     ) {
         try {
             ProductDetailDTO product = productService.getProductDetail(id);
@@ -86,7 +88,7 @@ public class ProductController {
 
             return "customer/product-detail";
         } catch (IllegalArgumentException e) {
-            model.addAttribute("errorMessage", e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
             return "redirect:/san-pham";
         }
     }
