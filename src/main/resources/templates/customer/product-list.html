@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/customer-layout :: layout(~{::main})}"
+      lang="vi">
+<head>
+    <title>Bộ Sưu Tập Mỹ Phẩm Chính Hãng - PinkyCloud</title>
+</head>
+<body>
+    <main class="product-list-page">
+        <div class="container">
+
+            <!-- 1. HERO HEADER WITH GLOWING BLOBS, BREADCRUMBS & 3D FLOATING AD SHOWCASE -->
+            <section class="pl-hero">
+                <div class="pl-hero-blob pl-blob-1"></div>
+                <div class="pl-hero-blob pl-blob-2"></div>
+
+                <!-- Nghệ thuật nền mỹ phẩm cao cấp PinkyCloud (back_nen.png trong suốt không lấy nền) -->
+                <div class="pl-hero-bg-art" aria-hidden="true">
+                    <img th:src="@{/IMG/back_nen.png}" alt="PinkyCloud Art" class="pl-hero-bg-art-img">
+                </div>
+
+                <div class="pl-hero-content">
+                    <nav class="pl-breadcrumbs">
+                        <a th:href="@{/}">Trang chủ</a>
+                        <span>&gt;</span>
+                        <span th:text="${selectedCategory != null and selectedCategory != 'all' and !selectedCategory.isEmpty()} ? ${selectedCategory} : 'Bộ sưu tập'">Bộ sưu tập</span>
+                    </nav>
+
+                    <h1 class="pl-title">Khám Phá Sắc Đẹp</h1>
+                    <p class="pl-subtitle">
+                        Tỏa sáng rạng ngời với bộ sưu tập mỹ phẩm chính hãng được tuyển chọn kỹ lưỡng dành riêng cho làn da của bạn.
+                    </p>
+
+                    <!-- Search Input on Product List Hero -->
+                    <form th:action="@{/san-pham}" method="GET" class="pl-hero-search">
+                        <input type="hidden" name="category" th:value="${selectedCategory}">
+                        <input type="hidden" name="sort" th:value="${sortBy}">
+                        <input type="text"
+                               name="keyword"
+                               th:value="${keyword}"
+                               placeholder="Tìm sản phẩm, thương hiệu (Anessa, Serum, Retinol)..."
+                               aria-label="Tìm kiếm trong danh mục">
+                        <button type="submit">Tìm Kiếm</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- 2. STICKY GLASSMORPHISM FILTER BAR WITH SCROLL NAVIGATION CONTROLS -->
+            <div class="pl-filter-bar">
+                <button type="button" class="pl-cat-nav-btn pl-cat-nav-prev" id="catPrevBtn" aria-label="Danh mục trước" title="Xem danh mục trước">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </button>
+
+                <div class="pl-filter-row" id="plFilterTrack">
+                    <!-- 'All' Category Button -->
+                    <a th:href="@{/san-pham(keyword=${keyword}, sort=${sortBy})}"
+                       class="pl-category-btn"
+                       th:classappend="${selectedCategory == 'all' or selectedCategory == null or selectedCategory == ''} ? 'is-active' : ''">
+                        🌸 Tất cả sản phẩm
+                    </a>
+
+                    <!-- Category List Buttons from DB -->
+                    <a th:each="cat : ${categories}"
+                       th:href="@{/san-pham(category=${cat.name}, keyword=${keyword}, sort=${sortBy})}"
+                       class="pl-category-btn"
+                       th:classappend="${selectedCategory == cat.name or selectedCategory == cat.id} ? 'is-active' : ''">
+                        <span th:text="${
+                            #strings.containsIgnoreCase(cat.name, 'chống nắng') ? '☀️' :
+                            #strings.containsIgnoreCase(cat.name, 'kem dưỡng') ? '🧴' :
+                            #strings.containsIgnoreCase(cat.name, 'serum') ? '💧' :
+                            #strings.containsIgnoreCase(cat.name, 'rửa mặt') ? '🧼' :
+                            #strings.containsIgnoreCase(cat.name, 'tẩy trang') ? '🫧' :
+                            #strings.containsIgnoreCase(cat.name, 'son') ? '💄' :
+                            #strings.containsIgnoreCase(cat.name, 'mặt nạ') ? '🎭' :
+                            #strings.containsIgnoreCase(cat.name, 'nước hoa') ? '💐' :
+                            #strings.containsIgnoreCase(cat.name, 'tóc') ? '💇' :
+                            #strings.containsIgnoreCase(cat.name, 'cơ thể') ? '🛁' :
+                            #strings.containsIgnoreCase(cat.name, 'thiết bị') ? '⚡' : '✨'
+                        }">✨</span>
+                        <span th:text="${cat.name}">Tên danh mục</span>
+                    </a>
+
+                    <!-- Button mở modal xem toàn bộ danh mục dạng lưới A-Z -->
+                    <button type="button" class="pl-category-btn pl-cat-btn-all" onclick="openCategoryModal()" title="Xem tất cả danh mục A-Z">
+                        <span>📂</span>
+                        <span>Tất cả danh mục &rarr;</span>
+                    </button>
+                </div>
+
+                <button type="button" class="pl-cat-nav-btn pl-cat-nav-next" id="catNextBtn" aria-label="Danh mục tiếp theo" title="Xem danh mục tiếp theo">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- 3. SORT & RESULTS BAR -->
+            <div class="pl-sort-container">
+                <div class="pl-results-count">
+                    Hiển thị <b th:text="${startItem}">1</b> - <b th:text="${endItem}">12</b> trên tổng số <b th:text="${totalElements}">100</b> sản phẩm
+                    <span th:if="${keyword != null and !keyword.isEmpty()}" th:text="' cho từ khóa: &quot;' + ${keyword} + '&quot;'"></span>
+                    <span th:if="${selectedCategory != null and selectedCategory != 'all' and !selectedCategory.isEmpty()}" th:text="' &bull; Danh mục: ' + ${selectedCategory}"></span>
+                </div>
+
+                <div class="pl-sort-group">
+                    <span class="pl-sort-label">Sắp xếp:</span>
+                    <a th:href="@{/san-pham(category=${selectedCategory}, keyword=${keyword}, sort='popular')}"
+                       class="pl-sort-btn"
+                       th:classappend="${sortBy == 'popular' or sortBy == null or sortBy == ''} ? 'is-active' : ''">
+                        Phổ biến
+                    </a>
+                    <a th:href="@{/san-pham(category=${selectedCategory}, keyword=${keyword}, sort='hot')}"
+                       class="pl-sort-btn"
+                       th:classappend="${sortBy == 'hot'} ? 'is-active' : ''">
+                        🔥 HOT / Bán chạy
+                    </a>
+                    <a th:href="@{/san-pham(category=${selectedCategory}, keyword=${keyword}, sort='price-asc')}"
+                       class="pl-sort-btn"
+                       th:classappend="${sortBy == 'price-asc'} ? 'is-active' : ''">
+                        Giá ↑ Thấp - Cao
+                    </a>
+                    <a th:href="@{/san-pham(category=${selectedCategory}, keyword=${keyword}, sort='price-desc')}"
+                       class="pl-sort-btn"
+                       th:classappend="${sortBy == 'price-desc'} ? 'is-active' : ''">
+                        Giá ↓ Cao - Thấp
+                    </a>
+                    <a th:href="@{/san-pham(category=${selectedCategory}, keyword=${keyword}, sort='newest')}"
+                       class="pl-sort-btn"
+                       th:classappend="${sortBy == 'newest'} ? 'is-active' : ''">
+                        Mới nhất ✨
+                    </a>
+                </div>
+            </div>
+
+            <!-- 4. PRODUCT GRID -->
+            <div class="pl-grid" th:if="${products != null and !products.isEmpty()}">
+                <div th:each="prod : ${products}" class="pc">
+                    <a th:href="@{/san-pham/{id}(id=${prod.id})}" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; flex: 1;">
+                        <div class="pc-img-wrap">
+                            <img th:src="@{${prod.image}}" th:alt="${prod.name}" class="pc-img" loading="lazy">
+                            <span th:if="${prod.isOutOfStock}" class="pc-badge pc-badge--out">Hết hàng</span>
+                            <span th:if="${!prod.isOutOfStock and prod.discount > 0}" class="pc-badge pc-badge--sale" th:text="'-' + ${prod.discount} + '%'">-15%</span>
+                            <span th:if="${!prod.isOutOfStock and (prod.discount == null or prod.discount == 0) and prod.isNew}" class="pc-badge pc-badge--new">Mới ✨</span>
+                        </div>
+                        <div class="pc-body">
+                            <div class="pc-meta" th:text="${prod.brand + (prod.categoryName != null and !prod.categoryName.isEmpty() ? ' &bull; ' + prod.categoryName : '')}">Anessa &bull; Chống nắng</div>
+                            <h3 class="pc-name" th:text="${prod.name}">Tên sản phẩm</h3>
+                            <div class="pc-rating">
+                                <span>★</span>
+                                <span th:text="${#numbers.formatDecimal(prod.rating, 1, 1)}">4.8</span>
+                                <span class="pc-rating-count" th:text="'(' + ${prod.reviewCount} + ')'">(24)</span>
+                                <span th:if="${prod.soldCount != null and prod.soldCount > 0}" style="margin-left: auto; color: #888; font-size: 0.72rem;" th:text="'Đã bán ' + ${prod.soldCount}">Đã bán 120</span>
+                            </div>
+                            <div class="pc-price-row">
+                                <span class="pc-price" th:text="${prod.formattedPrice}">463.000₫</span>
+                                <span class="pc-old" th:if="${prod.formattedOriginalPrice != null}" th:text="${prod.formattedOriginalPrice}">545.000₫</span>
+                            </div>
+                        </div>
+                    </a>
+                    <div class="pc-foot">
+                        <a th:href="@{/san-pham/{id}(id=${prod.id})}"
+                           class="pc-btn"
+                           style="display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none;">
+                            <span th:text="${prod.isOutOfStock} ? 'Xem chi tiết' : 'Xem sản phẩm &rarr;'">Xem sản phẩm &rarr;</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- EMPTY STATE WHEN NO RESULTS -->
+            <div class="pl-empty-state" th:if="${products == null or products.isEmpty()}">
+                <div class="pl-empty-icon">🔍</div>
+                <h3 class="pl-empty-title">Không tìm thấy sản phẩm phù hợp</h3>
+                <p style="color: var(--pl-text-muted); max-width: 460px; margin: 0 auto 20px auto;">
+                    Rất tiếc, chúng tôi không tìm thấy sản phẩm nào khớp với tiêu chí tìm kiếm của bạn. Hãy thử từ khóa khác hoặc làm mới bộ lọc.
+                </p>
+                <a th:href="@{/san-pham}" class="pl-category-btn is-active" style="display: inline-flex;">
+                    🌸 Xem tất cả sản phẩm
+                </a>
+            </div>
+
+            <!-- 5. LUXURY ROUND PAGINATION CONTROLS -->
+            <div class="pl-pagination" th:if="${totalPages > 1}">
+                <!-- First Page -->
+                <a th:href="@{/san-pham(page=0, keyword=${keyword}, category=${selectedCategory}, sort=${sortBy}, size=${pageSize})}"
+                   class="pl-page-btn"
+                   th:classappend="${currentPage == 0} ? 'disabled' : ''"
+                   title="Trang đầu">
+                    «
+                </a>
+
+                <!-- Previous Page -->
+                <a th:href="@{/san-pham(page=${currentPage - 1}, keyword=${keyword}, category=${selectedCategory}, sort=${sortBy}, size=${pageSize})}"
+                   class="pl-page-btn"
+                   th:classappend="${currentPage == 0} ? 'disabled' : ''"
+                   title="Trang trước">
+                    ‹
+                </a>
+
+                <!-- Page Info -->
+                <div class="pl-page-info">
+                    Trang <span style="color: var(--pl-primary);" th:text="${currentPage + 1}">1</span> / <span th:text="${totalPages}">5</span>
+                </div>
+
+                <!-- Next Page -->
+                <a th:href="@{/san-pham(page=${currentPage + 1}, keyword=${keyword}, category=${selectedCategory}, sort=${sortBy}, size=${pageSize})}"
+                   class="pl-page-btn"
+                   th:classappend="${currentPage + 1 >= totalPages} ? 'disabled' : ''"
+                   title="Trang kế">
+                    ›
+                </a>
+
+                <!-- Last Page -->
+                <a th:href="@{/san-pham(page=${totalPages - 1}, keyword=${keyword}, category=${selectedCategory}, sort=${sortBy}, size=${pageSize})}"
+                   class="pl-page-btn"
+                   th:classappend="${currentPage + 1 >= totalPages} ? 'disabled' : ''"
+                   title="Trang cuối">
+                    »
+                </a>
+            </div>
+
+            <!-- CATEGORY DIRECTORY MODAL (Xem toàn bộ danh mục) -->
+            <div class="brand-modal-backdrop" id="categoryModal">
+                <div class="brand-modal-content">
+                    <div class="brand-modal-header">
+                        <div>
+                            <h3 class="brand-modal-title">🌸 Toàn Bộ Danh Mục Sản Phẩm</h3>
+                            <p class="brand-modal-sub">Khám phá mỹ phẩm chính hãng theo từng chu trình chuyên sâu</p>
+                        </div>
+                        <button type="button" class="booking-modal-close" onclick="closeCategoryModal()" aria-label="Đóng">&times;</button>
+                    </div>
+                    <div class="brand-modal-search-wrap">
+                        <input type="text" id="categoryFilterInput" placeholder="Nhập tên danh mục cần tìm (Serum, Kem chống nắng, Tẩy trang, Nước hoa)..." class="brand-modal-search-input">
+                    </div>
+                    <div class="brand-modal-grid" id="categoryModalList">
+                        <a th:href="@{/san-pham(keyword=${keyword}, sort=${sortBy})}"
+                           class="brand-modal-chip"
+                           data-cat="tất cả sản phẩm">
+                            <span>🌸</span>
+                            <span>Tất cả sản phẩm</span>
+                        </a>
+                        <a th:each="cat : ${categories}"
+                           th:href="@{/san-pham(category=${cat.name}, keyword=${keyword}, sort=${sortBy})}"
+                           class="brand-modal-chip"
+                           th:data-cat="${#strings.toLowerCase(cat.name)}">
+                            <span th:text="${
+                                #strings.containsIgnoreCase(cat.name, 'chống nắng') ? '☀️' :
+                                #strings.containsIgnoreCase(cat.name, 'kem dưỡng') ? '🧴' :
+                                #strings.containsIgnoreCase(cat.name, 'serum') ? '💧' :
+                                #strings.containsIgnoreCase(cat.name, 'rửa mặt') ? '🧼' :
+                                #strings.containsIgnoreCase(cat.name, 'tẩy trang') ? '🫧' :
+                                #strings.containsIgnoreCase(cat.name, 'son') ? '💄' :
+                                #strings.containsIgnoreCase(cat.name, 'mặt nạ') ? '🎭' :
+                                #strings.containsIgnoreCase(cat.name, 'nước hoa') ? '💐' :
+                                #strings.containsIgnoreCase(cat.name, 'tóc') ? '💇' :
+                                #strings.containsIgnoreCase(cat.name, 'cơ thể') ? '🛁' :
+                                #strings.containsIgnoreCase(cat.name, 'thiết bị') ? '⚡' : '✨'
+                            }">✨</span>
+                            <span th:text="${cat.name}">Tên danh mục</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- CATEGORY SCROLL & MODAL SCRIPT (Inside main for Thymeleaf layout) -->
+        <script th:inline="javascript">
+            // Category Filter Bar Scroll Controls (Prev, Next, Wheel, Drag)
+            const plFilterTrack = document.getElementById('plFilterTrack');
+            const catPrevBtn = document.getElementById('catPrevBtn');
+            const catNextBtn = document.getElementById('catNextBtn');
+
+            function updateCategoryNavButtons() {
+                if (!plFilterTrack || !catPrevBtn || !catNextBtn) return;
+                const maxScroll = plFilterTrack.scrollWidth - plFilterTrack.clientWidth;
+                if (maxScroll <= 5) {
+                    catPrevBtn.style.display = 'none';
+                    catNextBtn.style.display = 'none';
+                    return;
+                }
+                catPrevBtn.style.display = 'flex';
+                catNextBtn.style.display = 'flex';
+                catPrevBtn.disabled = plFilterTrack.scrollLeft <= 5;
+                catNextBtn.disabled = plFilterTrack.scrollLeft >= maxScroll - 5;
+            }
+
+            if (plFilterTrack && catPrevBtn && catNextBtn) {
+                catPrevBtn.addEventListener('click', () => {
+                    plFilterTrack.scrollBy({ left: -260, behavior: 'smooth' });
+                });
+                catNextBtn.addEventListener('click', () => {
+                    plFilterTrack.scrollBy({ left: 260, behavior: 'smooth' });
+                });
+                plFilterTrack.addEventListener('scroll', updateCategoryNavButtons, { passive: true });
+                window.addEventListener('resize', updateCategoryNavButtons, { passive: true });
+
+                // Mouse wheel horizontal scrolling
+                plFilterTrack.addEventListener('wheel', (e) => {
+                    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+                        e.preventDefault();
+                        plFilterTrack.scrollLeft += e.deltaY;
+                    }
+                }, { passive: false });
+
+                // Drag-to-scroll interaction
+                let isCatDown = false;
+                let catStartX, catScrollLeft;
+
+                plFilterTrack.addEventListener('mousedown', (e) => {
+                    isCatDown = true;
+                    plFilterTrack.classList.add('is-dragging');
+                    catStartX = e.pageX - plFilterTrack.offsetLeft;
+                    catScrollLeft = plFilterTrack.scrollLeft;
+                });
+                plFilterTrack.addEventListener('mouseleave', () => {
+                    isCatDown = false;
+                    plFilterTrack.classList.remove('is-dragging');
+                });
+                plFilterTrack.addEventListener('mouseup', () => {
+                    isCatDown = false;
+                    plFilterTrack.classList.remove('is-dragging');
+                });
+                plFilterTrack.addEventListener('mousemove', (e) => {
+                    if (!isCatDown) return;
+                    e.preventDefault();
+                    const x = e.pageX - plFilterTrack.offsetLeft;
+                    const walk = (x - catStartX) * 1.5;
+                    plFilterTrack.scrollLeft = catScrollLeft - walk;
+                });
+
+                setTimeout(updateCategoryNavButtons, 200);
+            }
+
+            // Category Directory Modal
+            const categoryModal = document.getElementById('categoryModal');
+            const categoryFilterInput = document.getElementById('categoryFilterInput');
+            const categoryModalList = document.getElementById('categoryModalList');
+
+            function openCategoryModal() {
+                if (categoryModal) {
+                    categoryModal.classList.add('show');
+                    if (categoryFilterInput) {
+                        categoryFilterInput.value = '';
+                        filterCategoryChips('');
+                        setTimeout(() => categoryFilterInput.focus(), 150);
+                    }
+                }
+            }
+
+            function closeCategoryModal() {
+                if (categoryModal) {
+                    categoryModal.classList.remove('show');
+                }
+            }
+
+            function filterCategoryChips(q) {
+                if (!categoryModalList) return;
+                const query = q.trim().toLowerCase();
+                const chips = categoryModalList.querySelectorAll('.brand-modal-chip');
+                chips.forEach(chip => {
+                    const name = chip.getAttribute('data-cat') || chip.textContent.toLowerCase();
+                    if (!query || name.includes(query)) {
+                        chip.style.display = 'inline-flex';
+                    } else {
+                        chip.style.display = 'none';
+                    }
+                });
+            }
+
+            if (categoryFilterInput) {
+                categoryFilterInput.addEventListener('input', (e) => {
+                    filterCategoryChips(e.target.value);
+                });
+            }
+
+            if (categoryModal) {
+                categoryModal.addEventListener('click', (e) => {
+                    if (e.target === categoryModal) closeCategoryModal();
+                });
+            }
+        </script>
+    </main>
+</body>
+</html>
