@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/customer-layout :: layout(~{::main})}"
+      lang="vi">
+<head>
+    <title th:text="${product.name} + ' - PinkyCloud'">Chi Tiết Sản Phẩm - PinkyCloud</title>
+</head>
+<body>
+    <main>
+        <div class="container pd-wrapper">
+
+            <!-- Breadcrumbs Bar -->
+            <div class="pd-breadcrumbs-bar">
+                <nav class="pl-breadcrumbs">
+                    <a th:href="@{/}">Trang chủ</a>
+                    <span>&gt;</span>
+                    <a th:href="@{/san-pham}">Sản phẩm</a>
+                    <span>&gt;</span>
+                    <a th:href="@{/san-pham(category=${product.categoryName})}" th:text="${product.categoryName}">Danh mục</a>
+                    <span>&gt;</span>
+                    <span th:text="${product.name}" style="color: var(--pl-text-dark); font-weight: 600;">Tên sản phẩm</span>
+                </nav>
+                <div class="pd-sku-chip">
+                    <span>Mã SP: </span><strong th:text="${product.productCode != null and !product.productCode.isEmpty() ? product.productCode : product.id}">PC-001</strong> • <span style="color: #10b981;">✓ Chính hãng 100%</span>
+                </div>
+            </div>
+
+            <!-- Product Main Grid (2-columns on Desktop, 1-column on Mobile) -->
+            <div class="pd-grid">
+
+                <!-- Left Column: Image Card + Reviews Section right below it -->
+                <div class="pd-left-col">
+
+                    <!-- Image Card with Zoom, Badges & Trust Guarantees -->
+                    <div class="pd-image-card">
+                        <span th:if="${product.isOutOfStock}" class="pc-badge pc-badge--out" style="top: 20px; left: 20px; font-size: 0.85rem; padding: 6px 14px;">Tạm hết hàng</span>
+                        <span th:if="${!product.isOutOfStock and product.discount > 0}" class="pd-discount-badge" th:text="'-' + ${product.discount} + '% GIẢM SỐC'">-15% GIẢM SỐC</span>
+
+                        <!-- Wishlist Heart Button -->
+                        <button type="button" class="pd-wishlist-btn" id="btnWishlist" title="Thêm vào danh sách yêu thích" aria-label="Yêu thích">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                            </svg>
+                        </button>
+
+                        <!-- Main Product Image -->
+                        <div class="pd-image-main-wrap">
+                            <img th:src="@{${product.image}}" th:alt="${product.name}" class="pd-image-main">
+                        </div>
+
+                        <!-- 4 Trust Guarantees -->
+                        <div class="pd-trust-row">
+                            <div class="pd-trust-item">
+                                <div class="pd-trust-icon">💎</div>
+                                <div class="pd-trust-title">100% Chính Hãng</div>
+                                <div class="pd-trust-sub">Cam kết xuất xứ</div>
+                            </div>
+                            <div class="pd-trust-item">
+                                <div class="pd-trust-icon">🚀</div>
+                                <div class="pd-trust-title">Giao Hỏa Tốc</div>
+                                <div class="pd-trust-sub">Trong 2 giờ nội thành</div>
+                            </div>
+                            <div class="pd-trust-item">
+                                <div class="pd-trust-icon">🔄</div>
+                                <div class="pd-trust-title">Đổi Trả 7 Ngày</div>
+                                <div class="pd-trust-sub">Miễn phí đổi mới</div>
+                            </div>
+                            <div class="pd-trust-item">
+                                <div class="pd-trust-icon">🛡️</div>
+                                <div class="pd-trust-title">Kiểm Nghiệm Da</div>
+                                <div class="pd-trust-sub">An toàn tuyệt đối</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Reviews Section Directly Below Image (Soft, spacious, easy comparison) -->
+                    <div class="pd-reviews-card" id="pd-reviews-section">
+                        <!-- Slim Top Bar -->
+                        <div class="pd-reviews-top-bar">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div class="pd-rev-score-badge">
+                                    <span class="pd-rev-badge-star">★</span>
+                                    <span class="pd-rev-badge-num" th:text="${#numbers.formatDecimal(product.rating, 1, 1)}">4.9</span>
+                                    <span class="pd-rev-badge-scale">/5</span>
+                                </div>
+                                <div class="pd-rev-quick-stats">
+                                    <div class="pd-rev-stat-main"><strong>98%</strong> hài lòng</div>
+                                    <div class="pd-rev-stat-sub"><span id="revCountHeader" th:text="${product.reviewCount}">24</span> nhận xét</div>
+                                </div>
+                            </div>
+
+                            <div class="pd-rev-top-actions">
+                                <button type="button" class="pd-btn-compare-modal" id="btnOpenCompareModal" title="Mở rộng để so sánh chi tiết tất cả nhận xét">
+                                    <span>🔍</span> So sánh
+                                </button>
+                                <button type="button" class="pd-btn-write-review" id="btnToggleReviewForm">
+                                    <span>✍️</span> Đánh giá
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Aspect Comparison Filter Chips -->
+                        <div class="pd-aspect-filters">
+                            <button type="button" class="pd-aspect-btn active" data-filter="all">Tất cả (24)</button>
+                            <button type="button" class="pd-aspect-btn" data-filter="da-nhay-cam">🌿 Da nhạy cảm</button>
+                            <button type="button" class="pd-aspect-btn" data-filter="kiem-dau">💧 Kiềm dầu / Thấm nhanh</button>
+                            <button type="button" class="pd-aspect-btn" data-filter="mui-huong">🌸 Mùi hương</button>
+                            <button type="button" class="pd-aspect-btn" data-filter="5-star">⭐ 5 Sao</button>
+                        </div>
+
+                        <!-- Togglable Interactive Review Form -->
+                        <div class="pd-review-form-wrap" id="reviewFormWrap">
+                            <div style="font-weight: 800; font-size: 0.9rem; color: #1e293b; margin-bottom: 6px;">
+                                Viết đánh giá của bạn
+                            </div>
+                            <div class="pd-star-picker" id="starPicker">
+                                <button type="button" class="pd-star-pick-btn active" data-star="1">★</button>
+                                <button type="button" class="pd-star-pick-btn active" data-star="2">★</button>
+                                <button type="button" class="pd-star-pick-btn active" data-star="3">★</button>
+                                <button type="button" class="pd-star-pick-btn active" data-star="4">★</button>
+                                <button type="button" class="pd-star-pick-btn active" data-star="5">★</button>
+                                <span id="starPickLabel" style="font-size: 0.78rem; font-weight: 700; color: #f59e0b; margin-left: 6px;">Tuyệt vời (5/5)</span>
+                            </div>
+                            <input type="text" id="revAuthorInput" class="pd-review-input" placeholder="Họ và tên của bạn (VD: Minh Thư)">
+                            <textarea id="revCommentInput" class="pd-review-textarea" placeholder="Chia sẻ cảm nhận về độ thẩm thấu, mùi hương, loại da..."></textarea>
+                            <div style="display: flex; justify-content: flex-end; gap: 8px;">
+                                <button type="button" id="btnCancelReview" style="background: transparent; border: 1px solid #cbd5e1; padding: 6px 14px; border-radius: var(--pl-radius-full); font-size: 0.78rem; cursor: pointer;">Hủy</button>
+                                <button type="button" id="btnSubmitReview" class="pd-review-submit-btn">Gửi Đánh Giá</button>
+                            </div>
+                        </div>
+
+                        <!-- Boutique Review Feed (Generous, soft, easily compare multiple reviews) -->
+                        <div class="pd-mini-reviews-list" id="miniReviewsList">
+
+                            <!-- Feed Item 1 -->
+                            <div class="pd-feed-item" data-aspect="da-nhay-cam kiem-dau" data-rating="5">
+                                <div class="pd-feed-header">
+                                    <div class="pd-feed-user">
+                                        <div class="pd-feed-avatar" style="background: linear-gradient(135deg, #ff6b81 0%, #ff8fa3 100%);">LA</div>
+                                        <span class="pd-feed-name">Nguyễn Thị Lan Anh</span>
+                                        <span class="pd-feed-verified">✓ Chính hãng</span>
+                                    </div>
+                                    <div class="pd-feed-meta-right">
+                                        <span class="pd-feed-stars">★★★★★</span>
+                                        <span class="pd-feed-date">3 ngày</span>
+                                    </div>
+                                </div>
+                                <div class="pd-feed-chips">
+                                    <span class="pd-aspect-tag">🌿 Da dầu nhạy cảm</span>
+                                    <span class="pd-aspect-tag">⚡ Thấm cực nhanh</span>
+                                </div>
+                                <p class="pd-feed-text">
+                                    Chất mỏng nhẹ, thẩm thấu cực nhanh và không hề bị bết dính hay bí da. Sau 2 tuần dùng đều đặn da mềm mịn và ráo thoáng cả ngày. Đóng gói hộp hồng siêu xinh!
+                                </p>
+                            </div>
+
+                            <!-- Feed Item 2 -->
+                            <div class="pd-feed-item" data-aspect="da-nhay-cam" data-rating="5">
+                                <div class="pd-feed-header">
+                                    <div class="pd-feed-user">
+                                        <div class="pd-feed-avatar" style="background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);">MP</div>
+                                        <span class="pd-feed-name">Trần Mai Phương</span>
+                                        <span class="pd-feed-verified">✓ Chính hãng</span>
+                                    </div>
+                                    <div class="pd-feed-meta-right">
+                                        <span class="pd-feed-stars">★★★★★</span>
+                                        <span class="pd-feed-date">1 tuần</span>
+                                    </div>
+                                </div>
+                                <div class="pd-feed-chips">
+                                    <span class="pd-aspect-tag">🌿 Da nhạy cảm mụn</span>
+                                    <span class="pd-aspect-tag">🛡️ Không châm chích</span>
+                                </div>
+                                <p class="pd-feed-text">
+                                    Hàng chính hãng có tem phụ chuẩn xác. Da mình là da nhạy cảm rất dễ nổi mụn nhưng dùng em này cực kỳ êm dịu, hoàn toàn không bị châm chích. Shop tặng nhiều sample xịn xò.
+                                </p>
+                            </div>
+
+                            <!-- Feed Item 3 -->
+                            <div class="pd-feed-item" data-aspect="mui-huong" data-rating="5">
+                                <div class="pd-feed-header">
+                                    <div class="pd-feed-user">
+                                        <div class="pd-feed-avatar" style="background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);">HY</div>
+                                        <span class="pd-feed-name">Hoàng Hải Yến</span>
+                                        <span class="pd-feed-verified">✓ Chính hãng</span>
+                                    </div>
+                                    <div class="pd-feed-meta-right">
+                                        <span class="pd-feed-stars">★★★★★</span>
+                                        <span class="pd-feed-date">2 tuần</span>
+                                    </div>
+                                </div>
+                                <div class="pd-feed-chips">
+                                    <span class="pd-aspect-tag">🌸 Mùi thư giãn</span>
+                                    <span class="pd-aspect-tag">✨ Lớp lót tự nhiên</span>
+                                </div>
+                                <p class="pd-feed-text">
+                                    Mùi hương dịu ngọt thư giãn như ở spa. Dùng ban ngày làm lớp lót trước khi thoa phấn cũng rất đẹp, tiệp vào da tự nhiên không bị mốc phấn. Rất đáng tiền!
+                                </p>
+                            </div>
+
+                            <!-- Feed Item 4 -->
+                            <div class="pd-feed-item" data-aspect="kiem-dau" data-rating="5">
+                                <div class="pd-feed-header">
+                                    <div class="pd-feed-user">
+                                        <div class="pd-feed-avatar" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: #065f46;">BN</div>
+                                        <span class="pd-feed-name">Vũ Bích Ngọc</span>
+                                        <span class="pd-feed-verified">✓ Chính hãng</span>
+                                    </div>
+                                    <div class="pd-feed-meta-right">
+                                        <span class="pd-feed-stars">★★★★★</span>
+                                        <span class="pd-feed-date">1 tháng</span>
+                                    </div>
+                                </div>
+                                <div class="pd-feed-chips">
+                                    <span class="pd-aspect-tag">💧 Kiềm dầu đỉnh</span>
+                                    <span class="pd-aspect-tag">⭐ Mua lại lần 2</span>
+                                </div>
+                                <p class="pd-feed-text">
+                                    Dùng đến chai thứ 2 rồi vẫn mê. Khả năng kiềm dầu tốt từ sáng đến chiều không bị xuống tông, giá tại PinkyCloud lại ưu đãi hơn showroom nhiều.
+                                </p>
+                            </div>
+
+                            <!-- Feed Item 5 -->
+                            <div class="pd-feed-item" data-aspect="da-nhay-cam kiem-dau" data-rating="4">
+                                <div class="pd-feed-header">
+                                    <div class="pd-feed-user">
+                                        <div class="pd-feed-avatar" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">QC</div>
+                                        <span class="pd-feed-name">Đặng Quỳnh Chi</span>
+                                        <span class="pd-feed-verified">✓ Chính hãng</span>
+                                    </div>
+                                    <div class="pd-feed-meta-right">
+                                        <span class="pd-feed-stars">★★★★☆</span>
+                                        <span class="pd-feed-date">1 tháng</span>
+                                    </div>
+                                </div>
+                                <div class="pd-feed-chips">
+                                    <span class="pd-aspect-tag">🌿 Lành tính</span>
+                                    <span class="pd-aspect-tag">💧 Ráo thoáng</span>
+                                </div>
+                                <p class="pd-feed-text">
+                                    Chất lượng ưng ý, bảng thành phần an toàn. Da dầu mụn dùng thấy thoáng nhẹ, không bí lỗ chân lông sinh mụn ẩn. Sẽ tiếp tục ủng hộ shop.
+                                </p>
+                            </div>
+
+                            <!-- Feed Item 6 -->
+                            <div class="pd-feed-item" data-aspect="mui-huong" data-rating="5">
+                                <div class="pd-feed-header">
+                                    <div class="pd-feed-user">
+                                        <div class="pd-feed-avatar" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">HN</div>
+                                        <span class="pd-feed-name">Lê Hoàng Nam</span>
+                                        <span class="pd-feed-verified">✓ Chính hãng</span>
+                                    </div>
+                                    <div class="pd-feed-meta-right">
+                                        <span class="pd-feed-stars">★★★★★</span>
+                                        <span class="pd-feed-date">1 tháng</span>
+                                    </div>
+                                </div>
+                                <div class="pd-feed-chips">
+                                    <span class="pd-aspect-tag">🎁 Đóng gói nơ sang</span>
+                                    <span class="pd-aspect-tag">🚀 Giao 2 tiếng</span>
+                                </div>
+                                <p class="pd-feed-text">
+                                    Mua làm quà tặng sinh nhật, bạn gái khen hết lời. Hộp đóng gói PinkyCloud cực kỳ chỉn chu, có thắt nơ hồng kèm thiệp cảm ơn. Giao nhanh 2 tiếng.
+                                </p>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Right Column: Brand, Title, Rating, Price, Specs, CTAs -->
+                <div class="pd-info-card">
+                    <!-- Meta Row -->
+                    <div class="pd-meta-row">
+                        <a th:href="@{/san-pham(brand=${product.brand})}" class="pd-brand-badge" style="text-decoration: none;">
+                            <span>✦</span> <span th:text="${product.brand}">Anessa</span>
+                        </a>
+                        <span class="pd-category-badge">
+                            <span th:text="${product.categoryName}">Chống nắng</span>
+                        </span>
+                        <div th:if="${!product.isOutOfStock}" class="pd-stock-badge pd-stock-badge--in">
+                            <span>●</span> Còn hàng (<span th:text="${product.stock}">50</span>)
+                        </div>
+                        <div th:if="${product.isOutOfStock}" class="pd-stock-badge pd-stock-badge--out">
+                            <span>✕</span> Tạm hết hàng
+                        </div>
+                    </div>
+
+                    <!-- Product Title -->
+                    <h1 class="pd-title" th:text="${product.name}">Sữa Chống Nắng Anessa Cho Da Nhạy Cảm &amp; Trẻ Em 60ml</h1>
+
+                    <!-- Rating Row (Clickable, links smoothly to #pd-reviews-section below image) -->
+                    <a href="#pd-reviews-section" class="pd-rating-row" style="text-decoration: none; color: inherit; cursor: pointer;" title="Xem các đánh giá sản phẩm bên dưới ảnh">
+                        <div class="pd-stars">★★★★★</div>
+                        <span class="pd-rating-score" th:text="${#numbers.formatDecimal(product.rating, 1, 1)}">4.9</span>
+                        <span class="pd-rating-count" th:text="'(' + ${product.reviewCount} + ' đánh giá)'">(24 đánh giá)</span>
+                        <span style="color: #cbd5e1;">•</span>
+                        <div class="pd-sold-badge" th:text="'🔥 Đã bán ' + ${product.soldCount}">🔥 Đã bán 150</div>
+                    </a>
+
+                    <!-- Price Box -->
+                    <div class="pd-price-box">
+                        <div class="pd-price-main-row"
+                             id="pdPriceContainer"
+                             th:data-base-price="${product.price}"
+                             th:data-original-price="${product.originalPrice}">
+                            <span class="pd-price-main" id="pdPriceMain" th:text="${product.formattedPrice}">463.000₫</span>
+                            <span class="pd-price-old" id="pdPriceOld" th:if="${product.formattedOriginalPrice != null}" th:text="${product.formattedOriginalPrice}">545.000₫</span>
+                            <span class="pd-discount-tag" id="pdDiscountTag" th:if="${product.discount > 0}" th:text="'Tiết kiệm ' + ${product.discount} + '%'">Tiết kiệm 15%</span>
+                        </div>
+                        <div class="pd-flash-tag">
+                            <span>⚡</span> Giá ưu đãi trực tiếp tại PinkyCloud Boutique • Số lượng có hạn
+                        </div>
+                    </div>
+
+                    <!-- Highlights Box -->
+                    <div class="pd-highlights-box">
+                        <div class="pd-highlight-item">
+                            <span class="pd-check-icon">✓</span>
+                            <span>Cam kết sản phẩm nhập khẩu chính ngạch 100%, nguyên tem niêm phong bảo đảm.</span>
+                        </div>
+                        <div class="pd-highlight-item">
+                            <span class="pd-check-icon">✓</span>
+                            <span>Công thức lành tính, được kiểm nghiệm lâm sàng an toàn cho mọi loại da.</span>
+                        </div>
+                        <div class="pd-highlight-item">
+                            <span class="pd-check-icon">✓</span>
+                            <span>Tư vấn chu trình skincare 1-1 chuyên sâu bởi đội ngũ dược sĩ &amp; chuyên viên PinkyCloud.</span>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Variant Selector (Phù hợp thông minh theo từng loại sản phẩm: Mặt nạ, Son môi, Skincare, Nước hoa...) -->
+                    <div class="pd-variant-section" id="pdVariantSection" th:if="${product.variants != null and !product.variants.isEmpty()}">
+                        <div class="pd-variant-header">
+                            <span class="pd-variant-title">
+                                <span th:if="${product.variantIcon == 'box'}">📦</span>
+                                <span th:if="${product.variantIcon == 'palette'}">🎨</span>
+                                <span th:if="${product.variantIcon == 'droplet'}">💧</span>
+                                <span th:if="${product.variantIcon == 'sparkles'}">✨</span>
+                                <span th:text="${product.variantGroupTitle != null ? product.variantGroupTitle : 'Chọn phân loại:'}">Chọn phân loại:</span>
+                            </span>
+                            <span class="pd-variant-current-label" id="currentVariantLabel"
+                                  th:text="${product.defaultVariant != null ? product.defaultVariant.fullLabel : ''}"></span>
+                        </div>
+
+                        <div class="pd-variant-pills" id="variantPillsWrap">
+                            <button type="button"
+                                    th:each="v : ${product.variants}"
+                                    class="pd-variant-pill"
+                                    th:classappend="${v.isDefault} ? 'active' : ''"
+                                    th:data-multiplier="${v.priceMultiplier}"
+                                    th:data-price="${v.price}"
+                                    th:data-formatted-price="${v.formattedPrice}"
+                                    th:data-size="${v.name}"
+                                    th:data-label="${v.fullLabel}"
+                                    th:data-stock="${v.stock}">
+                                <span th:if="${v.badge != null and !v.badge.isEmpty()}"
+                                      class="pd-pill-badge"
+                                      th:classappend="${#strings.containsIgnoreCase(v.badge, 'tiết kiệm')} ? 'pd-badge-save' : ''"
+                                      th:text="${v.badge}"></span>
+                                <div class="pd-pill-title-row">
+                                    <span th:if="${v.colorHex != null}" class="pd-pill-color-swatch" th:style="'background-color:' + ${v.colorHex}"></span>
+                                    <span class="pd-pill-name" th:text="${v.name}">1 Miếng</span>
+                                </div>
+                                <span class="pd-pill-sub" th:text="${v.subName}">Dùng thử</span>
+                            </button>
+                        </div>
+
+                        <div class="pd-variant-stock-info">
+                            <span class="pd-stock-dot"></span>
+                            <span id="variantStockText" th:text="${product.isOutOfStock} ? 'Tạm thời hết hàng' : ('Còn sẵn ' + (${product.defaultVariant != null ? product.defaultVariant.stock : product.stock}) + ' sản phẩm trong kho')">Còn sẵn trong kho</span>
+                        </div>
+                    </div>
+
+                    <!-- Quantity & Dual CTAs -->
+                    <div class="pd-action-row">
+                        <div class="pd-qty-selector" th:if="${!product.isOutOfStock}">
+                            <button type="button" class="pd-qty-btn" id="btnMinus" aria-label="Giảm số lượng">−</button>
+                            <input type="number" id="qtyInput" value="1" min="1" th:max="${product.stock}" class="pd-qty-input" readonly>
+                            <button type="button" class="pd-qty-btn" id="btnPlus" aria-label="Tăng số lượng">+</button>
+                        </div>
+
+                        <div class="pd-cta-group">
+                            <button type="button" class="pd-btn-add" id="btnAddToCart" th:disabled="${product.isOutOfStock}">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                                    <circle cx="9" cy="21" r="1"></circle>
+                                    <circle cx="20" cy="21" r="1"></circle>
+                                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                                </svg>
+                                <span th:text="${product.isOutOfStock} ? 'Tạm hết hàng' : 'Thêm Vào Giỏ'">Thêm Vào Giỏ</span>
+                            </button>
+
+                            <button type="button" class="pd-btn-buynow" id="btnBuyNow" th:disabled="${product.isOutOfStock}">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                                </svg>
+                                <span>Mua Ngay</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Toast Success Notification -->
+                    <div id="toastSuccess" style="display: none; margin-bottom: 20px; background: linear-gradient(135deg, #e8faf0 0%, #d4f7e2 100%); border: 1.5px solid #2ed573; color: #15803d; padding: 14px 20px; border-radius: var(--pl-radius-full); font-weight: 700; font-size: 0.94rem; text-align: center; box-shadow: 0 4px 14px rgba(46, 213, 115, 0.2);">
+                        ✓ Đã thêm <strong th:text="${product.name}">sản phẩm</strong> vào giỏ hàng thành công!
+                    </div>
+
+                    <!-- Store Perks Banner -->
+                    <div class="pd-perks-banner">
+                        <div class="pd-perk-item">
+                            <span>🎁</span>
+                            <span>Tặng kèm set sample dùng thử cao cấp cho mọi đơn hàng hôm nay</span>
+                        </div>
+                        <div class="pd-perk-item">
+                            <span>🚚</span>
+                            <span>Miễn phí vận chuyển toàn quốc cho đơn hàng từ 299.000₫</span>
+                        </div>
+                        <div class="pd-perk-item">
+                            <span>💳</span>
+                            <span>Hỗ trợ đa dạng phương thức thanh toán: COD, Chuyển khoản, Thẻ quốc tế</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Enhanced Rich Tabs Container (Thành phần, Hướng dẫn sử dụng, Mô tả) -->
+            <div class="pd-tabs-container">
+                <div class="pd-tabs-nav">
+                    <button type="button" class="pd-tab-btn active" data-tab="tab-ingredients" th:if="${product.ingredients != null and !product.ingredients.isEmpty()}">
+                        <span>🌿</span> Thành Phần Chi Tiết
+                    </button>
+                    <button type="button" class="pd-tab-btn" data-tab="tab-usage" th:if="${product.usageInstructions != null and !product.usageInstructions.isEmpty()}" th:classappend="${product.ingredients == null or product.ingredients.isEmpty()} ? 'active' : ''">
+                        <span>📖</span> Hướng Dẫn Sử Dụng Chuẩn Spa
+                    </button>
+                    <button type="button" class="pd-tab-btn" data-tab="tab-spec">
+                        <span>📝</span> Mô Tả &amp; Công Dụng
+                    </button>
+                </div>
+
+                <div class="pd-tab-content">
+
+                    <!-- Tab 1: Thành Phần Chi Tiết -->
+                    <div class="pd-tab-pane active" id="tab-ingredients" th:if="${product.ingredients != null and !product.ingredients.isEmpty()}">
+                        <!-- Key Actives Highlight Grid -->
+                        <div class="pd-actives-grid">
+                            <div class="pd-active-card">
+                                <div class="pd-active-icon">💧</div>
+                                <div class="pd-active-title">Cấp Ẩm Chuyên Sâu</div>
+                                <div class="pd-active-desc">Hyaluronic Acid &amp; Glycerin giúp khóa ẩm đa tầng, phục hồi hàng rào ẩm tự nhiên giúp làn da luôn căng mọng và rạng rỡ.</div>
+                            </div>
+                            <div class="pd-active-card">
+                                <div class="pd-active-icon">🛡️</div>
+                                <div class="pd-active-title">Chống Oxy Hóa Cao Cấp</div>
+                                <div class="pd-active-desc">Bổ sung phức hợp Niacinamide, Vitamin C và Vitamin E tinh khiết hỗ trợ dưỡng sáng, làm đều màu da và ngăn ngừa lão hóa sớm.</div>
+                            </div>
+                            <div class="pd-active-card">
+                                <div class="pd-active-icon">🌿</div>
+                                <div class="pd-active-title">Chiết Xuất Thực Vật Tự Nhiên</div>
+                                <div class="pd-active-desc">Chiết xuất thảo mộc thiên nhiên làm dịu da tức thì, giảm mẩn đỏ và bảo vệ da tối ưu trước tác hại của khói bụi môi trường.</div>
+                            </div>
+                        </div>
+
+                        <!-- Full Rich Ingredients Text from Database -->
+                        <div class="pd-rich-text" th:text="${product.ingredients}">
+                            Thành phần sản phẩm...
+                        </div>
+
+                        <!-- 5-Free Safety Badges -->
+                        <div class="pd-safety-badges">
+                            <div class="pd-safety-badge">🚫 Không cồn xấu (Alcohol-Free)</div>
+                            <div class="pd-safety-badge">🚫 Không Paraben độc hại</div>
+                            <div class="pd-safety-badge">🚫 Không dầu khoáng (Mineral Oil-Free)</div>
+                            <div class="pd-safety-badge">🐰 Thuần chay &amp; Không thử nghiệm trên động vật</div>
+                            <div class="pd-safety-badge">🔬 Đã kiểm nghiệm an toàn da liễu</div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 2: Hướng Dẫn Sử Dụng Chuẩn Spa -->
+                    <div class="pd-tab-pane" id="tab-usage" th:if="${product.usageInstructions != null and !product.usageInstructions.isEmpty()}" th:classappend="${product.ingredients == null or product.ingredients.isEmpty()} ? 'active' : ''">
+                        <!-- 3-Step Visual Routine Cards -->
+                        <div class="pd-steps-grid">
+                            <div class="pd-step-card">
+                                <div class="pd-step-num">01</div>
+                                <div class="pd-step-title">Làm Sạch &amp; Cân Bằng</div>
+                                <div class="pd-step-text">Tẩy trang và rửa sạch mặt bằng sữa rửa mặt dịu nhẹ. Dùng nước hoa hồng (toner) để cân bằng độ pH lý tưởng cho da.</div>
+                            </div>
+                            <div class="pd-step-card">
+                                <div class="pd-step-num">02</div>
+                                <div class="pd-step-title">Thoa Đều &amp; Vỗ Nhẹ</div>
+                                <div class="pd-step-text">Lấy một lượng vừa đủ sản phẩm ra lòng bàn tay hoặc đầu ngón tay. Chấm đều 5 điểm trên mặt và vỗ nhẹ 1-2 phút theo chiều nâng cơ.</div>
+                            </div>
+                            <div class="pd-step-card">
+                                <div class="pd-step-num">03</div>
+                                <div class="pd-step-title">Khóa Ẩm &amp; Bảo Vệ</div>
+                                <div class="pd-step-text">Khóa dưỡng chất bằng kem dưỡng ẩm phù hợp. Ban ngày luôn kết hợp kem chống nắng để bảo vệ làn da toàn diện nhất.</div>
+                            </div>
+                        </div>
+
+                        <!-- Dermatologist Expert Tip Box -->
+                        <div class="pd-expert-tip-box">
+                            <div class="pd-expert-icon">💡</div>
+                            <div class="pd-expert-content">
+                                <div class="pd-expert-title">Lời Khuyên Từ Chuyên Gia Da Liễu PinkyCloud</div>
+                                <p class="pd-expert-desc">
+                                    Để đạt hiệu quả tối ưu, hãy duy trì sử dụng đều đặn 2 lần mỗi ngày (sáng và tối). Tránh kéo căng da khi thoa sản phẩm và luôn bảo quản sản phẩm ở nơi khô ráo, thoáng mát, tránh ánh nắng trực tiếp.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Full Usage Text from Database -->
+                        <div class="pd-rich-text" style="margin-top: 24px;" th:text="${product.usageInstructions}">
+                            Hướng dẫn sử dụng...
+                        </div>
+                    </div>
+
+                    <!-- Tab 3: Mô Tả Sản Phẩm & Công Dụng -->
+                    <div class="pd-tab-pane" id="tab-spec" th:classappend="${product.ingredients == null and product.usageInstructions == null} ? 'active' : ''">
+                        <div class="pd-rich-text" th:text="${product.description != null and !product.description.isEmpty()} ? ${product.description} : 'Sản phẩm chăm sóc da cao cấp chính hãng tại PinkyCloud Boutique, được tuyển chọn kỹ lưỡng và kiểm định chất lượng nghiêm ngặt trước khi đến tay người tiêu dùng.'">
+                            Mô tả chi tiết sản phẩm...
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Related Products Section -->
+            <section class="home-section" th:if="${relatedProducts != null and !relatedProducts.isEmpty()}">
+                <div class="section-header">
+                    <div>
+                        <h2 class="section-title">Sản Phẩm Cùng Danh Mục</h2>
+                        <div class="section-subtitle">Khám phá các sản phẩm nổi bật cùng dòng được khách hàng yêu thích nhất</div>
+                    </div>
+                    <a th:href="@{/san-pham(category=${product.categoryName})}" class="section-more-link">
+                        Xem tất cả
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </a>
+                </div>
+
+                <div class="pl-grid">
+                    <div th:each="prod : ${relatedProducts}" class="pc">
+                        <a th:href="@{/san-pham/{id}(id=${prod.id})}" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; flex: 1;">
+                            <div class="pc-img-wrap">
+                                <img th:src="@{${prod.image}}" th:alt="${prod.name}" class="pc-img" loading="lazy">
+                                <span th:if="${prod.isOutOfStock}" class="pc-badge pc-badge--out">Hết hàng</span>
+                                <span th:if="${!prod.isOutOfStock and prod.discount > 0}" class="pc-badge pc-badge--sale" th:text="'-' + ${prod.discount} + '%'">-15%</span>
+                            </div>
+                            <div class="pc-body">
+                                <div class="pc-meta" th:text="${prod.brand + ' • ' + prod.categoryName}">Anessa • Chống nắng</div>
+                                <h3 class="pc-name" th:text="${prod.name}">Tên sản phẩm</h3>
+                                <div class="pc-rating">
+                                    <span>★</span>
+                                    <span th:text="${#numbers.formatDecimal(prod.rating, 1, 1)}">4.8</span>
+                                    <span class="pc-rating-count" th:text="'(' + ${prod.reviewCount} + ')'">(24)</span>
+                                </div>
+                                <div class="pc-price-row">
+                                    <span class="pc-price" th:text="${prod.formattedPrice}">463.000₫</span>
+                                    <span class="pc-old" th:if="${prod.formattedOriginalPrice != null}" th:text="${prod.formattedOriginalPrice}">545.000₫</span>
+                                </div>
+                            </div>
+                        </a>
+                        <div class="pc-foot">
+                            <a th:href="@{/san-pham/{id}(id=${prod.id})}" class="pc-btn" style="display: block; text-decoration: none;">Xem chi tiết</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- Detail Interactive JS -->
+        <script>
+            // Tabs switching logic
+            document.querySelectorAll('.pd-tab-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const tabId = button.getAttribute('data-tab');
+                    document.querySelectorAll('.pd-tab-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.pd-tab-pane').forEach(p => p.classList.remove('active'));
+                    button.classList.add('active');
+                    const targetPane = document.getElementById(tabId);
+                    if (targetPane) {
+                        targetPane.classList.add('active');
+                    }
+                });
+            });
+
+            // Quantity selector +/- logic
+            const minusBtn = document.getElementById('btnMinus');
+            const plusBtn = document.getElementById('btnPlus');
+            const qtyInput = document.getElementById('qtyInput');
+            const addBtn = document.getElementById('btnAddToCart');
+            const buyNowBtn = document.getElementById('btnBuyNow');
+            const toast = document.getElementById('toastSuccess');
+            const wishlistBtn = document.getElementById('btnWishlist');
+
+            if (minusBtn && plusBtn && qtyInput) {
+                const maxVal = parseInt(qtyInput.getAttribute('max')) || 99;
+                minusBtn.addEventListener('click', () => {
+                    let val = parseInt(qtyInput.value) || 1;
+                    if (val > 1) qtyInput.value = val - 1;
+                });
+                plusBtn.addEventListener('click', () => {
+                    let val = parseInt(qtyInput.value) || 1;
+                    if (val < maxVal) qtyInput.value = val + 1;
+                });
+            }
+
+            // Dynamic Product Variant Selection
+            const variantPills = document.querySelectorAll('.pd-variant-pill');
+            const currentVariantLabel = document.getElementById('currentVariantLabel');
+            const priceContainer = document.getElementById('pdPriceContainer');
+            const pdPriceMain = document.getElementById('pdPriceMain');
+            const pdPriceOld = document.getElementById('pdPriceOld');
+            const variantStockText = document.getElementById('variantStockText');
+            let selectedVariantName = currentVariantLabel ? currentVariantLabel.textContent.trim() : '';
+
+            function formatVndPrice(num) {
+                return new Intl.NumberFormat('vi-VN').format(Math.round(num)) + '₫';
+            }
+
+            if (variantPills.length > 0 && priceContainer) {
+                const basePrice = parseFloat(priceContainer.getAttribute('data-base-price')) || 0;
+                const origPrice = parseFloat(priceContainer.getAttribute('data-original-price')) || 0;
+
+                variantPills.forEach(pill => {
+                    pill.addEventListener('click', () => {
+                        variantPills.forEach(p => p.classList.remove('active'));
+                        pill.classList.add('active');
+
+                        const mult = parseFloat(pill.getAttribute('data-multiplier')) || 1.0;
+                        const label = pill.getAttribute('data-label') || pill.getAttribute('data-size');
+                        const stock = pill.getAttribute('data-stock') || '50';
+                        const exactPrice = parseFloat(pill.getAttribute('data-price'));
+                        selectedVariantName = label;
+
+                        if (currentVariantLabel) currentVariantLabel.textContent = label;
+                        if (pdPriceMain) {
+                            if (!isNaN(exactPrice) && exactPrice > 0) {
+                                pdPriceMain.textContent = formatVndPrice(exactPrice);
+                            } else if (basePrice > 0) {
+                                pdPriceMain.textContent = formatVndPrice(basePrice * mult);
+                            }
+                        }
+                        if (pdPriceOld && origPrice > 0) {
+                            pdPriceOld.textContent = formatVndPrice(origPrice * mult);
+                        }
+                        if (variantStockText) {
+                            variantStockText.textContent = `Còn sẵn ${stock} sản phẩm trong kho`;
+                        }
+                    });
+                });
+            }
+
+            // Add to cart click
+            if (addBtn && toast) {
+                addBtn.addEventListener('click', () => {
+                    const count = qtyInput ? qtyInput.value : 1;
+                    toast.innerHTML = `🎉 Đã thêm ${count} sản phẩm (${selectedVariantName}) vào giỏ hàng thành công!`;
+                    toast.style.display = 'block';
+                    addBtn.innerHTML = `✓ Đã thêm ${count} sp`;
+                    setTimeout(() => {
+                        toast.style.display = 'none';
+                        addBtn.innerHTML = `
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                                <circle cx="9" cy="21" r="1"></circle>
+                                <circle cx="20" cy="21" r="1"></circle>
+                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                            </svg>
+                            <span>Thêm Vào Giỏ</span>
+                        `;
+                    }, 2500);
+                });
+            }
+
+            // Buy now click
+            if (buyNowBtn && toast) {
+                buyNowBtn.addEventListener('click', () => {
+                    toast.innerHTML = '⚡ Đang chuyển hướng đến trang thanh toán an toàn...';
+                    toast.style.display = 'block';
+                    setTimeout(() => {
+                        toast.style.display = 'none';
+                    }, 3000);
+                });
+            }
+
+            // Wishlist toggle
+            if (wishlistBtn) {
+                wishlistBtn.addEventListener('click', () => {
+                    wishlistBtn.classList.toggle('active');
+                    const svg = wishlistBtn.querySelector('svg');
+                    if (wishlistBtn.classList.contains('active')) {
+                        svg.setAttribute('fill', '#ff4757');
+                        svg.setAttribute('stroke', '#ff4757');
+                    } else {
+                        svg.setAttribute('fill', 'none');
+                        svg.setAttribute('stroke', 'currentColor');
+                    }
+                });
+            }
+
+            // Toggle Review Form
+            const btnToggleRev = document.getElementById('btnToggleReviewForm');
+            const reviewFormWrap = document.getElementById('reviewFormWrap');
+            const btnCancelRev = document.getElementById('btnCancelReview');
+            if (btnToggleRev && reviewFormWrap) {
+                btnToggleRev.addEventListener('click', () => {
+                    reviewFormWrap.classList.toggle('is-open');
+                    if (reviewFormWrap.classList.contains('is-open')) {
+                        document.getElementById('revAuthorInput').focus();
+                    }
+                });
+            }
+            if (btnCancelRev && reviewFormWrap) {
+                btnCancelRev.addEventListener('click', () => {
+                    reviewFormWrap.classList.remove('is-open');
+                });
+            }
+
+            // Interactive Star Picker
+            let selectedRating = 5;
+            const starBtns = document.querySelectorAll('.pd-star-pick-btn');
+            const starLabel = document.getElementById('starPickLabel');
+            const starLabels = {
+                1: 'Rất tệ (1/5)',
+                2: 'Tạm được (2/5)',
+                3: 'Bình thường (3/5)',
+                4: 'Hài lòng (4/5)',
+                5: 'Tuyệt vời (5/5)'
+            };
+
+            starBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    selectedRating = parseInt(btn.getAttribute('data-star'));
+                    starBtns.forEach(b => {
+                        const starNum = parseInt(b.getAttribute('data-star'));
+                        if (starNum <= selectedRating) {
+                            b.classList.add('active');
+                        } else {
+                            b.classList.remove('active');
+                        }
+                    });
+                    if (starLabel) starLabel.textContent = starLabels[selectedRating] || '';
+                });
+            });
+
+            // Submit Review Simulation (Appends sleek feed item)
+            const btnSubmitRev = document.getElementById('btnSubmitReview');
+            const authorInput = document.getElementById('revAuthorInput');
+            const commentInput = document.getElementById('revCommentInput');
+            const miniList = document.getElementById('miniReviewsList');
+            const revCountHeader = document.getElementById('revCountHeader');
+
+            if (btnSubmitRev && miniList) {
+                btnSubmitRev.addEventListener('click', () => {
+                    const author = (authorInput && authorInput.value.trim()) ? authorInput.value.trim() : 'Khách Hàng PinkyCloud';
+                    const comment = (commentInput && commentInput.value.trim()) ? commentInput.value.trim() : '';
+                    if (!comment) {
+                        alert('Vui lòng nhập nội dung đánh giá của bạn trước khi gửi.');
+                        return;
+                    }
+
+                    const initials = author.substring(0, 2).toUpperCase();
+                    const starString = '★'.repeat(selectedRating) + '☆'.repeat(5 - selectedRating);
+
+                    const newFeedItem = document.createElement('div');
+                    newFeedItem.className = 'pd-feed-item';
+                    newFeedItem.setAttribute('data-aspect', 'vua-danh-gia');
+                    newFeedItem.setAttribute('data-rating', selectedRating.toString());
+                    newFeedItem.style.animation = 'fadeIn 0.4s ease';
+                    newFeedItem.innerHTML = `
+                        <div class="pd-feed-header">
+                            <div class="pd-feed-user">
+                                <div class="pd-feed-avatar" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">${initials}</div>
+                                <span class="pd-feed-name">${author}</span>
+                                <span class="pd-feed-verified">✓ Vừa đánh giá</span>
+                            </div>
+                            <div class="pd-feed-meta-right">
+                                <span class="pd-feed-stars">${starString}</span>
+                                <span class="pd-feed-date">Vừa xong</span>
+                            </div>
+                        </div>
+                        <div class="pd-feed-chips">
+                            <span class="pd-aspect-tag">✨ Đánh giá mới nhất</span>
+                        </div>
+                        <p class="pd-feed-text">${comment}</p>
+                    `;
+
+                    miniList.prepend(newFeedItem);
+                    if (commentInput) commentInput.value = '';
+                    if (authorInput) authorInput.value = '';
+                    if (reviewFormWrap) reviewFormWrap.classList.remove('is-open');
+
+                    if (revCountHeader) {
+                        const current = parseInt(revCountHeader.textContent) || 24;
+                        revCountHeader.textContent = current + 1;
+                    }
+
+                    if (toast) {
+                        toast.innerHTML = '✓ Cảm ơn bạn! Đánh giá của bạn đã được gửi thành công.';
+                        toast.style.display = 'block';
+                        setTimeout(() => { toast.style.display = 'none'; }, 3000);
+                    }
+                    syncReviewsCardHeight();
+                });
+            }
+
+            // Aspect Filter Buttons on Main Page
+            document.querySelectorAll('.pd-aspect-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.pd-aspect-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    const filter = btn.getAttribute('data-filter');
+                    const feedItems = document.querySelectorAll('#miniReviewsList .pd-feed-item');
+
+                    feedItems.forEach(item => {
+                        const aspect = item.getAttribute('data-aspect') || '';
+                        const rating = item.getAttribute('data-rating') || '';
+
+                        if (filter === 'all') {
+                            item.style.display = '';
+                        } else if (filter === '5-star') {
+                            item.style.display = (rating === '5') ? '' : 'none';
+                        } else {
+                            item.style.display = aspect.includes(filter) ? '' : 'none';
+                        }
+                    });
+                    syncReviewsCardHeight();
+                });
+            });
+
+            // Review Comparison Modal Logic
+            const modalCompare = document.getElementById('modalCompareReviews');
+            const btnOpenModal = document.getElementById('btnOpenCompareModal');
+            const btnCloseModal = document.getElementById('btnCloseCompareModal');
+            const modalSearch = document.getElementById('modalRevSearchInput');
+            const modalFilterBtns = document.querySelectorAll('.pd-modal-filter-btn');
+
+            function openCompareModal() {
+                if (modalCompare) {
+                    modalCompare.classList.add('is-open');
+                    document.body.style.overflow = 'hidden';
+                }
+            }
+
+            function closeCompareModal() {
+                if (modalCompare) {
+                    modalCompare.classList.remove('is-open');
+                    document.body.style.overflow = '';
+                }
+            }
+
+            if (btnOpenModal) btnOpenModal.addEventListener('click', openCompareModal);
+            if (btnCloseModal) btnCloseModal.addEventListener('click', closeCompareModal);
+
+            if (modalCompare) {
+                modalCompare.addEventListener('click', (e) => {
+                    if (e.target === modalCompare) closeCompareModal();
+                });
+            }
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && modalCompare && modalCompare.classList.contains('is-open')) {
+                    closeCompareModal();
+                }
+            });
+
+            // Modal Filtering & Keyword Searching
+            function filterModalReviews() {
+                const keyword = modalSearch ? modalSearch.value.trim().toLowerCase() : '';
+                const activeFilterBtn = document.querySelector('.pd-modal-filter-btn.active');
+                const filter = activeFilterBtn ? activeFilterBtn.getAttribute('data-modal-filter') : 'all';
+                const cards = document.querySelectorAll('#modalReviewsList .pd-modal-rev-card');
+
+                cards.forEach(card => {
+                    const aspect = card.getAttribute('data-aspect') || '';
+                    const rating = card.getAttribute('data-rating') || '';
+                    const text = card.textContent.toLowerCase();
+
+                    let matchesTag = (filter === 'all') || (filter === '5-star' && rating === '5') || (aspect.includes(filter));
+                    let matchesSearch = !keyword || text.includes(keyword);
+
+                    card.style.display = (matchesTag && matchesSearch) ? 'block' : 'none';
+                });
+            }
+
+            if (modalSearch) {
+                modalSearch.addEventListener('input', filterModalReviews);
+            }
+
+            modalFilterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    modalFilterBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    filterModalReviews();
+                });
+            });
+
+            // Synchronize reviews card bottom with info card bottom on desktop
+            function syncReviewsCardHeight() {
+                const revCard = document.getElementById('pd-reviews-section');
+                const infoCard = document.querySelector('.pd-info-card');
+                const list = document.getElementById('miniReviewsList');
+
+                if (!revCard || !infoCard) return;
+
+                if (window.innerWidth <= 991) {
+                    revCard.style.height = 'auto';
+                    if (list) list.style.maxHeight = '360px';
+                    return;
+                }
+
+                // Reset height to calculate natural layout positions
+                revCard.style.height = 'auto';
+                if (list) list.style.maxHeight = 'none';
+
+                const infoRect = infoCard.getBoundingClientRect();
+                const revRect = revCard.getBoundingClientRect();
+                const targetHeight = Math.floor(infoRect.bottom - revRect.top);
+
+                if (targetHeight > 220) {
+                    revCard.style.height = targetHeight + 'px';
+                }
+            }
+
+            // Sync on load, resize, and DOM observations
+            window.addEventListener('load', syncReviewsCardHeight);
+            window.addEventListener('resize', syncReviewsCardHeight);
+            if (window.ResizeObserver) {
+                const ro = new ResizeObserver(() => {
+                    syncReviewsCardHeight();
+                });
+                const infoCard = document.querySelector('.pd-info-card');
+                const imageCard = document.querySelector('.pd-image-card');
+                if (infoCard) ro.observe(infoCard);
+                if (imageCard) ro.observe(imageCard);
+            }
+            setTimeout(syncReviewsCardHeight, 250);
+        </script>
+
+        <!-- Comparison Modal Dialog -->
+        <div class="pd-modal-overlay" id="modalCompareReviews" role="dialog" aria-modal="true">
+            <div class="pd-modal-box">
+                <div class="pd-modal-header">
+                    <h3 class="pd-modal-title">
+                        <span>🔍</span> Bảng So Sánh &amp; Phân Tích Đánh Giá
+                    </h3>
+                    <button type="button" class="pd-modal-close-btn" id="btnCloseCompareModal" title="Đóng">&times;</button>
+                </div>
+                <div class="pd-modal-body">
+                    <div class="pd-modal-grid">
+                        <!-- Left Summary & Key Aspects -->
+                        <div class="pd-modal-summary-card">
+                            <div class="pd-modal-score-box">
+                                <div class="pd-modal-score-val" th:text="${#numbers.formatDecimal(product.rating, 1, 1)}">4.9</div>
+                                <div class="pd-modal-score-stars">★★★★★</div>
+                                <div class="pd-modal-score-label">98% khách hàng khuyên dùng</div>
+                            </div>
+
+                            <div class="pd-modal-bars">
+                                <div class="pd-modal-bar-row">
+                                    <span class="pd-modal-bar-label">5 sao</span>
+                                    <div class="pd-modal-bar-track"><div class="pd-modal-bar-fill" style="width: 88%;"></div></div>
+                                    <span class="pd-modal-bar-count">21</span>
+                                </div>
+                                <div class="pd-modal-bar-row">
+                                    <span class="pd-modal-bar-label">4 sao</span>
+                                    <div class="pd-modal-bar-track"><div class="pd-modal-bar-fill" style="width: 12%;"></div></div>
+                                    <span class="pd-modal-bar-count">3</span>
+                                </div>
+                                <div class="pd-modal-bar-row">
+                                    <span class="pd-modal-bar-label">3 sao</span>
+                                    <div class="pd-modal-bar-track"><div class="pd-modal-bar-fill" style="width: 0%;"></div></div>
+                                    <span class="pd-modal-bar-count">0</span>
+                                </div>
+                                <div class="pd-modal-bar-row">
+                                    <span class="pd-modal-bar-label">2 sao</span>
+                                    <div class="pd-modal-bar-track"><div class="pd-modal-bar-fill" style="width: 0%;"></div></div>
+                                    <span class="pd-modal-bar-count">0</span>
+                                </div>
+                                <div class="pd-modal-bar-row">
+                                    <span class="pd-modal-bar-label">1 sao</span>
+                                    <div class="pd-modal-bar-track"><div class="pd-modal-bar-fill" style="width: 0%;"></div></div>
+                                    <span class="pd-modal-bar-count">0</span>
+                                </div>
+                            </div>
+
+                            <div class="pd-modal-key-points">
+                                <div class="pd-modal-key-title">⚡ Điểm So Sánh Nổi Bật</div>
+                                <div class="pd-modal-key-item">🌿 <strong>99%</strong> khẳng định da nhạy cảm không châm chích</div>
+                                <div class="pd-modal-key-item">💧 <strong>96%</strong> ưng ý độ thấm nhanh, không nhờn rít</div>
+                                <div class="pd-modal-key-item">🌸 <strong>94%</strong> yêu thích mùi hương nhẹ dịu spa</div>
+                                <div class="pd-modal-key-item">📦 <strong>100%</strong> khen ngợi quy cách đóng gói PinkyCloud</div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column: Search, Tag Filter, Feed -->
+                        <div>
+                            <div class="pd-modal-controls">
+                                <div class="pd-modal-search">
+                                    <span class="pd-modal-search-icon">🔍</span>
+                                    <input type="text" id="modalRevSearchInput" placeholder="Tìm từ khóa so sánh (vd: kiềm dầu, nhạy cảm, mụn, mùi hương, lót nền)...">
+                                </div>
+                                <div class="pd-modal-filter-tags">
+                                    <button type="button" class="pd-modal-filter-btn active" data-modal-filter="all">Tất cả (24)</button>
+                                    <button type="button" class="pd-modal-filter-btn" data-modal-filter="da-nhay-cam">🌿 Da nhạy cảm</button>
+                                    <button type="button" class="pd-modal-filter-btn" data-modal-filter="kiem-dau">💧 Kiềm dầu</button>
+                                    <button type="button" class="pd-modal-filter-btn" data-modal-filter="mui-huong">🌸 Mùi hương</button>
+                                    <button type="button" class="pd-modal-filter-btn" data-modal-filter="5-star">⭐ 5 Sao</button>
+                                </div>
+                            </div>
+
+                            <div class="pd-modal-reviews-list" id="modalReviewsList">
+                                <!-- Review 1 -->
+                                <div class="pd-modal-rev-card" data-aspect="da-nhay-cam kiem-dau" data-rating="5">
+                                    <div class="pd-modal-rev-top">
+                                        <div class="pd-modal-rev-user">
+                                            <div class="pd-modal-rev-avatar" style="background: linear-gradient(135deg, #ff6b81 0%, #ff8fa3 100%);">LA</div>
+                                            <span class="pd-modal-rev-name">Nguyễn Thị Lan Anh</span>
+                                            <span class="pd-modal-rev-verified">✓ Chính hãng</span>
+                                        </div>
+                                        <div>
+                                            <span class="pd-modal-rev-stars">★★★★★</span>
+                                            <span class="pd-modal-rev-date">3 ngày</span>
+                                        </div>
+                                    </div>
+                                    <div class="pd-modal-rev-chips">
+                                        <span class="pd-aspect-tag">🌿 Da dầu nhạy cảm</span>
+                                        <span class="pd-aspect-tag">⚡ Thấm cực nhanh</span>
+                                    </div>
+                                    <p class="pd-modal-rev-text">
+                                        Chất mỏng nhẹ, thẩm thấu cực nhanh và không hề bị bết dính hay bí da. Sau 2 tuần dùng đều đặn da mềm mịn và ráo thoáng cả ngày. Đóng gói hộp hồng siêu xinh!
+                                    </p>
+                                </div>
+
+                                <!-- Review 2 -->
+                                <div class="pd-modal-rev-card" data-aspect="da-nhay-cam" data-rating="5">
+                                    <div class="pd-modal-rev-top">
+                                        <div class="pd-modal-rev-user">
+                                            <div class="pd-modal-rev-avatar" style="background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);">MP</div>
+                                            <span class="pd-modal-rev-name">Trần Mai Phương</span>
+                                            <span class="pd-modal-rev-verified">✓ Chính hãng</span>
+                                        </div>
+                                        <div>
+                                            <span class="pd-modal-rev-stars">★★★★★</span>
+                                            <span class="pd-modal-rev-date">1 tuần</span>
+                                        </div>
+                                    </div>
+                                    <div class="pd-modal-rev-chips">
+                                        <span class="pd-aspect-tag">🌿 Da nhạy cảm mụn</span>
+                                        <span class="pd-aspect-tag">🛡️ Không châm chích</span>
+                                    </div>
+                                    <p class="pd-modal-rev-text">
+                                        Hàng chính hãng có tem phụ chuẩn xác. Da mình là da nhạy cảm rất dễ nổi mụn nhưng dùng em này cực kỳ êm dịu, hoàn toàn không bị châm chích. Shop tặng nhiều sample xịn xò.
+                                    </p>
+                                </div>
+
+                                <!-- Review 3 -->
+                                <div class="pd-modal-rev-card" data-aspect="mui-huong" data-rating="5">
+                                    <div class="pd-modal-rev-top">
+                                        <div class="pd-modal-rev-user">
+                                            <div class="pd-modal-rev-avatar" style="background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);">HY</div>
+                                            <span class="pd-modal-rev-name">Hoàng Hải Yến</span>
+                                            <span class="pd-modal-rev-verified">✓ Chính hãng</span>
+                                        </div>
+                                        <div>
+                                            <span class="pd-modal-rev-stars">★★★★★</span>
+                                            <span class="pd-modal-rev-date">2 tuần</span>
+                                        </div>
+                                    </div>
+                                    <div class="pd-modal-rev-chips">
+                                        <span class="pd-aspect-tag">🌸 Mùi thư giãn</span>
+                                        <span class="pd-aspect-tag">✨ Lớp lót tự nhiên</span>
+                                    </div>
+                                    <p class="pd-modal-rev-text">
+                                        Mùi hương dịu ngọt thư giãn như ở spa. Dùng ban ngày làm lớp lót trước khi thoa phấn cũng rất đẹp, tiệp vào da tự nhiên không bị mốc phấn. Rất đáng tiền!
+                                    </p>
+                                </div>
+
+                                <!-- Review 4 -->
+                                <div class="pd-modal-rev-card" data-aspect="kiem-dau" data-rating="5">
+                                    <div class="pd-modal-rev-top">
+                                        <div class="pd-modal-rev-user">
+                                            <div class="pd-modal-rev-avatar" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: #065f46;">BN</div>
+                                            <span class="pd-modal-rev-name">Vũ Bích Ngọc</span>
+                                            <span class="pd-modal-rev-verified">✓ Chính hãng</span>
+                                        </div>
+                                        <div>
+                                            <span class="pd-modal-rev-stars">★★★★★</span>
+                                            <span class="pd-modal-rev-date">1 tháng</span>
+                                        </div>
+                                    </div>
+                                    <div class="pd-modal-rev-chips">
+                                        <span class="pd-aspect-tag">💧 Kiềm dầu đỉnh</span>
+                                        <span class="pd-aspect-tag">⭐ Mua lại lần 2</span>
+                                    </div>
+                                    <p class="pd-modal-rev-text">
+                                        Dùng đến chai thứ 2 rồi vẫn mê. Khả năng kiềm dầu tốt từ sáng đến chiều không bị xuống tông, giá tại PinkyCloud lại ưu đãi hơn showroom nhiều.
+                                    </p>
+                                </div>
+
+                                <!-- Review 5 -->
+                                <div class="pd-modal-rev-card" data-aspect="da-nhay-cam kiem-dau" data-rating="4">
+                                    <div class="pd-modal-rev-top">
+                                        <div class="pd-modal-rev-user">
+                                            <div class="pd-modal-rev-avatar" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">QC</div>
+                                            <span class="pd-modal-rev-name">Đặng Quỳnh Chi</span>
+                                            <span class="pd-modal-rev-verified">✓ Chính hãng</span>
+                                        </div>
+                                        <div>
+                                            <span class="pd-modal-rev-stars">★★★★☆</span>
+                                            <span class="pd-modal-rev-date">1 tháng</span>
+                                        </div>
+                                    </div>
+                                    <div class="pd-modal-rev-chips">
+                                        <span class="pd-aspect-tag">🌿 Lành tính</span>
+                                        <span class="pd-aspect-tag">💧 Ráo thoáng</span>
+                                    </div>
+                                    <p class="pd-modal-rev-text">
+                                        Chất lượng ưng ý, bảng thành phần an toàn. Da dầu mụn dùng thấy thoáng nhẹ, không bí lỗ chân lông sinh mụn ẩn. Sẽ tiếp tục ủng hộ shop.
+                                    </p>
+                                </div>
+
+                                <!-- Review 6 -->
+                                <div class="pd-modal-rev-card" data-aspect="mui-huong" data-rating="5">
+                                    <div class="pd-modal-rev-top">
+                                        <div class="pd-modal-rev-user">
+                                            <div class="pd-modal-rev-avatar" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">HN</div>
+                                            <span class="pd-modal-rev-name">Lê Hoàng Nam</span>
+                                            <span class="pd-modal-rev-verified">✓ Chính hãng</span>
+                                        </div>
+                                        <div>
+                                            <span class="pd-modal-rev-stars">★★★★★</span>
+                                            <span class="pd-modal-rev-date">1 tháng</span>
+                                        </div>
+                                    </div>
+                                    <div class="pd-modal-rev-chips">
+                                        <span class="pd-aspect-tag">🎁 Đóng gói nơ sang</span>
+                                        <span class="pd-aspect-tag">🚀 Giao 2 tiếng</span>
+                                    </div>
+                                    <p class="pd-modal-rev-text">
+                                        Mua làm quà tặng sinh nhật, bạn gái khen hết lời. Hộp đóng gói PinkyCloud cực kỳ chỉn chu, có thắt nơ hồng kèm thiệp cảm ơn. Giao nhanh 2 tiếng.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
