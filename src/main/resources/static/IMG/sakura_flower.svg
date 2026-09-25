@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="flowerGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#f76c85" stop-opacity="0.95" />
+      <stop offset="55%" stop-color="#ffccd9" stop-opacity="0.95" />
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.98" />
+    </linearGradient>
+    <!-- Petal rotated around 50,50 -->
+    <path id="singlePetal" d="M 50 50 C 45 40, 20 28, 25 14 C 28 4, 45 6, 50 14 C 55 6, 72 4, 75 14 C 80 28, 55 40, 50 50 Z" />
+  </defs>
+  <!-- Soft drop shadow for the whole flower -->
+  <g transform="translate(0, 3)" opacity="0.12">
+    <use href="#singlePetal" fill="#000000" transform="rotate(0 50 50)" />
+    <use href="#singlePetal" fill="#000000" transform="rotate(72 50 50)" />
+    <use href="#singlePetal" fill="#000000" transform="rotate(144 50 50)" />
+    <use href="#singlePetal" fill="#000000" transform="rotate(216 50 50)" />
+    <use href="#singlePetal" fill="#000000" transform="rotate(288 50 50)" />
+  </g>
+  <!-- The petals -->
+  <use href="#singlePetal" fill="url(#flowerGrad)" transform="rotate(0 50 50)" />
+  <use href="#singlePetal" fill="url(#flowerGrad)" transform="rotate(72 50 50)" />
+  <use href="#singlePetal" fill="url(#flowerGrad)" transform="rotate(144 50 50)" />
+  <use href="#singlePetal" fill="url(#flowerGrad)" transform="rotate(216 50 50)" />
+  <use href="#singlePetal" fill="url(#flowerGrad)" transform="rotate(288 50 50)" />
+  
+  <!-- Flower pistils and stamens -->
+  <g stroke="#d54e69" stroke-width="0.8" opacity="0.85">
+    <line x1="50" y1="50" x2="50" y2="38" />
+    <line x1="50" y1="50" x2="61" y2="42" />
+    <line x1="50" y1="50" x2="57" y2="59" />
+    <line x1="50" y1="50" x2="43" y2="59" />
+    <line x1="50" y1="50" x2="39" y2="42" />
+    
+    <line x1="50" y1="50" x2="55" y2="39" />
+    <line x1="50" y1="50" x2="60" y2="51" />
+    <line x1="50" y1="50" x2="49" y2="61" />
+    <line x1="50" y1="50" x2="40" y2="51" />
+    <line x1="50" y1="50" x2="45" y2="39" />
+  </g>
+  <!-- Small golden/pink pollen tips -->
+  <circle cx="50" cy="38" r="1.2" fill="#ffd43f" stroke="#e04c6a" stroke-width="0.3" />
+  <circle cx="61" cy="42" r="1.2" fill="#ffd43f" stroke="#e04c6a" stroke-width="0.3" />
+  <circle cx="57" cy="59" r="1.2" fill="#ffd43f" stroke="#e04c6a" stroke-width="0.3" />
+  <circle cx="43" cy="59" r="1.2" fill="#ffd43f" stroke="#e04c6a" stroke-width="0.3" />
+  <circle cx="39" cy="42" r="1.2" fill="#ffd43f" stroke="#e04c6a" stroke-width="0.3" />
+  <circle cx="55" cy="39" r="1.2" fill="#ffd43f" stroke="#e04c6a" stroke-width="0.3" />
+  <circle cx="60" cy="51" r="1.2" fill="#ffd43f" stroke="#e04c6a" stroke-width="0.3" />
+  <circle cx="49" cy="61" r="1.2" fill="#ffd43f" stroke="#e04c6a" stroke-width="0.3" />
+  <circle cx="40" cy="51" r="1.2" fill="#ffd43f" stroke="#e04c6a" stroke-width="0.3" />
+  <circle cx="45" cy="39" r="1.2" fill="#ffd43f" stroke="#e04c6a" stroke-width="0.3" />
+  
+  <!-- Central base of flower -->
+  <circle cx="50" cy="50" r="4.5" fill="#f76c85" />
+  <circle cx="50" cy="50" r="2.5" fill="#be3b54" />
+</svg>
