@@ -43,3 +43,7 @@ agents.rar
 ### Python Helper Scripts & Logs ###
 *.py
 *.log
+
+### Planning ###
+.planning/
+
