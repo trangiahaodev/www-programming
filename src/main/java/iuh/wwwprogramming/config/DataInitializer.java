@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(name = "app.seed-products", havingValue = "true", matchIfMissing = true)
 @Component
 @RequiredArgsConstructor
 @Slf4j

@@ -1,0 +1,36 @@
+:root {
+    --account-ink: #18181b;
+    --account-paper: #ffffff;
+    --account-pink: #9d174d;
+    --account-red: #991b1b;
+    --account-muted: #52525b;
+    --account-line: #a1a1aa;
+    --account-overlay: #18181b99;
+    --account-text: var(--account-ink);
+    --account-surface: var(--account-paper);
+    --account-action: var(--account-pink);
+    --account-danger: var(--account-red);
+    --account-button-bg: var(--account-action);
+}
+.account-panel { max-width: 560px; margin: 48px auto; padding: 32px; background: var(--account-surface); color: var(--account-text); border-radius: 8px; }
+.account-panel h1, .users-page h1 { font-size: 28px; font-weight: 800; margin-bottom: 24px; }
+.account-form { display: grid; gap: 8px; margin: 24px 0; }
+.account-form input, .account-form textarea, .account-form select, .users-search input { min-height: 44px; padding: 8px; border: 1px solid var(--account-line); border-radius: 8px; color: var(--account-text); background: var(--account-surface); }
+.account-form input[type=checkbox] { width: 24px; min-height: 24px; }
+.account-button { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 8px 16px; border: 0; border-radius: 8px; color: var(--account-paper); background: var(--account-button-bg); cursor: pointer; font-weight: 600; }
+.account-button.secondary { background: var(--account-muted); }
+.account-button.danger { background: var(--account-danger); }
+.account-button:disabled { opacity: .65; cursor: wait; }
+.account-error { color: var(--account-danger); }
+.account-panel a { text-decoration: underline; }
+.account-form :focus-visible, .account-button:focus-visible, .users-page a:focus-visible { outline: 3px solid var(--account-action); outline-offset: 3px; }
+.account-nav { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 8px 24px; }
+.users-page { padding: 24px; color: var(--account-text); }
+.users-search, .user-actions, .users-pagination { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin: 16px 0; }
+.users-table-wrap { overflow-x: auto; background: var(--account-surface); border-radius: 8px; }
+.users-table { width: 100%; border-collapse: collapse; }
+.users-table th, .users-table td { padding: 16px; text-align: left; border-bottom: 1px solid var(--account-line); }
+.users-table th { background: var(--color-surface-subtle, var(--account-paper)); }
+.user-dialog { margin: auto; width: min(560px, calc(100% - 32px)); border: 0; border-radius: 8px; padding: 32px; color: var(--account-text); background: var(--account-surface); }
+.user-dialog::backdrop { background: var(--account-overlay); }
+@media (max-width: 600px) { .account-panel { margin: 16px; padding: 24px; } .users-page { padding: 8px; } }

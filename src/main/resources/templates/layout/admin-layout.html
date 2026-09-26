@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html th:fragment="layout(content)" xmlns:th="http://www.thymeleaf.org" lang="vi">
+<html th:fragment="layout(content)" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,6 +12,7 @@
     
     <!-- Admin Master Stylesheet -->
     <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <link rel="stylesheet" th:href="@{/css/account.css}">
 </head>
 <body>
 
@@ -27,6 +28,7 @@
         </div>
 
         <nav class="sidebar-nav" aria-label="Admin Navigation">
+<a class="nav-link" th:href="@{/admin/users}">Người dùng</a>
             <div class="nav-section-title">Tổng quan</div>
             <a th:href="@{/admin}" class="nav-link">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -94,7 +96,7 @@
                 <div class="header-user-profile">
                     <div class="user-avatar" title="Quản trị viên">AD</div>
                     <div class="user-details">
-                        <span class="user-name">Quản trị viên</span>
+                        <span class="user-name" sec:authentication="name">Quản trị viên</span>
                         <span class="user-badge">Super Admin</span>
                     </div>
                 </div>

@@ -245,7 +245,7 @@
         <div th:if="${!products.empty}" class="card-footer">
             <div class="footer-info">
                 Hiển thị <strong th:text="${(currentPage * pageSize) + 1}">1</strong> - 
-                <strong th:text="${T(java.lang.Math).min((currentPage + 1) * pageSize, products.totalElements)}">10</strong>
+                <strong th:text="${((currentPage + 1) * pageSize < products.totalElements ? (currentPage + 1) * pageSize : products.totalElements)}">10</strong>
                 trên tổng số <strong th:text="${products.totalElements}">45</strong> sản phẩm
             </div>
 
@@ -305,6 +305,7 @@
             </div>
 
             <form id="deleteProductForm" method="post" action="">
+<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                 <div class="modal-body">
                     <p>Bạn có chắc chắn muốn xóa sản phẩm mỹ phẩm này không?</p>
                     <div class="delete-target-info">
