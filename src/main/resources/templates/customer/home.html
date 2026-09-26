@@ -17,9 +17,12 @@
                 </button>
 
                 <div class="hero-voucher-popup" id="voucherPopup">
-                    <div style="font-weight: 800; font-size: 15px; color: #7a2d49; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
-                        <span>🎟️ Mã Giảm Giá Đang Áp Dụng</span>
-                        <span style="font-size: 12px; color: #888; font-weight: 500;">Nhấn để sao chép</span>
+                    <div class="hero-voucher-header">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span>🎟️ Mã Giảm Giá Đang Áp Dụng</span>
+                            <span class="hero-voucher-badge" th:text="${#lists.size(hotVouchers)} + ' mã'">8 mã</span>
+                        </div>
+                        <span class="hero-voucher-hint">Cuộn xem &bull; Nhấn sao chép</span>
                     </div>
                     <div class="hero-voucher-grid">
                         <div th:each="voucher : ${hotVouchers}"
