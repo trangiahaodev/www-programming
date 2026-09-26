@@ -1,0 +1,59 @@
+[
+  {
+    "id": "office-001",
+    "title": "Văn phòng chính (Showroom TP. HCM)",
+    "address": "Số 57, đường Quang Trung, quận Gò Vấp, TP. HCM",
+    "description": "Không gian trải nghiệm làm đẹp chuẩn quốc tế với công nghệ soi da AI 3D, tư vấn routine chăm sóc cá nhân hóa cùng chuyên viên.",
+    "city": "TP. HCM",
+    "phone": "(028) 1234 5678",
+    "email": "pinkycloudvietnam@gmail.com",
+    "workingHours": "08:00 - 21:00 (Thứ 2 - Chủ nhật)",
+    "supportType": "Trực tiếp tại Showroom",
+    "coupon": "PINKY_GOVAP",
+    "perks": [
+      "🔍 Soi da AI và thiết lập skincare routine miễn phí",
+      "🎁 Tặng check-in giftbox 3 món mẫu thử mini",
+      "🧴 Trải nghiệm trực tiếp mẫu test full-size tại quầy"
+    ],
+    "image": "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=1200&q=80",
+    "active": true
+  },
+  {
+    "id": "office-002",
+    "title": "Chi nhánh Hà Nội (Showroom Hoàn Kiếm)",
+    "address": "Số 12, phố Hàng Bài, quận Hoàn Kiếm, Hà Nội",
+    "description": "Showroom tọa lạc tại vị trí đắc địa trung tâm thủ đô, cập nhật liên tục các bộ sưu tập mỹ phẩm chính hãng xu hướng mới nhất.",
+    "city": "Hà Nội",
+    "phone": "(024) 9988 7766",
+    "email": "hanoi@pinkycloud.vn",
+    "workingHours": "08:30 - 21:30 (Thứ 2 - Chủ nhật)",
+    "supportType": "Trực tiếp tại Showroom",
+    "coupon": "PINKY_HANOI",
+    "perks": [
+      "🔍 Đo độ ẩm và đánh giá hàng rào lipid da",
+      "🎁 Nhận sample kit dưỡng ẩm lành tính miễn phí",
+      "✨ Voucher ưu đãi 5% cho hóa đơn mua sắm tiếp theo"
+    ],
+    "image": "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1200&q=80",
+    "active": true
+  },
+  {
+    "id": "office-003",
+    "title": "Trung tâm CSKH & Tư vấn Trực Tuyến",
+    "address": "Hệ thống Hỗ trợ Khách hàng Trực tuyến Toàn Quốc",
+    "description": "Kênh tư vấn da liễu trực tuyến 24/7 hoàn toàn miễn phí, giao hàng siêu tốc và hỗ trợ đổi trả trong 30 ngày an tâm tuyệt đối.",
+    "city": "Toàn quốc",
+    "phone": "1900 633 950",
+    "email": "support@pinkycloud.vn",
+    "workingHours": "24/7 (Toàn thời gian)",
+    "supportType": "Tư vấn Online & Hotline",
+    "coupon": "PINKY_ONLINE",
+    "perks": [
+      "📞 Chat 1:1 cùng chuyên viên da liễu 24/7",
+      "🎟️ Nhận e-voucher giảm thêm 50k mua online",
+      "🚚 Miễn phí vận chuyển toàn quốc đơn từ 299.000₫"
+    ],
+    "image": "https://images.unsplash.com/photo-1519014816548-bf5fe059798b?auto=format&fit=crop&w=1200&q=80",
+    "active": true
+  }
+]
