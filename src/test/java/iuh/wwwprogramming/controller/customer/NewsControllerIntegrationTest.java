@@ -31,6 +31,11 @@ class NewsControllerIntegrationTest {
                 .andExpect(model().attributeExists("featuredArticle"))
                 .andExpect(model().attribute("activeMenu", "news"))
                 .andExpect(model().attribute("articles", hasSize(greaterThanOrEqualTo(5))));
+
+        mockMvc.perform(get("/cam-nang"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("customer/news-list"))
+                .andExpect(model().attributeExists("articles"));
     }
 
     @Test

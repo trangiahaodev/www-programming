@@ -30,6 +30,7 @@ public class NewsController {
         NewsDTO featuredArticle = newsService.getFeaturedArticle();
 
         model.addAttribute("articles", articles);
+        model.addAttribute("newsList", articles);
         model.addAttribute("featuredArticle", featuredArticle);
         model.addAttribute("categories", categories);
         model.addAttribute("selectedCategory", category);
@@ -56,6 +57,7 @@ public class NewsController {
         List<NewsDTO> relatedNews = newsService.getRelatedNews(article.getId(), article.getCategory(), 3);
 
         model.addAttribute("article", article);
+        model.addAttribute("news", article);
         model.addAttribute("relatedNews", relatedNews);
         model.addAttribute("activeMenu", "news");
 

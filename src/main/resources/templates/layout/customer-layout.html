@@ -6,8 +6,11 @@
     <title>PinkyCloud - Mỹ Phẩm Chính Hãng &amp; Chăm Sóc Da Cao Cấp</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,700;0,800;1,500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" th:href="@{/css/customer.css}">
+    <link rel="stylesheet" th:href="@{/css/HandbookPage.css}">
+    <link rel="stylesheet" th:href="@{/css/NewsDetailPage.css}">
 </head>
 <body>
 
@@ -50,7 +53,7 @@
                     <a th:href="@{/san-pham}" class="nav-link" th:classappend="${activeMenu == 'products'} ? 'active' : ''">BỘ SƯU TẬP</a>
                 </li>
                 <li>
-                    <a th:href="@{/tin-tuc}" class="nav-link" th:classappend="${activeMenu == 'news'} ? 'active' : ''">TIN TỨC & CẨM NANG</a>
+                    <a th:href="@{/cam-nang}" class="nav-link" th:classappend="${activeMenu == 'news'} ? 'active' : ''">CẨM NANG</a>
                 </li>
             </ul>
 
@@ -123,7 +126,7 @@
                         <li><a th:href="@{/san-pham}">Tất cả sản phẩm</a></li>
                         <li><a th:href="@{/san-pham?sort=hot}">Sản phẩm bán chạy</a></li>
                         <li><a th:href="@{/san-pham?sort=newest}">Sản phẩm mới về</a></li>
-                        <li><a th:href="@{/tin-tuc}">Cẩm nang Skincare & Tin tức</a></li>
+                        <li><a th:href="@{/cam-nang}">Cẩm nang Skincare & Tin tức</a></li>
                     </ul>
                 </div>
                 <div class="footer-col">

@@ -1,0 +1,266 @@
+/* ==========================================================================
+   HandbookPage.css - Nguyên mẫu từ React PinkyCloud
+   ========================================================================== */
+
+.handbook-page {
+  background-color: #fffafb;
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+
+/* HERO SECTION */
+.hb-hero {
+  padding: 100px 20px;
+  background: 
+    radial-gradient(circle at 10% 20%, rgba(247, 108, 133, 0.15), transparent 30%),
+    radial-gradient(circle at 90% 80%, rgba(255, 172, 199, 0.2), transparent 30%),
+    linear-gradient(135deg, #fff3f6 0%, #ffe3eb 100%);
+  border-bottom: 1px solid rgba(247, 108, 133, 0.1);
+  overflow: hidden;
+}
+
+.hb-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(rgba(255, 255, 255, 0.4) 1px, transparent 1px);
+  background-size: 20px 20px;
+  opacity: 0.5;
+  z-index: 0;
+}
+
+.hb-hero-badge {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8px);
+  color: #f76c85;
+  font-weight: 800;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 6px 16px;
+  border-radius: 50px;
+  border: 1px solid rgba(247, 108, 133, 0.2);
+  margin-bottom: 20px;
+}
+
+.hb-hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 800;
+  color: #3d2330;
+  margin-bottom: 16px;
+  text-shadow: 0 4px 20px rgba(247, 108, 133, 0.15);
+}
+
+.hb-hero-desc {
+  font-size: clamp(1.1rem, 2vw, 1.3rem);
+  color: #6f5c65;
+  max-width: 600px;
+  margin: 0 auto 30px;
+  line-height: 1.6;
+}
+
+.hb-btn-primary {
+  background: linear-gradient(135deg, #f76c85 0%, #e15f84 100%);
+  color: white;
+  font-weight: 700;
+  padding: 14px 32px;
+  border-radius: 50px;
+  border: none;
+  box-shadow: 0 10px 20px rgba(247, 108, 133, 0.2);
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.hb-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 25px rgba(247, 108, 133, 0.3);
+  color: white;
+}
+
+/* BENTO GRID */
+.hb-bento-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: minmax(180px, auto);
+  gap: 24px;
+}
+
+.hb-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 32px;
+  padding: 32px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.hb-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 50px rgba(247, 108, 133, 0.1);
+}
+
+.hb-card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #3d2330;
+  margin-bottom: 12px;
+}
+
+.hb-card-text {
+  color: #555;
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+.hb-card-large {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+
+.hb-card-medium {
+  grid-column: span 2;
+  grid-row: span 1;
+}
+
+.hb-card-small {
+  grid-column: span 1;
+  grid-row: span 1;
+}
+
+.hb-card-wide {
+  grid-column: span 4;
+  grid-row: span 1;
+}
+
+.hb-card-tag {
+  display: inline-block;
+  background: #f76c85;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+/* SUBSCRIBE SECTION */
+.hb-subscribe-section {
+  padding: 80px 20px;
+  background: 
+    linear-gradient(to bottom, #fffafb 0%, #fff0f5 100%);
+  border-radius: 40px;
+  border: 1px solid rgba(247, 108, 133, 0.1);
+  box-shadow: 0 20px 60px rgba(247, 108, 133, 0.05);
+}
+
+.hb-subscribe-box {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.hb-sub-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #3d2330;
+  margin-bottom: 8px;
+}
+
+.hb-sub-desc {
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.hb-sub-form {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.hb-sub-input {
+  border-radius: 50px;
+  padding: 16px 24px;
+  border: 1px solid rgba(247, 108, 133, 0.2);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+  font-size: 1rem;
+  width: 100%;
+  max-width: 350px;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.hb-sub-input:focus {
+  outline: none;
+  border-color: #f76c85;
+  box-shadow: 0 4px 20px rgba(247, 108, 133, 0.15);
+}
+
+.hb-sub-btn {
+  background: #f05a76;
+  color: white;
+  border-radius: 50px;
+  padding: 14px 28px;
+  font-weight: 700;
+  border: none;
+  box-shadow: 0 4px 15px rgba(240, 90, 118, 0.3);
+  transition: background 0.2s, transform 0.2s;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.hb-sub-btn:hover {
+  background: #e14966;
+  transform: translateY(-1px);
+  color: white;
+}
+
+/* ANIMATIONS */
+.hb-reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+}
+
+.hb-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* RESPONSIVE */
+@media (max-width: 991px) {
+  .hb-bento-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .hb-card-large, .hb-card-medium, .hb-card-wide {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 768px) {
+  .hb-bento-grid {
+    grid-template-columns: 1fr;
+  }
+  .hb-card-large, .hb-card-medium, .hb-card-small, .hb-card-wide {
+    grid-column: span 1;
+  }
+  .hb-sub-form {
+    flex-direction: column;
+  }
+  .hb-sub-input {
+    max-width: 100%;
+  }
+  .hb-sub-btn {
+    width: 100%;
+  }
+}

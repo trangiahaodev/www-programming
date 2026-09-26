@@ -1,323 +1,279 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{layout/customer-layout :: layout(~{::main})}"
-      lang="vi">
+<html th:replace="~{layout/customer-layout :: layout(~{::content})}" xmlns:th="http://www.thymeleaf.org" lang="vi">
 <head>
-    <title>Cẩm Nang Skincare & Tạp Chí Sắc Đẹp - PinkyCloud</title>
+    <title>Cẩm Nang Skincare &amp; Tin Tức - PinkyCloud</title>
 </head>
 <body>
-    <main class="news-list-page">
-        <div class="container" style="padding-top: 24px; padding-bottom: 60px;">
+<div th:fragment="content">
 
-            <!-- 1. EDITORIAL HERO SECTION -->
-            <section class="news-hero">
-                <div class="news-hero-badge">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                    </svg>
-                    PinkyCloud Beauty Journal & Skincare Handbook
-                </div>
-                <h1 class="news-hero-title">Cẩm Nang Skincare & Xu Hướng 2026</h1>
-                <p class="news-hero-desc">
-                    Khám phá bí quyết chăm sóc da khoa học từ chuyên gia da liễu, cập nhật xu hướng làm đẹp bền vững và cẩm nang lựa chọn hoạt chất chuẩn xác nhất dành riêng cho bạn.
+    <div class="handbook-page">
+        <!-- HERO SECTION (NGUYÊN MẪU TỪ REACT HANDBOOKPAGE) -->
+        <section class="hb-hero text-center position-relative">
+            <div class="hb-hero-overlay"></div>
+            <div class="container position-relative z-1" style="position: relative; z-index: 1;">
+                <div class="hb-hero-badge">Độc quyền PinkyCloud</div>
+                <h1 class="hb-hero-title">Cẩm Nang Skincare</h1>
+                <p class="hb-hero-desc">
+                    Hướng dẫn từ A-Z để thấu hiểu làn da, lựa chọn thành phần 
+                    và xây dựng chu trình chăm sóc da chuẩn y khoa dành riêng cho bạn.
                 </p>
+                <button type="button" class="btn hb-btn-primary mt-3" onclick="scrollToSubscribe()">
+                    Nhận Cẩm Nang &amp; Ưu Đãi
+                </button>
+            </div>
+        </section>
 
-                <!-- Search Form on News -->
-                <form th:action="@{/tin-tuc}" method="GET" class="news-search-bar">
-                    <input type="hidden" name="category" th:if="${selectedCategory != null and selectedCategory != 'all'}" th:value="${selectedCategory}">
-                    <div class="news-search-input-wrap">
-                        <input type="text"
-                               name="keyword"
-                               th:value="${keyword}"
-                               placeholder="Tìm kiếm bài viết, thành phần (Niacinamide, B5, Serum...)"
-                               class="news-search-input"
-                               aria-label="Tìm kiếm bài viết">
-                        <button type="submit" class="news-search-btn">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                                <circle cx="11" cy="11" r="8"></circle>
-                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                            </svg>
-                            Tìm kiếm
-                        </button>
+        <div class="container pb-5" style="max-width: 1200px; margin: 0 auto; padding: 0 16px;">
+            <!-- BENTO GRID MODULES (NGUYÊN MẪU TỪ REACT HANDBOOKPAGE) -->
+            <div class="hb-bento-grid my-5" style="margin-top: 48px; margin-bottom: 48px;">
+                <div class="hb-card hb-card-large hb-reveal">
+                    <h2 class="hb-card-title">Chương 1: Thấu Hiểu Làn Da</h2>
+                    <p class="hb-card-text">
+                        Bạn không thể chăm sóc tốt nếu không hiểu da mình thuộc loại nào.
+                        Dấu hiệu nhận biết da dầu, khô, hỗn hợp và da nhạy cảm cực kỳ đơn giản qua bài test giấy thấm dầu.
+                    </p>
+                    <div class="hb-image-placeholder">
+                        <img src="https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&w=600&q=80" alt="Skin Care" style="height: 200px; object-fit: cover; width: 100%; border-radius: 16px; margin-top: 16px;">
                     </div>
-                </form>
-            </section>
-
-            <!-- 2. CATEGORY FILTER TABS -->
-            <div class="news-cat-bar">
-                <a th:href="@{/tin-tuc(keyword=${keyword != null and !keyword.isEmpty()} ? ${keyword} : null)}"
-                   class="news-cat-pill"
-                   th:classappend="${selectedCategory == 'all' or selectedCategory == null or selectedCategory == ''} ? 'active' : ''">
-                    ✨ Tất cả chuyên mục
-                </a>
-                <a th:each="cat : ${categories}"
-                   th:href="@{/tin-tuc(category=${cat}, keyword=${keyword != null and !keyword.isEmpty()} ? ${keyword} : null)}"
-                   class="news-cat-pill"
-                   th:classappend="${selectedCategory == cat} ? 'active' : ''"
-                   th:text="${cat}">
-                    Chăm sóc da
-                </a>
-            </div>
-
-            <!-- Active Filter Notification (if searching) -->
-            <div th:if="${keyword != null and !keyword.isEmpty()}" style="margin-bottom: 24px; text-align: center;">
-                <span style="font-size: 0.95rem; color: var(--pl-text-body);">
-                    Kết quả tìm kiếm cho từ khóa: <strong style="color: var(--pl-primary);" th:text="'“' + ${keyword} + '”'">“Keyword”</strong>
-                    (<span th:text="${totalArticles}">0</span> bài viết)
-                </span>
-                <a th:href="@{/tin-tuc(category=${selectedCategory})}" style="margin-left: 12px; font-size: 0.85rem; color: var(--pl-primary); text-decoration: underline;">
-                    Xóa tìm kiếm
-                </a>
-            </div>
-
-            <!-- 3. SPOTLIGHT FEATURED ARTICLE (Shown when on All and no search keyword) -->
-            <div th:if="${featuredArticle != null and (selectedCategory == 'all' or selectedCategory == null) and (keyword == null or keyword.isEmpty())}"
-                 class="news-featured-card">
-                <div class="news-featured-img-wrap">
-                    <img th:src="@{${featuredArticle.image}}" th:alt="${featuredArticle.title}" class="news-featured-img">
-                    <span class="news-featured-badge" th:text="${featuredArticle.category}">Xu hướng làm đẹp</span>
                 </div>
-                <div class="news-featured-body">
-                    <div class="news-featured-meta">
-                        <span th:text="${featuredArticle.date}">12/04/2026</span>
-                        <span>•</span>
-                        <span th:text="${featuredArticle.readTime}">6 phút đọc</span>
-                        <span>•</span>
-                        <span th:text="${featuredArticle.viewsCount} + ' lượt xem'">2.4k lượt xem</span>
+
+                <div class="hb-card hb-card-medium hb-reveal">
+                    <div class="hb-card-tag">Routine</div>
+                    <h2 class="hb-card-title">Quy Trình Sáng &amp; Tối</h2>
+                    <p class="hb-card-text">
+                        Sáng bảo vệ (Antioxidant + KCN), Tối phục hồi (Làm sạch + Treatment + Cấp ẩm). Quy tắc bất di bất dịch!
+                    </p>
+                    <div class="hb-image-placeholder mt-3" style="margin-top: 16px;">
+                        <img src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=600&q=80" alt="Routine" style="height: 150px; object-fit: cover; width: 100%; border-radius: 16px;">
                     </div>
-                    <a th:href="@{/tin-tuc/{slug}(slug=${featuredArticle.slug})}">
-                        <h2 class="news-featured-title" th:text="${featuredArticle.title}">
-                            Xu hướng làm đẹp 2026: Thiên nhiên và chăm sóc da
+                </div>
+
+                <div class="hb-card hb-card-small hb-reveal" style="background: linear-gradient(135deg, #fff2f6 0%, #ffe3eb 100%);">
+                    <h3 class="hb-card-title" style="font-size: 1.25rem;">Lưu Ý Nhỏ</h3>
+                    <p class="hb-card-text" style="font-size: 0.9rem;">Tẩy da chết hóa học (AHA/BHA) chỉ nên dùng 2-3 lần/tuần để tránh mỏng rào bảo vệ da.</p>
+                </div>
+
+                <div class="hb-card hb-card-small hb-reveal" style="background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);">
+                    <h3 class="hb-card-title" style="font-size: 1.25rem;">Mẹo Chọn KCN</h3>
+                    <p class="hb-card-text" style="font-size: 0.9rem;">Ưu tiên SPF &gt; 30 và PA+++ trở lên. Bôi lại mỗi 2-4 tiếng nếu tiếp xúc nắng nhiều.</p>
+                </div>
+
+                <div class="hb-card hb-card-wide hb-reveal">
+                    <h2 class="hb-card-title">Từ Điển Thành Phần (Ingredients)</h2>
+                    <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; margin-top: 16px;">
+                        <div style="flex: 1 1 340px;">
+                            <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;">
+                                <span style="background: #fff; color: #333; border: 1px solid #ddd; padding: 8px 14px; border-radius: 8px; font-weight: 600; font-size: 0.9rem;">🌿 Niacinamide</span>
+                                <span style="background: #fff; color: #333; border: 1px solid #ddd; padding: 8px 14px; border-radius: 8px; font-weight: 600; font-size: 0.9rem;">⚛️ Retinol</span>
+                                <span style="background: #fff; color: #333; border: 1px solid #ddd; padding: 8px 14px; border-radius: 8px; font-weight: 600; font-size: 0.9rem;">✨ Vitamin C</span>
+                                <span style="background: #fff; color: #333; border: 1px solid #ddd; padding: 8px 14px; border-radius: 8px; font-weight: 600; font-size: 0.9rem;">💧 HA</span>
+                                <span style="background: #fff; color: #333; border: 1px solid #ddd; padding: 8px 14px; border-radius: 8px; font-weight: 600; font-size: 0.9rem;">🛡️ Ceramides</span>
+                            </div>
+                            <p style="color: #6c757d; line-height: 1.6; margin: 0;">Chi tiết công dụng, nồng độ và cách kết hợp an toàn có đầy đủ trong bản cẩm nang tải về miễn phí. Đừng bỏ lỡ nhé!</p>
+                        </div>
+                        <div style="flex: 0 0 280px; max-width: 100%;">
+                            <img src="https://images.unsplash.com/photo-1629198688000-71f23e745b6e?auto=format&fit=crop&w=600&q=80" alt="Ingredients" style="height: 160px; object-fit: cover; width: 100%; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.06);">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BÀI VIẾT TIN TỨC NỔI BẬT NGUYÊN MẪU TỪ REACT -->
+            <section id="news-section" class="hb-reveal" style="margin-top: 60px; margin-bottom: 40px;">
+                <div style="display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 28px;">
+                    <div>
+                        <h2 style="font-family: 'Playfair Display', serif; font-size: 2.2rem; font-weight: 800; color: #3d2330; margin: 0 0 8px 0;">
+                            Tin Tức &amp; Bài Viết Chuyên Sâu
                         </h2>
-                    </a>
-                    <p class="news-featured-excerpt" th:text="${featuredArticle.excerpt}">
-                        Sản phẩm thiên nhiên đang trở thành xu hướng hàng đầu trong chăm sóc da mặt và cơ thể với độ an toàn và lành tính cao.
-                    </p>
-                    <div class="news-featured-author">
-                        <div class="news-author-avatar">PC</div>
+                        <div style="color: #6f5c65; font-size: 1.05rem;">
+                            Cập nhật xu hướng làm đẹp và mua sắm nhanh sản phẩm khuyên dùng trong bài viết.
+                        </div>
+                    </div>
+
+                    <!-- Category filter links -->
+                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                        <a th:href="@{/cam-nang}"
+                           class="btn btn-sm"
+                           th:classappend="${selectedCategory == null or selectedCategory == ''} ? 'btn-pink' : 'btn-outline-pink'"
+                           style="border-radius: 50px; font-weight: 700; padding: 6px 16px;">
+                            Tất cả
+                        </a>
+                        <a th:each="cat : ${categories}"
+                           th:href="@{/cam-nang(category=${cat})}"
+                           class="btn btn-sm"
+                           th:classappend="${selectedCategory == cat} ? 'btn-pink' : 'btn-outline-pink'"
+                           th:text="${cat}"
+                           style="border-radius: 50px; font-weight: 700; padding: 6px 16px;">
+                            Xu hướng
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Lưới tin tức 3 cột nguyên mẫu React -->
+                <div class="news-grid">
+                    <div th:each="news : ${newsList}" class="news-card">
                         <div>
-                            <div style="font-weight: 700; color: var(--pl-text-dark); font-size: 0.92rem;" th:text="${featuredArticle.author}">PinkyCloud Editorial</div>
-                            <div style="font-size: 0.8rem; color: var(--pl-text-muted);" th:text="${featuredArticle.authorRole}">Ban Biên Tập Chuyên Môn</div>
+                            <a th:href="@{/tin-tuc/{slug}(slug=${news.slug})}" class="news-image-wrap">
+                                <img th:src="@{${news.image}}" th:alt="${news.title}" class="news-image" loading="lazy">
+                                <div class="news-image-overlay"></div>
+                                <div class="news-category-tag" th:text="${news.category}">Làm đẹp</div>
+                            </a>
+
+                            <div class="news-card-body pb-0">
+                                <div class="news-date" th:text="${news.date}">12/04/2026</div>
+                                <a th:href="@{/tin-tuc/{slug}(slug=${news.slug})}" style="text-decoration: none;">
+                                    <h3 class="news-title" th:text="${news.title}">Tiêu đề bài viết</h3>
+                                </a>
+                                <p class="news-excerpt" th:text="${news.excerpt}">Trích đoạn nội dung...</p>
+                            </div>
                         </div>
-                    </div>
-                    <a th:href="@{/tin-tuc/{slug}(slug=${featuredArticle.slug})}" class="news-btn-read">
-                        Đọc chuyên sâu
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                            <line x1="5" y1="12" x2="19" y2="12"></line>
-                            <polyline points="12 5 19 12 12 19"></polyline>
-                        </svg>
-                    </a>
-                </div>
-            </div>
 
-            <!-- 4. SKINCARE HANDBOOK BENTO SECTION (Inspired by HandbookPage) -->
-            <section class="hb-section" th:if="${(selectedCategory == 'all' or selectedCategory == null) and (keyword == null or keyword.isEmpty())}">
-                <div class="hb-header">
-                    <div class="hb-pill-tag">Độc Quyền PinkyCloud</div>
-                    <h2>🌿 Cẩm Nang Skincare Khoa Học Bỏ Túi</h2>
-                    <p>
-                        Hướng dẫn từ A-Z giúp bạn thấu hiểu làn da, lựa chọn hoạt chất tương thích và thiết lập chu trình dưỡng da tối giản mà hiệu quả nhất.
-                    </p>
-                </div>
-
-                <div class="hb-bento-grid">
-                    <!-- Card 1: Thấu Hiểu Làn Da -->
-                    <div class="hb-card hb-card-large" style="background: linear-gradient(135deg, #ffffff 0%, #fffbfd 100%);">
-                        <div class="hb-pill-tag">Chương 1</div>
-                        <h3 class="hb-card-title">Thấu Hiểu Làn Da Chuẩn Xác</h3>
-                        <p class="hb-card-text">
-                            Bạn không thể chăm sóc tốt nếu không xác định đúng type da: Da dầu, da khô, hỗn hợp thiên dầu hay da nhạy cảm. Thử ngay bài test giấy thấm dầu 30 phút sau khi rửa mặt để đọc vị làn da của mình!
-                        </p>
-                        <div style="margin-top: 18px; border-radius: 14px; overflow: hidden; height: 160px;">
-                            <img src="https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&w=700&q=80"
-                                 alt="Thấu hiểu làn da" style="width: 100%; height: 100%; object-fit: cover;">
-                        </div>
-                    </div>
-
-                    <!-- Card 2: Quy trình Sáng & Tối -->
-                    <div class="hb-card hb-card-medium" style="background: linear-gradient(135deg, #ffffff 0%, #fff7f9 100%);">
-                        <div class="hb-pill-tag" style="background: #eef2ff; color: #4338ca;">Quy Trình Chuẩn</div>
-                        <h3 class="hb-card-title">Sáng Bảo Vệ - Tối Phục Hồi</h3>
-                        <p class="hb-card-text">
-                            <strong>☀️ Ban ngày:</strong> Làm sạch dịu nhẹ ➔ Serum chống oxy hóa ➔ Kem dưỡng mỏng ➔ Kem chống nắng SPF 50+.<br>
-                            <strong>🌙 Ban đêm:</strong> Double Cleansing ➔ Hoạt chất treatment ➔ Cấp ẩm & khóa ẩm sâu để tái sinh tế bào.
-                        </p>
-                        <div style="margin-top: 14px; border-radius: 12px; overflow: hidden; height: 130px;">
-                            <img src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=600&q=80"
-                                 alt="Quy trình skincare" style="width: 100%; height: 100%; object-fit: cover;">
-                        </div>
-                    </div>
-
-                    <!-- Card 3: Lưu ý Treatment -->
-                    <div class="hb-card hb-card-small" style="background: linear-gradient(135deg, #fff5f7 0%, #fee2e8 100%);">
-                        <div class="hb-pill-tag" style="background: #ffffff; color: #e11d48;">Lưu Ý Vàng</div>
-                        <h3 class="hb-card-title" style="font-size: 1.15rem;">Nguyên Tắc Treatment</h3>
-                        <p class="hb-card-text" style="font-size: 0.88rem;">
-                            Tẩy da chết hóa học AHA/BHA chỉ nên bắt đầu với tần suất 1-2 lần/tuần. Luôn phục hồi màng lipid với B5/Ceramide trước khi tăng nồng độ.
-                        </p>
-                    </div>
-
-                    <!-- Card 4: Kem chống nắng -->
-                    <div class="hb-card hb-card-small" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);">
-                        <div class="hb-pill-tag" style="background: #ffffff; color: #15803d;">Mẹo Chống Nắng</div>
-                        <h3 class="hb-card-title" style="font-size: 1.15rem;">Bảo Vệ Toàn Diện</h3>
-                        <p class="hb-card-text" style="font-size: 0.88rem;">
-                            Ưu tiên màng lọc phổ rộng Broad-Spectrum (PA++++). Bôi đủ lượng 2 đốt ngón tay trỏ và bôi lại sau mỗi 2-3 tiếng khi hoạt động ngoài trời.
-                        </p>
-                    </div>
-
-                    <!-- Card 5: Từ Điển Thành Phần -->
-                    <div class="hb-card hb-card-wide" style="background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);">
-                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
-                            <div style="flex: 1; min-width: 280px;">
-                                <div class="hb-pill-tag">Từ Điển Thành Phần</div>
-                                <h3 class="hb-card-title">Top Hoạt Chất Vàng Trong Mỹ Phẩm</h3>
-                                <p class="hb-card-text">
-                                    Được bác sĩ da liễu khuyên dùng để cải thiện kết cấu da rõ rệt:
-                                </p>
-                                <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px;">
-                                    <span class="badge" style="background: #fdf2f8; color: #be185d; border: 1px solid #fbcfe8; padding: 6px 14px; font-size: 0.85rem; border-radius: 20px;">🌿 Rau Má (Centella)</span>
-                                    <span class="badge" style="background: #f0fdfa; color: #0f766e; border: 1px solid #ccfbf1; padding: 6px 14px; font-size: 0.85rem; border-radius: 20px;">💧 Hyaluronic Acid (HA)</span>
-                                    <span class="badge" style="background: #fefce8; color: #a16207; border: 1px solid #fef08a; padding: 6px 14px; font-size: 0.85rem; border-radius: 20px;">✨ Vitamin C Tươi</span>
-                                    <span class="badge" style="background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; padding: 6px 14px; font-size: 0.85rem; border-radius: 20px;">🛡️ Niacinamide (B3)</span>
-                                    <span class="badge" style="background: #faf5ff; color: #7e22ce; border: 1px solid #e9d5ff; padding: 6px 14px; font-size: 0.85rem; border-radius: 20px;">🧬 Ceramide Phục Hồi</span>
+                        <div class="news-card-body pt-0 mt-auto">
+                            <!-- Sản phẩm gợi ý thương mại nguyên mẫu từ React HomePage -->
+                            <div class="news-linked-products p-2 rounded-3 mb-3" th:if="${news.linkedProducts != null and !news.linkedProducts.isEmpty()}">
+                                <div class="news-linked-title mb-2">🛍️ Mua sản phẩm trong bài:</div>
+                                <div class="news-linked-list d-flex flex-column gap-2">
+                                    <div th:each="prod : ${news.linkedProducts}" class="news-linked-item d-flex align-items-center justify-content-between p-2 rounded-3 bg-white">
+                                        <a th:href="@{/san-pham/{id}(id=${prod.id})}" class="d-flex align-items-center gap-2" style="flex: 1; min-width: 0; text-decoration: none;">
+                                            <img th:src="@{${prod.image}}" th:alt="${prod.name}" class="news-linked-thumb rounded-2 flex-shrink-0" style="width: 44px; height: 44px; object-fit: contain;">
+                                            <div class="news-linked-info" style="min-width: 0;">
+                                                <div class="news-linked-name text-truncate small fw-bold" style="color: #3f202e;" th:text="${prod.name}">Tên sản phẩm</div>
+                                                <div class="news-linked-price d-flex align-items-center gap-2 flex-wrap">
+                                                    <span class="sale-price text-pink fw-bold small" th:text="${prod.formattedPrice}">350.000₫</span>
+                                                    <span class="old-price text-muted text-decoration-line-through x-small" th:if="${prod.formattedOriginalPrice != null}" th:text="${prod.formattedOriginalPrice}">450.000₫</span>
+                                                </div>
+                                            </div>
+                                        </a>
+                                        <a th:href="@{/san-pham/{id}(id=${prod.id})}" class="btn btn-sm btn-pink rounded-circle p-0 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 32px; height: 32px; font-size: 13px;" title="Xem chi tiết">
+                                            🛒
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
-                            <div style="max-width: 280px; text-align: right;">
-                                <a th:href="@{/tin-tuc/top-thanh-phan-duong-da-nen-co-trong-my-pham}" class="news-read-more-link" style="font-size: 0.95rem;">
-                                    Xem chi tiết từ điển hoạt chất ➔
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
 
-            <!-- 5. ALL ARTICLES GRID -->
-            <div style="margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between;">
-                <h3 style="font-size: 1.5rem; font-weight: 800; color: var(--pl-text-dark); margin: 0;">
-                    Tất Cả Bài Viết Chuyên Môn
-                </h3>
-                <span style="font-size: 0.9rem; color: var(--pl-text-muted);" th:text="${totalArticles} + ' bài viết'">
-                    5 bài viết
-                </span>
-            </div>
-
-            <!-- Empty State -->
-            <div th:if="${articles == null or articles.isEmpty()}" style="text-align: center; padding: 60px 20px; background: #ffffff; border-radius: 24px; border: 1px solid #f1f5f9;">
-                <div style="font-size: 3rem; margin-bottom: 12px;">📰</div>
-                <h4 style="color: var(--pl-text-dark); font-weight: 700; margin-bottom: 8px;">Không tìm thấy bài viết nào</h4>
-                <p style="color: var(--pl-text-muted); max-width: 440px; margin: 0 auto 20px;">
-                    Không có bài viết nào phù hợp với bộ lọc hoặc từ khóa tìm kiếm của bạn. Hãy thử tìm từ khóa khác nhé!
-                </p>
-                <a th:href="@{/tin-tuc}" class="btn" style="background: var(--pl-primary-gradient); color: #fff; border-radius: 30px; padding: 10px 24px; font-weight: 600;">
-                    Xem tất cả bài viết
-                </a>
-            </div>
-
-            <!-- Articles Cards -->
-            <div class="news-grid" th:if="${articles != null and !articles.isEmpty()}">
-                <article th:each="article : ${articles}" class="news-card">
-                    <div class="news-card-img-wrap">
-                        <a th:href="@{/tin-tuc/{slug}(slug=${article.slug})}">
-                            <img th:src="@{${article.image}}" th:alt="${article.title}" class="news-card-img" loading="lazy">
-                        </a>
-                        <span class="news-card-category" th:text="${article.category}">Chăm sóc da</span>
-                    </div>
-
-                    <div class="news-card-body">
-                        <div class="news-card-meta">
-                            <span th:text="${article.date}">05/04/2026</span>
-                            <span th:text="${article.readTime}">5 phút đọc</span>
-                        </div>
-
-                        <a th:href="@{/tin-tuc/{slug}(slug=${article.slug})}">
-                            <h4 class="news-card-title" th:text="${article.title}">
-                                Bí quyết chọn mỹ phẩm phù hợp cho da nhạy cảm
-                            </h4>
-                        </a>
-
-                        <p class="news-card-excerpt" th:text="${article.excerpt}">
-                            Hướng dẫn cách đọc thành phần, tránh các hoạt chất dễ gây kích ứng và lựa chọn sản phẩm an toàn cho làn da nhạy cảm.
-                        </p>
-
-                        <div class="news-card-footer">
-                            <span style="font-weight: 600; color: var(--pl-text-dark);" th:text="${article.author}">
-                                Dr. Hoàng Lan
-                            </span>
-                            <a th:href="@{/tin-tuc/{slug}(slug=${article.slug})}" class="news-read-more-link">
-                                Đọc bài viết
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                                    <polyline points="12 5 19 12 12 19"></polyline>
-                                </svg>
+                            <a th:href="@{/tin-tuc/{slug}(slug=${news.slug})}" class="btn news-btn btn-pink w-100 rounded-pill py-2 fw-bold text-center" style="display: block; text-decoration: none;">
+                                Xem chi tiết
                             </a>
                         </div>
                     </div>
-                </article>
-            </div>
+                </div>
+            </section>
 
-            <!-- 6. NEWSLETTER SUBSCRIPTION SECTION -->
-            <section class="news-subscribe-box" id="newsletterSection">
-                <div style="font-size: 2.5rem; margin-bottom: 8px;">📬</div>
-                <h3>Nhận Bản Tin Cẩm Nang Skincare & E-Voucher 10%</h3>
-                <p>
-                    Đăng ký nhận cẩm nang chăm sóc da PDF miễn phí từ chuyên gia PinkyCloud cùng ưu đãi giảm 10% cho đơn hàng tiếp theo.
-                </p>
-                <form class="news-subscribe-form" id="newsletterForm" onsubmit="handleNewsletterSubmit(event)">
-                    <input type="email" id="newsletterEmail" placeholder="Nhập địa chỉ email của bạn..." required>
-                    <button type="submit" id="newsletterBtn">Đăng ký ngay</button>
-                </form>
-                <div id="newsletterFeedback" style="display: none; margin-top: 14px; font-weight: 600;"></div>
+            <!-- SUBSCRIBE SECTION NGUYÊN MẪU TỪ REACT -->
+            <section id="hb-subscribe" class="hb-subscribe-section text-center hb-reveal mt-5" style="scroll-margin-top: 120px;">
+                <div class="hb-subscribe-box mx-auto">
+                    <div class="hb-mail-icon mb-3" style="font-size: 48px; line-height: 1;">
+                        💌
+                    </div>
+                    <h2 class="hb-sub-title">Đăng ký nhận cẩm nang Skincare từ PinkyCloud</h2>
+                    <p class="hb-sub-desc">
+                        Nhận bài viết mới nhất và mã giảm giá 10% cho đơn hàng đầu tiên của bạn!
+                    </p>
+                    
+                    <form class="hb-sub-form mt-4" id="hbForm" onsubmit="handleSubscribeSubmit(event)">
+                        <input 
+                            type="email" 
+                            id="hbEmail"
+                            name="email"
+                            class="form-control hb-sub-input" 
+                            placeholder="Địa chỉ email của bạn..." 
+                            required
+                        />
+                        <button 
+                            type="submit" 
+                            id="hbBtn"
+                            class="btn hb-sub-btn"
+                        >
+                            Đăng ký ngay
+                        </button>
+                    </form>
+                    
+                    <div id="hbFeedback" class="mt-3 p-3 rounded-3 small fw-bold" style="display: none; max-width: 450px; margin-left: auto; margin-right: auto;"></div>
+                </div>
             </section>
 
         </div>
-    </main>
+    </div>
 
-    <!-- Interactive Script for Newsletter -->
-    <script th:inline="javascript">
-        function handleNewsletterSubmit(e) {
+    <!-- Script điều khiển Scroll Reveal và Đăng ký bản tin nguyên mẫu React -->
+    <script>
+        function scrollToSubscribe() {
+            var element = document.getElementById('hb-subscribe');
+            if (element) {
+                var headerOffset = 100;
+                var elementPosition = element.getBoundingClientRect().top;
+                var offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: "smooth"
+                });
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            // Scroll Reveal Observer nguyên mẫu React
+            var observer = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add("is-visible");
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            var reveals = document.querySelectorAll(".hb-reveal");
+            reveals.forEach(function (el) {
+                observer.observe(el);
+            });
+        });
+
+        async function handleSubscribeSubmit(e) {
             e.preventDefault();
-            const emailInput = document.getElementById('newsletterEmail');
-            const btn = document.getElementById('newsletterBtn');
-            const feedback = document.getElementById('newsletterFeedback');
-            const email = emailInput.value.trim();
+            var emailInput = document.getElementById('hbEmail');
+            var email = emailInput ? emailInput.value.trim() : '';
+            var feedback = document.getElementById('hbFeedback');
+            var btn = document.getElementById('hbBtn');
 
             if (!email || !email.includes('@')) {
-                alert('Vui lòng nhập địa chỉ email hợp lệ!');
+                feedback.style.display = 'block';
+                feedback.className = 'mt-3 p-3 rounded-3 small fw-bold text-danger bg-danger bg-opacity-10';
+                feedback.style.color = '#dc3545';
+                feedback.style.background = '#ffe5e7';
+                feedback.innerText = 'Vui lòng nhập địa chỉ email hợp lệ!';
                 return;
             }
 
             btn.disabled = true;
             btn.innerText = 'Đang gửi...';
 
-            fetch('/tin-tuc/subscribe', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: email })
-            })
-            .then(res => res.json())
-            .then(data => {
-                btn.disabled = false;
-                btn.innerText = 'Đã đăng ký ✨';
+            try {
+                var response = await fetch('/tin-tuc/subscribe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email })
+                });
+                var data = await response.json();
                 feedback.style.display = 'block';
-                feedback.style.color = '#15803d';
-                feedback.innerText = data.message || 'Đăng ký thành công!';
-                emailInput.value = '';
-
-                // Trigger layout toast if function exists
-                if (typeof showToastMessage === 'function') {
-                    showToastMessage(data.message, 'success');
+                if (response.ok && data.success) {
+                    feedback.style.color = '#198754';
+                    feedback.style.background = '#d1e7dd';
+                    feedback.innerHTML = data.message + '<div class="mt-1 small" style="font-weight: normal; color: #555;">Có thể sẽ mất một vài phút để email tới hộp thư của bạn. Vui lòng kiểm tra cả thư mục Spam nhé.</div>';
+                    emailInput.value = '';
+                } else {
+                    feedback.style.color = '#dc3545';
+                    feedback.style.background = '#ffe5e7';
+                    feedback.innerText = data.message || 'Có lỗi xảy ra, vui lòng thử lại.';
                 }
-            })
-            .catch(err => {
+            } catch (err) {
+                feedback.style.display = 'block';
+                feedback.style.color = '#dc3545';
+                feedback.style.background = '#ffe5e7';
+                feedback.innerText = 'Không thể kết nối đến máy chủ.';
+            } finally {
                 btn.disabled = false;
                 btn.innerText = 'Đăng ký ngay';
-                feedback.style.display = 'block';
-                feedback.style.color = '#b91c1c';
-                feedback.innerText = 'Có lỗi xảy ra, vui lòng thử lại sau.';
-            });
+            }
         }
     </script>
+</div>
 </body>
 </html>
