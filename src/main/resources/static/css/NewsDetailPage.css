@@ -222,30 +222,63 @@
 .news-related-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  gap: 24px;
 }
 
 @media (max-width: 991px) {
   .news-related-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
   }
 }
 
 @media (max-width: 600px) {
   .news-related-grid {
     grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+/* Fallback grid utilities for Bootstrap-like rows */
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-right: -12px;
+  margin-left: -12px;
+}
+
+.row.g-4 {
+  margin-top: -12px;
+}
+
+.col-12 {
+  flex: 0 0 100%;
+  max-width: 100%;
+  padding-right: 12px;
+  padding-left: 12px;
+  box-sizing: border-box;
+}
+
+@media (min-width: 768px) {
+  .col-md-4 {
+    flex: 0 0 33.333333%;
+    max-width: 33.333333%;
+    padding-right: 12px;
+    padding-left: 12px;
+    box-sizing: border-box;
   }
 }
 
 .news-related-card {
   border-radius: 20px;
-  border: 1px solid rgba(247, 108, 133, 0.1);
+  border: 1px solid rgba(247, 108, 133, 0.12);
   transition: all 0.3s ease;
   background: #fff;
   overflow: hidden;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
   display: flex;
   flex-direction: column;
+  height: 100%;
 }
 
 .news-related-card:hover {
