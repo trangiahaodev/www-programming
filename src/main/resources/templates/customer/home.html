@@ -371,6 +371,31 @@
                         </a>
                     </div>
                 </div>
+
+                <!-- Teaser Card khi thiếu bài để tròn hàng 3 cột -->
+                <div class="news-card news-card-teaser" th:if="${newsList != null and newsList.size() % 3 != 0}">
+                    <div>
+                        <div class="news-image-wrap">
+                            <img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=700&q=80" alt="Chuyên đề làm đẹp sắp ra mắt" class="news-image" loading="lazy">
+                            <div class="news-image-overlay"></div>
+                            <div class="news-category-tag" style="background: linear-gradient(135deg, #f76c85, #ff8fa3); color: #fff;">
+                                ✨ Sắp ra mắt
+                            </div>
+                        </div>
+
+                        <div class="news-card-body pb-0">
+                            <div class="news-date">📅 Kỳ tiếp theo &bull; 5 phút đọc</div>
+                            <h3 class="news-title">Xu Hướng Dưỡng Trắng &amp; Phục Hồi Hàng Rào Ẩm Mùa Hè 2026</h3>
+                            <p class="news-excerpt">Chuyên đề đặc biệt sắp phát hành từ Ban biên tập PinkyCloud kết hợp cùng chuyên gia da liễu. Hướng dẫn chọn hoạt chất an toàn cho ngày nắng.</p>
+                        </div>
+                    </div>
+
+                    <div class="news-card-body pt-0 mt-auto">
+                        <a th:href="@{/tin-tuc}" class="news-btn" style="background: linear-gradient(135deg, #f76c85 0%, #e14966 100%); color: #fff; text-align: center; border-radius: 50px;">
+                            💌 Khám phá thêm tin tức &rarr;
+                        </a>
+                    </div>
+                </div>
             </div>
         </section>
 

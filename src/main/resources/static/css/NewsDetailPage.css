@@ -3,9 +3,29 @@
    ========================================================================== */
 
 .news-detail-wrapper {
-  background-color: #fffafb;
+  background: 
+    radial-gradient(circle at 10% 12%, rgba(247, 108, 133, 0.22), transparent 42%),
+    radial-gradient(circle at 90% 20%, rgba(14, 165, 233, 0.22), transparent 42%),
+    radial-gradient(circle at 85% 82%, rgba(14, 165, 233, 0.18), transparent 45%),
+    radial-gradient(circle at 15% 88%, rgba(247, 108, 133, 0.18), transparent 45%),
+    linear-gradient(135deg, #fff0f5 0%, #ffe6ef 26%, #f0f7ff 68%, #dbeafe 100%);
+  background-attachment: fixed;
+  background-size: cover;
   min-height: 100vh;
   padding-bottom: 80px;
+}
+
+/* News Card Teaser / Upcoming Placeholder */
+.news-card-teaser {
+  border: 1.5px dashed rgba(247, 108, 133, 0.35);
+  background: rgba(255, 255, 255, 0.95);
+  transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.news-card-teaser:hover {
+  border-color: #f76c85;
+  transform: translateY(-6px);
+  box-shadow: 0 16px 36px rgba(247, 108, 133, 0.18);
 }
 
 /* News Switcher Bar */

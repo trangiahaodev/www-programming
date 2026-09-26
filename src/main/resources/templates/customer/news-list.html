@@ -630,6 +630,67 @@
                             </a>
                         </div>
                     </div>
+
+                    <!-- KHUNG BÀI VIẾT BỔ SUNG NẾU DANH SÁCH THIẾU BÀI (ĐẢM BẢO LƯỚI 3 CỘT KHÔNG BỊ TRỐNG) -->
+                    <!-- Slot 1: Hiển thị khi danh sách không chia hết cho 3 (ví dụ có 5 bài, 2 bài,...) -->
+                    <div class="news-card news-card-teaser" th:if="${newsList != null and newsList.size() % 3 != 0}">
+                        <div>
+                            <div class="news-image-wrap">
+                                <img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=700&q=80" alt="Chuyên đề làm đẹp sắp ra mắt" class="news-image" loading="lazy">
+                                <div class="news-image-overlay"></div>
+                                <div class="news-category-tag" style="background: linear-gradient(135deg, #f76c85, #ff8fa3); color: #fff;">
+                                    ✨ Sắp ra mắt
+                                </div>
+                            </div>
+
+                            <div class="news-card-body pb-0">
+                                <div class="news-date text-pink fw-bold">Biên tập viên tuyển chọn</div>
+                                <h3 class="news-title">Xu Hướng Dưỡng Trắng &amp; Phục Hồi Hàng Rào Ẩm Mùa Hè 2026</h3>
+                                <p class="news-excerpt">Chuyên đề đặc biệt sắp phát hành từ Ban biên tập PinkyCloud kết hợp cùng chuyên gia da liễu. Hướng dẫn chọn hoạt chất an toàn cho ngày nắng.</p>
+                            </div>
+                        </div>
+
+                        <div class="news-card-body pt-0 mt-auto">
+                            <div class="news-linked-products p-2 rounded-3 mb-3 text-center" style="background: rgba(255, 240, 245, 0.7); border: 1px dashed rgba(247, 108, 133, 0.4);">
+                                <div class="small fw-bold text-pink mb-1">💌 Nhận thông báo bài viết mới nhất</div>
+                                <div class="small text-muted" style="font-size: 0.78rem;">Đăng ký email để nhận thông báo sớm kèm voucher 10%!</div>
+                            </div>
+
+                            <button type="button" class="btn news-btn btn-pink w-100 rounded-pill py-2 fw-bold text-center" onclick="scrollToSubscribe()" style="display: block; border: none; cursor: pointer;">
+                                💌 Đăng ký nhận thông báo
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Slot 2: Hiển thị khi danh sách thiếu 2 bài để đầy hàng 3 cột (ví dụ có 4 bài, 1 bài,...) -->
+                    <div class="news-card news-card-teaser" th:if="${newsList != null and newsList.size() % 3 == 1}">
+                        <div>
+                            <div class="news-image-wrap">
+                                <img src="https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=700&q=80" alt="Cẩm nang chăm sóc da" class="news-image" loading="lazy">
+                                <div class="news-image-overlay"></div>
+                                <div class="news-category-tag" style="background: linear-gradient(135deg, #0ea5e9, #38bdf8); color: #fff;">
+                                    🌸 Đang biên tập
+                                </div>
+                            </div>
+
+                            <div class="news-card-body pb-0">
+                                <div class="news-date text-info fw-bold">Chuyên gia khuyên dùng</div>
+                                <h3 class="news-title">Top 10 Hoạt Chất Cấp Nước Tầng Sâu Cho Làn Da Dầu Mụn</h3>
+                                <p class="news-excerpt">Giải mã chi tiết cơ chế hoạt động của Hyaluronic Acid đa tầng, B5 và Beta-Glucan giúp kiềm dầu hiệu quả mà không gây bít tắc chân lông.</p>
+                            </div>
+                        </div>
+
+                        <div class="news-card-body pt-0 mt-auto">
+                            <div class="news-linked-products p-2 rounded-3 mb-3 text-center" style="background: rgba(240, 248, 255, 0.7); border: 1px dashed rgba(14, 165, 233, 0.4);">
+                                <div class="small fw-bold text-info mb-1">💡 Góc chuyên gia PinkyCloud</div>
+                                <div class="small text-muted" style="font-size: 0.78rem;">Bài viết đang trong giai đoạn kiểm định y khoa bởi Cố vấn da liễu.</div>
+                            </div>
+
+                            <button type="button" class="btn news-btn btn-outline-pink w-100 rounded-pill py-2 fw-bold text-center" onclick="scrollToSubscribe()" style="display: block; cursor: pointer;">
+                                🔔 Đặt lời nhắc bài viết
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </section>
 

@@ -3,7 +3,14 @@
    ========================================================================== */
 
 .handbook-page {
-  background-color: #fffafb;
+  background: 
+    radial-gradient(circle at 10% 12%, rgba(247, 108, 133, 0.22), transparent 42%),
+    radial-gradient(circle at 90% 20%, rgba(14, 165, 233, 0.22), transparent 42%),
+    radial-gradient(circle at 85% 82%, rgba(14, 165, 233, 0.18), transparent 45%),
+    radial-gradient(circle at 15% 88%, rgba(247, 108, 133, 0.18), transparent 45%),
+    linear-gradient(135deg, #fff0f5 0%, #ffe6ef 26%, #f0f7ff 68%, #dbeafe 100%);
+  background-attachment: fixed;
+  background-size: cover;
   min-height: 100vh;
   padding-bottom: 80px;
 }
@@ -42,9 +49,10 @@
 .hb-hero {
   padding: 60px 0 80px;
   background: 
-    radial-gradient(circle at 15% 25%, rgba(247, 108, 133, 0.18), transparent 35%),
-    radial-gradient(circle at 85% 75%, rgba(255, 172, 199, 0.22), transparent 35%),
-    linear-gradient(135deg, #fff3f6 0%, #ffe3eb 100%);
+    radial-gradient(circle at 12% 25%, rgba(247, 108, 133, 0.24), transparent 40%),
+    radial-gradient(circle at 88% 30%, rgba(14, 165, 233, 0.22), transparent 42%),
+    radial-gradient(circle at 50% 85%, rgba(255, 215, 226, 0.26), transparent 45%),
+    linear-gradient(135deg, #fff1f5 0%, #ffe5ed 28%, #f0f7ff 72%, #dbeafe 100%);
   border-bottom: 1px solid rgba(247, 108, 133, 0.12);
   position: relative;
   overflow: hidden;
