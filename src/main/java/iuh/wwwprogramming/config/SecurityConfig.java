@@ -38,6 +38,12 @@ public class SecurityConfig {
                     "/san-pham/**",
                     "/products",
                     "/products/**",
+                    "/tin-tuc",
+                    "/tin-tuc/**",
+                    "/news",
+                    "/news/**",
+                    "/cam-nang",
+                    "/cam-nang/**",
                     "/login",
                     "/register"
                 ).permitAll()

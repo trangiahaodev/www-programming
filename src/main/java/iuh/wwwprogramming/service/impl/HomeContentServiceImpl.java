@@ -25,6 +25,7 @@ public class HomeContentServiceImpl implements HomeContentService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final iuh.wwwprogramming.service.NewsService newsService;
 
     @Override
     public List<OfficeDTO> getOffices() {
@@ -90,58 +91,9 @@ public class HomeContentServiceImpl implements HomeContentService {
 
     @Override
     public List<NewsDTO> getFeaturedNews(int limit) {
-        // News product mapping matching React project
-        Map<Integer, List<String>> newsProductMap = Map.of(
-                1, List.of("pc-016", "pc-009"),
-                2, List.of("pc-001", "pc-012"),
-                3, List.of("pc-013", "pc-050")
-        );
-
-        List<NewsDTO> articles = new ArrayList<>();
-
-        articles.add(NewsDTO.builder()
-                .id(1)
-                .slug("xu-huong-lam-dep-2026-thien-nhien-va-cham-soc-da")
-                .title("Xu hướng làm đẹp 2026: Thiên nhiên và chăm sóc da")
-                .excerpt("Sản phẩm thiên nhiên đang trở thành xu hướng hàng đầu trong chăm sóc da mặt và cơ thể với độ an toàn và lành tính cao.")
-                .content("Năm 2026 đánh dấu sự lên ngôi mạnh mẽ của xu hướng làm đẹp bền vững, trong đó các sản phẩm có nguồn gốc thiên nhiên và quy trình chăm sóc da tối giản đang trở thành lựa chọn ưu tiên của nhiều người tiêu dùng.")
-                .date("12/04/2026")
-                .category("Xu hướng làm đẹp")
-                .author("PinkyCloud Editorial")
-                .readTime("6 phút đọc")
-                .image("/IMG/news01.png")
-                .linkedProducts(findLinkedProducts(newsProductMap.get(1)))
-                .build());
-
-        articles.add(NewsDTO.builder()
-                .id(2)
-                .slug("bi-quyet-chon-my-pham-phu-hop-cho-da-nhay-cam")
-                .title("Bí quyết chọn mỹ phẩm phù hợp cho da nhạy cảm")
-                .excerpt("Hướng dẫn cách đọc thành phần, tránh các hoạt chất dễ gây kích ứng và lựa chọn sản phẩm an toàn cho làn da nhạy cảm.")
-                .content("Da nhạy cảm là một trong những loại da cần được chăm sóc cẩn thận nhất vì rất dễ phản ứng với mỹ phẩm hoặc môi trường. Việc lựa chọn mỹ phẩm phù hợp giúp bảo vệ và phục hồi hàng rào ẩm tự nhiên.")
-                .date("05/04/2026")
-                .category("Chăm sóc da")
-                .author("PinkyCloud Editorial")
-                .readTime("5 phút đọc")
-                .image("/IMG/news02.png")
-                .linkedProducts(findLinkedProducts(newsProductMap.get(2)))
-                .build());
-
-        articles.add(NewsDTO.builder()
-                .id(3)
-                .slug("cach-su-dung-serum-dung-chuan-de-da-sang-khoe")
-                .title("Cách sử dụng serum đúng chuẩn để da sáng khỏe")
-                .excerpt("Tìm hiểu quy trình dưỡng da tối ưu với serum, cách layer các hoạt chất HA, Vitamin C và Niacinamide hiệu quả nhất.")
-                .content("Serum là sản phẩm chứa nồng độ hoạt chất cao, thẩm thấu nhanh và giải quyết trúng đích từng vấn đề cụ thể của làn da. Nắm vững kỹ thuật thoa serum giúp nâng cao gấp đôi hiệu quả dưỡng trắng.")
-                .date("28/03/2026")
-                .category("Hướng dẫn sử dụng")
-                .author("PinkyCloud Editorial")
-                .readTime("4 phút đọc")
-                .image("/IMG/news03.png")
-                .linkedProducts(findLinkedProducts(newsProductMap.get(3)))
-                .build());
-
-        return articles.stream().limit(Math.max(1, limit)).collect(Collectors.toList());
+        return newsService.getAllNews(null, null).stream()
+                .limit(Math.max(1, limit))
+                .collect(Collectors.toList());
     }
 
     @Override

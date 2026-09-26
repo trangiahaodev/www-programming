@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/customer-layout :: layout(~{::main})}"
+      lang="vi">
+<head>
+    <title th:text="${article.title} + ' - PinkyCloud Beauty Journal'">Chi Tiết Bài Viết - PinkyCloud</title>
+</head>
+<body>
+    <main class="news-detail-page">
+        <!-- Reading Progress Bar -->
+        <div class="news-reading-progress" id="readingProgressBar"></div>
+
+        <div class="news-detail-container">
+
+            <!-- Breadcrumbs -->
+            <nav class="news-breadcrumb">
+                <a th:href="@{/}">Trang chủ</a>
+                <span>&gt;</span>
+                <a th:href="@{/tin-tuc}">Cẩm nang & Tin tức</a>
+                <span>&gt;</span>
+                <a th:href="@{/tin-tuc(category=${article.category})}" th:text="${article.category}">Chăm sóc da</a>
+                <span>&gt;</span>
+                <span style="color: var(--pl-text-dark); font-weight: 600;" th:text="${article.title}">Tiêu đề</span>
+            </nav>
+
+            <!-- Article Header -->
+            <header class="news-detail-header">
+                <a th:href="@{/tin-tuc(category=${article.category})}" class="hb-pill-tag" th:text="${article.category}">
+                    Chăm sóc da
+                </a>
+
+                <h1 class="news-detail-title" th:text="${article.title}">
+                    Bí quyết chọn mỹ phẩm phù hợp cho da nhạy cảm
+                </h1>
+
+                <div class="news-detail-meta-bar">
+                    <div class="news-author-group">
+                        <div class="news-author-avatar" style="width: 48px; height: 48px; font-size: 1.1rem;">
+                            <span th:text="${#strings.substring(article.author, 0, 1)}">P</span>
+                        </div>
+                        <div>
+                            <div style="font-weight: 700; color: var(--pl-text-dark);" th:text="${article.author}">Dr. Hoàng Lan</div>
+                            <div style="font-size: 0.82rem; color: var(--pl-text-muted);" th:text="${article.authorRole}">Cố Vấn Da Liễu PinkyCloud</div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 16px; color: var(--pl-text-muted); font-size: 0.88rem;">
+                        <span style="display: flex; align-items: center; gap: 6px;">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            <span th:text="${article.date}">05/04/2026</span>
+                        </span>
+                        <span>•</span>
+                        <span style="display: flex; align-items: center; gap: 6px;">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                            <span th:text="${article.readTime}">5 phút đọc</span>
+                        </span>
+                        <span>•</span>
+                        <span style="display: flex; align-items: center; gap: 6px;">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                            <span th:text="${article.viewsCount} + ' lượt xem'">3.1k lượt xem</span>
+                        </span>
+                    </div>
+
+                    <!-- Share action -->
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <button type="button" class="btn" onclick="copyArticleLink()" style="background: #f1f5f9; border-radius: 20px; padding: 6px 14px; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                            </svg>
+                            Sao chép link
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Layout: Content (Left) & Sidebar (Right) -->
+            <div class="news-detail-layout">
+
+                <!-- MAIN ARTICLE CONTENT -->
+                <article class="news-article-main">
+                    <!-- Featured Image -->
+                    <img th:src="@{${article.image}}" th:alt="${article.title}" class="news-main-hero-img">
+
+                    <!-- Excerpt / Lead Quote -->
+                    <div class="news-lead-quote" th:text="${article.excerpt}">
+                        Da nhạy cảm là một trong những loại da cần được chăm sóc cẩn thận nhất vì rất dễ phản ứng với mỹ phẩm hoặc môi trường. Việc lựa chọn mỹ phẩm phù hợp giúp bảo vệ và phục hồi hàng rào ẩm tự nhiên.
+                    </div>
+
+                    <!-- Paragraphs Content -->
+                    <div class="news-content-body">
+                        <p th:each="p : ${article.paragraphs}" class="news-paragraph" th:text="${p}">
+                            Nội dung chi tiết từng đoạn văn bản phân tích chuyên sâu...
+                        </p>
+                    </div>
+
+                    <!-- EXPERT RECOMMENDED PRODUCTS (Data mapped from old React project) -->
+                    <div class="news-rec-box" th:if="${article.linkedProducts != null and !article.linkedProducts.isEmpty()}">
+                        <div class="news-rec-header">
+                            <span style="font-size: 1.5rem;">✨</span>
+                            <div>
+                                <h4>Gợi Ý Sản Phẩm Trong Bài Viết</h4>
+                                <div style="font-size: 0.85rem; color: var(--pl-text-muted);">
+                                    Được bác sĩ da liễu và chuyên viên PinkyCloud khuyên dùng cho liệu trình này
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="news-rec-grid">
+                            <div th:each="product : ${article.linkedProducts}" class="news-rec-card">
+                                <div class="news-rec-card-top">
+                                    <img th:src="@{${product.image}}" th:alt="${product.name}" class="news-rec-img">
+                                    <div class="news-rec-info">
+                                        <div style="font-size: 0.76rem; color: var(--pl-primary); font-weight: 700; text-transform: uppercase;" th:text="${product.brand}">
+                                            Thương hiệu
+                                        </div>
+                                        <h5 th:text="${product.name}">Tên sản phẩm</h5>
+                                        <div class="news-rec-price" th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
+                                            450.000 ₫
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Expert Recommendation Reason -->
+                                <div class="news-rec-expert-reason"
+                                     th:if="${article.recommendationReasons != null and article.recommendationReasons.containsKey(product.id)}"
+                                     th:text="'💡 ' + ${article.recommendationReasons.get(product.id)}">
+                                    Lý do chuyên gia khuyên dùng sản phẩm này...
+                                </div>
+
+                                <a th:href="@{/san-pham/{id}(id=${product.id})}" class="news-rec-cta">
+                                    Xem chi tiết sản phẩm
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                        <polyline points="12 5 19 12 12 19"></polyline>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Article Tags -->
+                    <div th:if="${article.tags != null and !article.tags.isEmpty()}" style="margin-top: 36px; padding-top: 24px; border-top: 1px solid #f1f5f9;">
+                        <span style="font-weight: 700; font-size: 0.9rem; color: var(--pl-text-dark); margin-right: 10px;">Thẻ bài viết:</span>
+                        <a th:each="t : ${article.tags}"
+                           th:href="@{/tin-tuc(keyword=${t})}"
+                           style="display: inline-block; background: #f8fafc; border: 1px solid #e2e8f0; color: #475569; padding: 4px 12px; border-radius: 16px; font-size: 0.82rem; margin-right: 6px; margin-bottom: 6px; font-weight: 600; text-decoration: none;">
+                            #<span th:text="${t}">Tag</span>
+                        </a>
+                    </div>
+
+                    <!-- Author Footer Card -->
+                    <div style="margin-top: 40px; padding: 24px; background: #fdf8f9; border-radius: 18px; border: 1px solid #fce7ec; display: flex; gap: 20px; align-items: center;">
+                        <div class="news-author-avatar" style="width: 60px; height: 60px; font-size: 1.4rem; flex-shrink: 0;">
+                            <span th:text="${#strings.substring(article.author, 0, 1)}">P</span>
+                        </div>
+                        <div>
+                            <div style="font-weight: 800; font-size: 1.05rem; color: var(--pl-text-dark);" th:text="${article.author}">Dr. Hoàng Lan</div>
+                            <div style="font-size: 0.85rem; color: var(--pl-primary); font-weight: 700; margin-bottom: 6px;" th:text="${article.authorRole}">Cố Vấn Da Liễu PinkyCloud</div>
+                            <p style="font-size: 0.88rem; color: var(--pl-text-body); margin: 0; line-height: 1.5;">
+                                Đội ngũ chuyên gia thẩm mỹ & dược sĩ da liễu tại PinkyCloud luôn đồng hành cùng bạn trên hành trình chăm sóc làn da khỏe đẹp, an toàn và khoa học.
+                            </p>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- SIDEBAR -->
+                <aside class="news-sidebar">
+
+                    <!-- Related Articles Widget -->
+                    <div class="news-sidebar-card" th:if="${relatedNews != null and !relatedNews.isEmpty()}">
+                        <div class="news-sidebar-title">Bài Viết Cùng Chuyên Mục</div>
+                        <div style="display: flex; flex-direction: column;">
+                            <a th:each="rel : ${relatedNews}"
+                               th:href="@{/tin-tuc/{slug}(slug=${rel.slug})}"
+                               class="news-related-item">
+                                <img th:src="@{${rel.image}}" th:alt="${rel.title}" class="news-related-img">
+                                <div style="flex: 1;">
+                                    <h5 class="news-related-title" th:text="${rel.title}">Tiêu đề bài liên quan</h5>
+                                    <div class="news-related-date" th:text="${rel.date}">12/04/2026</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- E-voucher & Handbook Newsletter Card -->
+                    <div class="news-sidebar-card" style="background: linear-gradient(135deg, #fff2f6 0%, #ffe5ed 100%); border-color: rgba(255, 107, 129, 0.3);">
+                        <div style="font-size: 2rem; margin-bottom: 8px;">📖</div>
+                        <h4 style="font-weight: 800; color: var(--pl-text-dark); font-size: 1.15rem; margin-bottom: 8px;">Cẩm Nang Skincare 2026</h4>
+                        <p style="font-size: 0.86rem; color: var(--pl-text-body); line-height: 1.55; margin-bottom: 16px;">
+                            Nhận trọn bộ cẩm nang hướng dẫn điều trị da mụn, nám, tàn nhang và voucher 10% gửi qua email.
+                        </p>
+                        <form onsubmit="handleSidebarSubscribe(event)">
+                            <input type="email" id="sidebarEmail" placeholder="Email của bạn..." required
+                                   style="width: 100%; padding: 10px 14px; border-radius: 20px; border: 1.5px solid rgba(255, 107, 129, 0.3); margin-bottom: 10px; font-size: 0.88rem; outline: none;">
+                            <button type="submit" id="sidebarSubscribeBtn"
+                                    style="width: 100%; background: var(--pl-primary-gradient); color: white; border: none; padding: 10px; border-radius: 20px; font-weight: 700; font-size: 0.9rem; cursor: pointer;">
+                                Nhận E-book miễn phí
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Back to News List Button -->
+                    <div style="text-align: center; margin-top: 16px;">
+                        <a th:href="@{/tin-tuc}" style="display: inline-flex; align-items: center; gap: 8px; font-weight: 700; color: var(--pl-primary); font-size: 0.95rem;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <line x1="19" y1="12" x2="5" y2="12"></line>
+                                <polyline points="12 19 5 12 12 5"></polyline>
+                            </svg>
+                            Quay lại Tạp chí Tin tức
+                        </a>
+                    </div>
+
+                </aside>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Reading Progress and Interaction Script -->
+    <script th:inline="javascript">
+        // 1. Reading Progress Bar
+        window.addEventListener('scroll', function() {
+            const progressBar = document.getElementById('readingProgressBar');
+            if (!progressBar) return;
+            const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+            if (totalHeight > 0) {
+                const scrolled = (window.pageYOffset / totalHeight) * 100;
+                progressBar.style.width = scrolled + '%';
+            }
+        });
+
+        // 2. Copy Link Action
+        function copyArticleLink() {
+            navigator.clipboard.writeText(window.location.href).then(function() {
+                if (typeof showToastMessage === 'function') {
+                    showToastMessage('Đã sao chép liên kết bài viết vào clipboard!', 'success');
+                } else {
+                    alert('Đã sao chép liên kết bài viết vào clipboard!');
+                }
+            });
+        }
+
+        // 3. Sidebar Newsletter Subscribe
+        function handleSidebarSubscribe(e) {
+            e.preventDefault();
+            const emailInput = document.getElementById('sidebarEmail');
+            const btn = document.getElementById('sidebarSubscribeBtn');
+            const email = emailInput.value.trim();
+
+            if (!email || !email.includes('@')) return;
+
+            btn.disabled = true;
+            btn.innerText = 'Đang gửi...';
+
+            fetch('/tin-tuc/subscribe', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email })
+            })
+            .then(res => res.json())
+            .then(data => {
+                btn.innerText = 'Đã gửi thành công! ✨';
+                emailInput.value = '';
+                if (typeof showToastMessage === 'function') {
+                    showToastMessage(data.message, 'success');
+                }
+            })
+            .catch(() => {
+                btn.disabled = false;
+                btn.innerText = 'Nhận E-book miễn phí';
+                alert('Có lỗi xảy ra, vui lòng thử lại sau.');
+            });
+        }
+    </script>
+</body>
+</html>

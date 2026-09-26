@@ -49,6 +49,9 @@
                 <li>
                     <a th:href="@{/san-pham}" class="nav-link" th:classappend="${activeMenu == 'products'} ? 'active' : ''">BỘ SƯU TẬP</a>
                 </li>
+                <li>
+                    <a th:href="@{/tin-tuc}" class="nav-link" th:classappend="${activeMenu == 'news'} ? 'active' : ''">TIN TỨC & CẨM NANG</a>
+                </li>
             </ul>
 
             <!-- Actions -->
@@ -120,7 +123,7 @@
                         <li><a th:href="@{/san-pham}">Tất cả sản phẩm</a></li>
                         <li><a th:href="@{/san-pham?sort=hot}">Sản phẩm bán chạy</a></li>
                         <li><a th:href="@{/san-pham?sort=newest}">Sản phẩm mới về</a></li>
-                        <li><a href="#">Giới thiệu thương hiệu</a></li>
+                        <li><a th:href="@{/tin-tuc}">Cẩm nang Skincare & Tin tức</a></li>
                     </ul>
                 </div>
                 <div class="footer-col">

@@ -323,19 +323,26 @@
                         Cập nhật xu hướng làm đẹp khoa học và mua sắm nhanh các sản phẩm chất lượng được khuyên dùng trong bài viết.
                     </div>
                 </div>
+                <div>
+                    <a th:href="@{/tin-tuc}" class="hero-secondary-btn" style="padding: 8px 18px; font-size: 0.9rem;">
+                        Xem tất cả cẩm nang &rarr;
+                    </a>
+                </div>
             </div>
 
             <div class="news-grid">
                 <div th:each="news : ${newsList}" class="news-card">
                     <div>
-                        <div class="news-image-wrap">
+                        <a th:href="@{/tin-tuc/{slug}(slug=${news.slug})}" class="news-image-wrap">
                             <img th:src="@{${news.image}}" th:alt="${news.title}" class="news-image" loading="lazy">
                             <div class="news-category-tag" th:text="${news.category}">Xu hướng làm đẹp</div>
-                        </div>
+                        </a>
 
                         <div class="news-card-body pb-0">
                             <div class="news-date" th:text="'📅 ' + ${news.date} + ' &bull; ' + ${news.readTime}">12/04/2026</div>
-                            <h3 class="news-title" th:text="${news.title}">Tiêu đề bài viết</h3>
+                            <a th:href="@{/tin-tuc/{slug}(slug=${news.slug})}">
+                                <h3 class="news-title" th:text="${news.title}">Tiêu đề bài viết</h3>
+                            </a>
                             <p class="news-excerpt" th:text="${news.excerpt}">Nội dung tóm tắt...</p>
                         </div>
                     </div>
@@ -358,8 +365,8 @@
                             </div>
                         </div>
 
-                        <a th:href="@{/san-pham}" class="news-btn">
-                            Xem chi tiết bài viết
+                        <a th:href="@{/tin-tuc/{slug}(slug=${news.slug})}" class="news-btn">
+                            Xem chi tiết bài viết &rarr;
                         </a>
                     </div>
                 </div>
