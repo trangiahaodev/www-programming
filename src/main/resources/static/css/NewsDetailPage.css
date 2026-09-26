@@ -2,6 +2,63 @@
    NewsDetailPage.css - Nguyên mẫu từ React PinkyCloud
    ========================================================================== */
 
+.news-detail-wrapper {
+  background-color: #fffafb;
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+
+/* News Switcher Bar */
+.news-switcher-box {
+  background: #ffffff;
+  border: 1px solid rgba(247, 108, 133, 0.18);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(247, 108, 133, 0.06);
+}
+
+.news-switcher-pills {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.news-switcher-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 18px;
+  border-radius: 50px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: #5d4650;
+  background: #ffffff;
+  border: 1.5px solid #f2d4dc;
+  text-decoration: none;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+}
+
+.news-switcher-pill:hover {
+  border-color: #f76c85;
+  color: #e14966;
+  background: #fff5f7;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(247, 108, 133, 0.15);
+}
+
+.news-switcher-pill.active {
+  background: linear-gradient(135deg, #f76c85 0%, #e14966 100%);
+  color: #ffffff !important;
+  border-color: transparent;
+  box-shadow: 0 6px 18px rgba(247, 108, 133, 0.35);
+  pointer-events: none;
+}
+
+.news-share-label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #5d4650;
+}
+
 .news-detail-page {
   max-width: 1040px;
   position: relative;
