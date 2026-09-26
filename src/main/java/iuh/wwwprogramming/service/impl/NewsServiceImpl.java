@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 public class NewsServiceImpl implements NewsService {
 
     private final ProductRepository productRepository;
+    private final iuh.wwwprogramming.repository.NewsArticleRepository newsArticleRepository;
 
     private static final Map<String, String> RECOMMENDATION_REASONS = Map.of(
             "pc-016", "Chứa 100% chiết xuất rau má vùng Madagascar giúp làm dịu nhanh da kích ứng, kháng viêm và đẩy nhanh quá trình phục hồi các tổn thương sau mụn.",
@@ -34,8 +35,160 @@ public class NewsServiceImpl implements NewsService {
 
     @Override
     public List<NewsDTO> getAllNews(String category, String keyword) {
-        List<NewsDTO> all = buildRawArticles();
+        List<iuh.wwwprogramming.entity.NewsArticle> dbArticles = newsArticleRepository.searchArticles(category, keyword);
+        if (!dbArticles.isEmpty()) {
+            return dbArticles.stream().map(this::convertToDTO).collect(Collectors.toList());
+        }
 
+        if (newsArticleRepository.count() == 0) {
+            return fallbackGetAllNews(category, keyword);
+        }
+        return List.of();
+    }
+
+    @Override
+    public NewsDTO getNewsBySlug(String slug) {
+        if (slug == null || slug.trim().isEmpty()) {
+            return null;
+        }
+        String clean = slug.trim();
+
+        Optional<iuh.wwwprogramming.entity.NewsArticle> articleOpt = newsArticleRepository.findBySlugAndActiveTrue(clean);
+        if (articleOpt.isPresent()) {
+            return convertToDTO(articleOpt.get());
+        }
+
+        try {
+            Long id = Long.parseLong(clean);
+            Optional<iuh.wwwprogramming.entity.NewsArticle> byId = newsArticleRepository.findById(id);
+            if (byId.isPresent() && Boolean.TRUE.equals(byId.get().getActive())) {
+                return convertToDTO(byId.get());
+            }
+        } catch (NumberFormatException ignored) {}
+
+        if (newsArticleRepository.count() == 0) {
+            return fallbackGetNewsBySlug(clean);
+        }
+        return null;
+    }
+
+    @Override
+    public NewsDTO getNewsById(Integer id) {
+        if (id == null) return null;
+        return newsArticleRepository.findById(id.longValue())
+                .filter(a -> Boolean.TRUE.equals(a.getActive()))
+                .map(this::convertToDTO)
+                .orElseGet(() -> {
+                    if (newsArticleRepository.count() == 0) {
+                        return buildRawArticles().stream().filter(a -> id.equals(a.getId())).findFirst().orElse(null);
+                    }
+                    return null;
+                });
+    }
+
+    @Override
+    public List<NewsDTO> getRelatedNews(Integer currentId, String category, int limit) {
+        List<iuh.wwwprogramming.entity.NewsArticle> all = newsArticleRepository.findAllByActiveTrueOrderByPublishedDateDesc();
+        if (all.isEmpty() && newsArticleRepository.count() == 0) {
+            return fallbackGetRelatedNews(currentId, category, limit);
+        }
+
+        return all.stream()
+                .filter(a -> currentId == null || !a.getId().equals(currentId.longValue()))
+                .sorted((a, b) -> {
+                    boolean aSame = category != null && category.equalsIgnoreCase(a.getCategory());
+                    boolean bSame = category != null && category.equalsIgnoreCase(b.getCategory());
+                    if (aSame && !bSame) return -1;
+                    if (!aSame && bSame) return 1;
+                    return Long.compare(b.getId(), a.getId());
+                })
+                .limit(Math.max(1, limit))
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<String> getNewsCategories() {
+        List<String> dbCats = newsArticleRepository.findDistinctCategories();
+        if (dbCats != null && !dbCats.isEmpty()) {
+            return dbCats;
+        }
+        return List.of(
+                "Xu hướng làm đẹp",
+                "Chăm sóc da",
+                "Hướng dẫn sử dụng",
+                "Kiến thức làm đẹp"
+        );
+    }
+
+    @Override
+    public NewsDTO getFeaturedArticle() {
+        Optional<iuh.wwwprogramming.entity.NewsArticle> featured = newsArticleRepository.findFirstByIsFeaturedTrueAndActiveTrue();
+        if (featured.isPresent()) {
+            return convertToDTO(featured.get());
+        }
+        List<iuh.wwwprogramming.entity.NewsArticle> all = newsArticleRepository.findAllByActiveTrueOrderByPublishedDateDesc();
+        if (!all.isEmpty()) {
+            return convertToDTO(all.get(0));
+        }
+        if (newsArticleRepository.count() == 0) {
+            List<NewsDTO> raw = buildRawArticles();
+            return raw.isEmpty() ? null : raw.get(0);
+        }
+        return null;
+    }
+
+    private NewsDTO convertToDTO(iuh.wwwprogramming.entity.NewsArticle entity) {
+        if (entity == null) return null;
+
+        List<String> linkedIds = new ArrayList<>();
+        if (entity.getLinkedProductIds() != null && !entity.getLinkedProductIds().trim().isEmpty()) {
+            linkedIds = Arrays.stream(entity.getLinkedProductIds().split(","))
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .collect(Collectors.toList());
+        }
+
+        List<ProductCardDTO> products = findLinkedProducts(linkedIds);
+
+        List<String> paragraphs = new ArrayList<>();
+        if (entity.getContent() != null && !entity.getContent().trim().isEmpty()) {
+            paragraphs = Arrays.stream(entity.getContent().split("\n\n"))
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .collect(Collectors.toList());
+        }
+
+        List<String> tags = new ArrayList<>();
+        if (entity.getTags() != null && !entity.getTags().trim().isEmpty()) {
+            tags = Arrays.stream(entity.getTags().split(","))
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .collect(Collectors.toList());
+        }
+
+        return NewsDTO.builder()
+                .id(entity.getId().intValue())
+                .slug(entity.getSlug())
+                .title(entity.getTitle())
+                .excerpt(entity.getExcerpt())
+                .content(entity.getContent())
+                .paragraphs(paragraphs)
+                .date(entity.getPublishedDate())
+                .category(entity.getCategory())
+                .author(entity.getAuthor())
+                .authorRole(entity.getAuthorRole())
+                .readTime(entity.getReadTime())
+                .image(entity.getImage())
+                .tags(tags)
+                .viewsCount(entity.getViewsCount())
+                .linkedProducts(products)
+                .recommendationReasons(RECOMMENDATION_REASONS)
+                .build();
+    }
+
+    private List<NewsDTO> fallbackGetAllNews(String category, String keyword) {
+        List<NewsDTO> all = buildRawArticles();
         return all.stream()
                 .filter(a -> {
                     if (category == null || category.trim().isEmpty() || "all".equalsIgnoreCase(category.trim())) {
@@ -58,64 +211,29 @@ public class NewsServiceImpl implements NewsService {
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public NewsDTO getNewsBySlug(String slug) {
-        if (slug == null || slug.trim().isEmpty()) {
-            return null;
-        }
-        String clean = slug.trim().toLowerCase();
-
+    private NewsDTO fallbackGetNewsBySlug(String slug) {
         List<NewsDTO> all = buildRawArticles();
         for (NewsDTO a : all) {
-            if (clean.equals(a.getSlug().toLowerCase())) {
-                return a;
-            }
-            if (clean.equals(String.valueOf(a.getId()))) {
+            if (slug.equalsIgnoreCase(a.getSlug()) || slug.equals(String.valueOf(a.getId()))) {
                 return a;
             }
         }
         return null;
     }
 
-    @Override
-    public NewsDTO getNewsById(Integer id) {
-        if (id == null) return null;
-        return buildRawArticles().stream()
-                .filter(a -> id.equals(a.getId()))
-                .findFirst()
-                .orElse(null);
-    }
-
-    @Override
-    public List<NewsDTO> getRelatedNews(Integer currentId, String category, int limit) {
+    private List<NewsDTO> fallbackGetRelatedNews(Integer currentId, String category, int limit) {
         List<NewsDTO> all = buildRawArticles();
         return all.stream()
                 .filter(a -> currentId == null || !a.getId().equals(currentId))
                 .sorted((a, b) -> {
-                    boolean aSameCat = category != null && category.equalsIgnoreCase(a.getCategory());
-                    boolean bSameCat = category != null && category.equalsIgnoreCase(b.getCategory());
-                    if (aSameCat && !bSameCat) return -1;
-                    if (!aSameCat && bSameCat) return 1;
+                    boolean aSame = category != null && category.equalsIgnoreCase(a.getCategory());
+                    boolean bSame = category != null && category.equalsIgnoreCase(b.getCategory());
+                    if (aSame && !bSame) return -1;
+                    if (!aSame && bSame) return 1;
                     return Integer.compare(b.getId(), a.getId());
                 })
                 .limit(limit)
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<String> getNewsCategories() {
-        return List.of(
-                "Xu hướng làm đẹp",
-                "Chăm sóc da",
-                "Hướng dẫn sử dụng",
-                "Kiến thức làm đẹp"
-        );
-    }
-
-    @Override
-    public NewsDTO getFeaturedArticle() {
-        List<NewsDTO> all = buildRawArticles();
-        return all.isEmpty() ? null : all.get(0);
     }
 
     private List<NewsDTO> buildRawArticles() {

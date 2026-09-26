@@ -26,6 +26,7 @@ public class HomeContentServiceImpl implements HomeContentService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final iuh.wwwprogramming.service.NewsService newsService;
+    private final iuh.wwwprogramming.repository.VoucherRepository voucherRepository;
 
     @Override
     public List<OfficeDTO> getOffices() {
@@ -98,6 +99,23 @@ public class HomeContentServiceImpl implements HomeContentService {
 
     @Override
     public List<VoucherDTO> getActiveVouchers() {
+        List<iuh.wwwprogramming.entity.Voucher> dbVouchers = voucherRepository.findByActiveTrue();
+        if (dbVouchers != null && !dbVouchers.isEmpty()) {
+            return dbVouchers.stream().map(v -> VoucherDTO.builder()
+                    .id(v.getId().intValue())
+                    .title(v.getTitle())
+                    .code(v.getCode())
+                    .detail(v.getDetail())
+                    .status(v.getStatus())
+                    .accent(v.getAccent())
+                    .build()
+            ).collect(Collectors.toList());
+        }
+
+        return getFallbackVouchers();
+    }
+
+    private List<VoucherDTO> getFallbackVouchers() {
         return List.of(
                 VoucherDTO.builder()
                         .id(1)

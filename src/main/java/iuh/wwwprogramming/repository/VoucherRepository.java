@@ -1,0 +1,18 @@
+package iuh.wwwprogramming.repository;
+
+import iuh.wwwprogramming.entity.Voucher;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Optional;
+
+@Repository
+public interface VoucherRepository extends JpaRepository<Voucher, Long> {
+
+    List<Voucher> findByActiveTrue();
+
+    Optional<Voucher> findByCodeIgnoreCaseAndActiveTrue(String code);
+
+    boolean existsByCode(String code);
+}

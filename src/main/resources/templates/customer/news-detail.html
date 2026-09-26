@@ -107,30 +107,6 @@
         <!-- ============================================================== -->
         <div class="container py-5" style="max-width: 1040px; margin: 0 auto; padding: 40px 20px 80px;">
 
-            <!-- THANH CHUYỂN BÀI VIẾT NHANH (EDITORIAL SERIES TRACKER) -->
-            <div class="news-switcher-box p-3 p-md-4 rounded-4 mb-4" th:if="${allNews != null and !allNews.isEmpty()}">
-                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2 pb-2 border-bottom border-pink-subtle">
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="badge bg-pink-soft text-pink px-2.5 py-1.5 rounded-pill font-monospace fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px;">SERIES</span>
-                        <span class="fw-bold text-dark" style="font-size: 0.92rem;">Tuyển tập cùng chuyên mục</span>
-                        <span class="text-muted small" th:text="'(' + ${allNews.size()} + ' bài viết)'">(5 bài)</span>
-                    </div>
-                    <a th:href="@{/tin-tuc}" class="small text-pink fw-semibold text-decoration-none d-inline-flex align-items-center gap-1 hover-underline">
-                        <span>Tất cả bài viết</span>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                    </a>
-                </div>
-                <div class="news-switcher-track">
-                    <a th:each="item, itemStat : ${allNews}"
-                       th:href="@{/tin-tuc/{slug}(slug=${item.slug})}"
-                       class="news-switcher-pill"
-                       th:classappend="${item.slug == news.slug} ? 'active' : ''">
-                        <span class="pill-index" th:text="${itemStat.count < 10 ? '0' + itemStat.count : itemStat.count}">01</span>
-                        <span class="pill-title text-truncate" th:text="${item.title}">Tiêu đề bài viết</span>
-                        <span class="pill-active-badge" th:if="${item.slug == news.slug}">Đang đọc</span>
-                    </a>
-                </div>
-            </div>
 
             <!-- NỘI DUNG CHI TIẾT BÀI VIẾT NGUYÊN MẪU TỪ REACT NEWSDETAILPAGE -->
             <article id="article-body" class="news-detail-card mb-5">
