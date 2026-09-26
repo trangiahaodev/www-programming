@@ -20,6 +20,7 @@ public class AdminUserController {
         } else {
             model.addAttribute("users", users.search(query));
         }
+        model.addAttribute("deleteForm", new UserDeleteDTO());
         return "admin/user-list";
     }
 
@@ -55,5 +56,30 @@ public class AdminUserController {
             errors.reject("user.conflict", "Thông tin đang trùng với tài khoản khác. Vui lòng kiểm tra email.");
         }
         return "admin/user-edit";
+    }
+
+    @PostMapping("/{id}/delete")
+    public String delete(@PathVariable String id, @Valid @ModelAttribute("deleteForm") UserDeleteDTO dto,
+            BindingResult errors, @org.springframework.security.core.annotation.AuthenticationPrincipal
+            iuh.wwwprogramming.security.ShopPrincipal actor,
+            org.springframework.web.servlet.mvc.support.RedirectAttributes flash) {
+        if (errors.hasErrors()) {
+            flash.addFlashAttribute("errorMessage", "Yêu cầu xóa không hợp lệ. Vui lòng mở lại hộp xác nhận.");
+            return "redirect:/admin/users";
+        }
+        flash.addAttribute("keyword", dto.getKeyword());
+        flash.addAttribute("page", dto.getPage());
+        flash.addAttribute("size", dto.getSize());
+        try {
+            users.delete(id, dto, actor.id());
+            flash.addFlashAttribute("successMessage", "Đã xóa người dùng.");
+        } catch (IllegalArgumentException ex) {
+            flash.addFlashAttribute("errorMessage", ex.getMessage());
+        } catch (org.springframework.dao.DataIntegrityViolationException ex) {
+            flash.addFlashAttribute("errorMessage", "Không thể xóa: người dùng đang có dữ liệu liên quan. Vui lòng tải lại danh sách.");
+        } catch (org.springframework.dao.PessimisticLockingFailureException ex) {
+            flash.addFlashAttribute("errorMessage", "Tài khoản đang được cập nhật. Vui lòng thử lại.");
+        }
+        return "redirect:/admin/users";
     }
 }

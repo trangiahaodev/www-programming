@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service @RequiredArgsConstructor @Transactional(readOnly=true)
 public class UserServiceImpl implements UserService {
     private final UserRepository users;
+    private final iuh.wwwprogramming.repository.OrderRepository orders;
     @Override
     public Page<UserResponseDTO> search(UserSearchDTO query) {
         String keyword = query.getKeyword() == null ? "" : query.getKeyword().trim();
@@ -56,5 +57,16 @@ public class UserServiceImpl implements UserService {
         if (user.getId().equals(actorId)) throw new IllegalArgumentException("Bạn không thể khóa hoặc xóa chính tài khoản đang dùng.");
         if ("ROLE_ADMIN".equals(user.getRole()) && Boolean.TRUE.equals(user.getActive()) && activeAdmins <= 1)
             throw new IllegalArgumentException("Không thể khóa hoặc xóa Admin hoạt động cuối cùng.");
+    }
+
+    @Override @Transactional
+    public void delete(String id, UserDeleteDTO dto, String actorId) {
+        var admins = users.lockActiveAdmins();
+        User user = users.findForUpdate(id).orElseThrow(iuh.wwwprogramming.exception.UserNotFoundException::new);
+        guardDeactivation(user, actorId, admins.size());
+        if (orders.existsByUserId(id))
+            throw new IllegalArgumentException("Không thể xóa người dùng đã có đơn hàng, kể cả đơn đã hủy.");
+        users.delete(user);
+        users.flush();
     }
 }

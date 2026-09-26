@@ -33,4 +33,14 @@
 .users-table th { background: var(--color-surface-subtle, var(--account-paper)); }
 .user-dialog { margin: auto; width: min(560px, calc(100% - 32px)); border: 0; border-radius: 8px; padding: 32px; color: var(--account-text); background: var(--account-surface); }
 .user-dialog::backdrop { background: var(--account-overlay); }
-@media (max-width: 600px) { .account-panel { margin: 16px; padding: 24px; } .users-page { padding: 8px; } }
+.admin-header .header-left, .admin-header .header-right, .header-user-profile, .user-details { min-width: 0; }
+.admin-header .user-name { max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 600px) {
+    .account-panel { margin: 16px; padding: 24px; }
+    .users-page { padding: 8px; }
+    .users-search input { max-width: 100%; }
+    .admin-header .header-left { flex: 0; }
+    .admin-header .header-search-bar { display: none; }
+    .admin-header .header-right { flex: 1; justify-content: flex-end; gap: 8px; }
+    .admin-header .user-name { max-width: 120px; }
+}

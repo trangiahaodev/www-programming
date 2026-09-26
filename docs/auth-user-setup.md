@@ -6,7 +6,7 @@ Giữ Spring Boot và JDK theo `pom.xml`. SQL Server lấy cấu hình từ Spri
 
 Tạo Admin đầu tiên bằng cách bật `BOOTSTRAP_ADMIN_ENABLED=true`, đặt `BOOTSTRAP_ADMIN_EMAIL` và `BOOTSTRAP_ADMIN_PASSWORD` (ít nhất 8 ký tự, tối đa 72 byte UTF-8). Khởi động một lần rồi tắt tùy chọn bootstrap. Tài khoản đã tồn tại không bị ghi đè hoặc nâng quyền. Không lưu mật khẩu thật vào Git.
 
-Guest xem catalog và giỏ hàng; Customer dùng checkout/profile/orders; Admin dùng `/admin/**`. Admin đăng nhập được chuyển đến `/admin/users` (được bổ sung trên nhánh danh sách User). Đăng ký được bổ sung trên nhánh `feature/auth-register`.
+Guest xem catalog và giỏ hàng; Customer dùng checkout/profile/orders; Admin dùng `/admin/**`. Admin đăng nhập được chuyển đến `/admin/users`. Đăng ký tại `/register`, đăng nhập tại `/login`.
 
 Email chào mừng: đặt `MAIL_ENABLED=true`, `MAIL_FROM`, `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_SMTP_AUTH`, `MAIL_STARTTLS`. Mặc định mail bị tắt để môi trường chưa cấu hình SMTP vẫn chạy được. Khi bật, email được gửi sau commit bởi executor hai luồng, hàng đợi tối đa 100; timeout SMTP 5 giây. Lỗi SMTP hoặc hàng đợi đầy được log theo ID User, không gửi lại tự động. Không hứa email đã đến trong Flash message. Email này không phải bước xác minh và không ảnh hưởng quyền đăng nhập.
 
@@ -28,3 +28,9 @@ Các test cũ về catalog cần seed sản phẩm; profile kiểm thử giữ s
 - Các form xóa Product/Category dùng action JavaScript được bổ sung CSRF thủ công; các form có `th:action` được Thymeleaf thêm token.
 - Không thay thế bộ sinh mã sẵn có; mã User mới sử dụng `USR` và 17 ký tự UUID ngẫu nhiên, unique ở database.
 - Filter kiểm tra User theo ID ở mỗi request đã đăng nhập; khóa/xóa hoặc thay đổi email/mật khẩu/quyền buộc đăng nhập lại. Đây là chi phí một truy vấn để trạng thái có hiệu lực ngay, không tải danh sách đơn hàng.
+
+## Nhánh bàn giao
+
+Thứ tự phụ thuộc: `feature/auth-login` → `feature/auth-register` → `feature/admin-view-users` → `feature/admin-update-user` → `feature/admin-delete-user`. Nhánh cuối chứa toàn bộ module. Các nhánh đã được push riêng; không merge tự động vào dev/main.
+
+Trang sửa User cho phép cập nhật hồ sơ và khóa/mở tài khoản; không nhận role/password từ form. Xóa chỉ thực hiện bằng POST có CSRF sau khi xác nhận Modal trên danh sách. Service từ chối User có đơn ở mọi trạng thái, tự xóa và xóa Admin hoạt động cuối cùng. Xem `docs/audits/auth-user-admin.md` để biết phạm vi kiểm thử và các giới hạn vận hành.

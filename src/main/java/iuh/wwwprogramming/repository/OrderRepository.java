@@ -23,4 +23,5 @@ public interface OrderRepository extends JpaRepository<Order, String> {
     Optional<Order> findWithDetailsByOrderCode(@Param("orderCode") String orderCode);
 
     List<Order> findByUserEmailOrderByCreatedAtDesc(String email);
+    boolean existsByUserId(String userId);
 }

@@ -6,4 +6,5 @@ public interface UserService {
 
     UserUpdateDTO getForEdit(String id);
     void update(String id, @jakarta.validation.Valid UserUpdateDTO dto, String actorId);
+    void delete(String id, @jakarta.validation.Valid UserDeleteDTO dto, String actorId);
 }
