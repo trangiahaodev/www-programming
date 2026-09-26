@@ -335,6 +335,7 @@
                     <div>
                         <a th:href="@{/tin-tuc/{slug}(slug=${news.slug})}" class="news-image-wrap">
                             <img th:src="@{${news.image}}" th:alt="${news.title}" class="news-image" loading="lazy">
+                            <div class="news-image-overlay"></div>
                             <div class="news-category-tag" th:text="${news.category}">Xu hướng làm đẹp</div>
                         </a>
 
@@ -347,7 +348,7 @@
                         </div>
                     </div>
 
-                    <div class="news-card-body pt-0">
+                    <div class="news-card-body pt-0 mt-auto">
                         <!-- Linked products inside article (Matching React commercialization) -->
                         <div class="news-linked-products" th:if="${news.linkedProducts != null and !news.linkedProducts.isEmpty()}">
                             <div class="news-linked-title">🛍️ Mua sản phẩm trong bài:</div>
