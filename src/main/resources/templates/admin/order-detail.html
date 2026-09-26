@@ -1,0 +1,492 @@
+<html th:replace="~{layout/admin-layout :: layout(~{::main})}" xmlns:th="http://www.thymeleaf.org" lang="vi">
+<main class="page-container">
+    <div th:if="${order == null}">
+        <div class="alert alert-danger" role="alert">
+            <div class="alert-content">
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                </svg>
+                <span>Không tìm thấy thông tin đơn hàng để hiển thị.</span>
+            </div>
+        </div>
+        <div class="text-center mt-4">
+            <a th:href="@{/admin/orders}" class="btn btn-outline">Quay lại danh sách đơn hàng</a>
+        </div>
+    </div>
+
+    <div th:if="${order != null}">
+    <!-- Header Area -->
+    <header class="page-header">
+        <div>
+            <!-- Breadcrumb Navigation -->
+            <nav class="breadcrumb" aria-label="Breadcrumb">
+                <a th:href="@{/admin}">Trang chủ</a>
+                <span aria-hidden="true">/</span>
+                <span>Quản lý bán hàng</span>
+                <span aria-hidden="true">/</span>
+                <a th:href="@{/admin/orders}">Đơn hàng</a>
+                <span aria-hidden="true">/</span>
+                <span class="breadcrumb-current" th:text="'#' + ${order.orderCode != null ? order.orderCode : 'UNKNOWN'}">#ORD26000001</span>
+            </nav>
+
+            <!-- Order Title & Actions -->
+            <div class="order-detail-header-actions">
+                <div class="order-detail-title-group">
+                    <h1 class="page-title page-title-no-margin" th:text="'ĐƠN HÀNG #' + ${order.orderCode != null ? order.orderCode : 'UNKNOWN'}">ĐƠN HÀNG #ORD26000001</h1>
+                    <span class="badge"
+                          th:classappend="${order.status != null && order.status.name() == 'PENDING' ? 'status-pending' : (order.status != null && order.status.name() == 'PROCESSING' ? 'status-processing' : (order.status != null && order.status.name() == 'SHIPPED' ? 'status-shipped' : (order.status != null && order.status.name() == 'DELIVERED' ? 'status-delivered' : 'status-cancelled')))}"
+                          th:text="${order.statusDisplay != null ? order.statusDisplay : 'Chưa xác định'}">ĐANG XỬ LÝ</span>
+                </div>
+                <div>
+                    <a th:href="@{/admin/orders}"
+                       class="btn btn-outline order-btn-back"
+                       aria-label="Quay lại danh sách đơn hàng">
+                        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                        </svg>
+                        <span>Quay lại danh sách</span>
+                    </a>
+                </div>
+            </div>
+            <p class="page-subtitle" th:text="'Ngày tạo đơn: ' + ${order.orderDate != null ? #temporals.format(order.orderDate, 'dd/MM/yyyy HH:mm:ss') : 'Không xác định'}">Ngày tạo đơn: 24/09/2026 10:30:00</p>
+        </div>
+    </header>
+
+    <!-- Flash Messages & Alerts -->
+    <div th:if="${successMessage}" class="alert alert-success" role="alert">
+        <div class="alert-content">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            </svg>
+            <span th:text="${successMessage}">Thao tác thành công!</span>
+        </div>
+    </div>
+
+    <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+        <div class="alert-content">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+            </svg>
+            <span th:text="${errorMessage}">Đã xảy ra lỗi!</span>
+        </div>
+    </div>
+
+    <!-- Info Cards Grid -->
+    <div class="order-detail-cards-grid">
+        <!-- Card 1: Receiver Information -->
+        <section class="order-info-card" aria-labelledby="receiverInfoTitle">
+            <div class="order-info-card-header">
+                <svg class="order-info-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                <h2 id="receiverInfoTitle" class="order-info-card-title">Thông tin người nhận</h2>
+            </div>
+            <dl class="order-info-list">
+                <dt class="order-info-label">Khách hàng:</dt>
+                <dd class="order-info-value order-info-value-highlight" th:text="${order.customerName}">Nguyễn Thị Lan</dd>
+
+                <dt class="order-info-label">Số điện thoại:</dt>
+                <dd class="order-info-value">
+                    <a th:href="'tel:' + ${order.customerPhone}"
+                       class="order-info-value-link"
+                       th:text="${order.customerPhone}"
+                       th:aria-label="'Gọi điện cho khách hàng ' + ${order.customerName}">0987654321</a>
+                </dd>
+
+                <dt class="order-info-label">Địa chỉ giao hàng:</dt>
+                <dd class="order-info-value" th:text="${order.shippingAddress}">12 Nguyễn Văn Bảo, P.4, Q.Gò Vấp, TP.HCM</dd>
+
+                <dt class="order-info-label">Ghi chú đơn:</dt>
+                <dd class="order-info-value order-info-note"
+                    th:text="${order.note != null && !order.note.trim().isEmpty() ? order.note : 'Không có ghi chú nào từ khách hàng.'}">Không có ghi chú nào từ khách hàng.</dd>
+            </dl>
+        </section>
+
+        <!-- Card 2: Payment & Meta Information -->
+        <section class="order-info-card" aria-labelledby="paymentInfoTitle">
+            <div class="order-info-card-header">
+                <svg class="order-info-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                    <line x1="1" y1="10" x2="23" y2="10"></line>
+                </svg>
+                <h2 id="paymentInfoTitle" class="order-info-card-title">Thông tin thanh toán</h2>
+            </div>
+            <dl class="order-info-list">
+                <dt class="order-info-label">Phương thức:</dt>
+                <dd class="order-info-value order-info-value-highlight" th:text="${order.paymentMethod}">COD (Thanh toán khi nhận hàng)</dd>
+
+                <dt class="order-info-label">Trạng thái:</dt>
+                <dd class="order-info-value">
+                    <span class="badge"
+                          th:classappend="${order.paymentStatus == 'PAID' ? 'status-delivered' : (order.paymentStatus == 'REFUNDED' ? 'status-shipped' : 'status-pending')}"
+                          th:text="${order.paymentStatus == 'PAID' ? 'Đã thanh toán' : (order.paymentStatus == 'REFUNDED' ? 'Đã hoàn tiền' : 'Chưa thanh toán')}">Chưa thanh toán</span>
+                </dd>
+
+                <dt class="order-info-label">Ngày tạo đơn:</dt>
+                <dd class="order-info-value" th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy HH:mm:ss')}">24/09/2026 10:30:00</dd>
+
+                <dt class="order-info-label">Cập nhật cuối:</dt>
+                <dd class="order-info-value" th:text="${order.updatedAt != null ? #temporals.format(order.updatedAt, 'dd/MM/yyyy HH:mm:ss') : 'Chưa có cập nhật'}">Chưa có cập nhật</dd>
+            </dl>
+        </section>
+    </div>
+
+    <!-- Locked Order Notice Banner -->
+    <div th:if="${order.status != null and (order.status.name() == 'SHIPPED' or order.status.name() == 'DELIVERED' or order.status.name() == 'CANCELLED')}"
+         class="order-locked-banner" role="status">
+        <svg class="order-locked-banner-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+        <div>
+           <span>Đơn hàng đang ở trạng thái <strong><span th:text="${order.statusDisplay != null ? order.statusDisplay : 'Chưa xác định'}">ĐÃ GIAO HÀNG</span></strong>. Quy định nghiệp vụ không cho phép thay đổi số lượng mặt hàng.</span>
+        </div>
+    </div>
+
+    <!-- Order Items Card & Update Form -->
+    <form th:action="@{/admin/orders/{id}/items(id=${order.id})}" th:object="${updateRequest}" method="post" id="updateQuantityForm">
+        <input type="hidden" th:field="*{orderId}">
+
+        <section class="order-items-card" aria-labelledby="orderItemsTitle">
+            <div class="order-items-header">
+                <div class="order-items-title-group">
+                    <h2 id="orderItemsTitle" class="order-items-title">Danh sách sản phẩm đã đặt</h2>
+                    <span class="order-items-count">
+                        Tổng cộng: <strong id="totalItemsHeader" th:text="${order.totalItems != null ? order.totalItems : 0}">0</strong> món
+                    </span>
+                </div>
+
+                <!-- Action buttons toolbar -->
+                <div class="order-items-actions-bar" th:if="${order.status != null and (order.status.name() == 'PENDING' or order.status.name() == 'PROCESSING')}">
+                    <a th:href="@{/admin/orders}" class="btn-cancel-action" aria-label="Quay lại danh sách đơn hàng">
+                        <svg width="15" height="15" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                        </svg>
+                        <span>Quay lại</span>
+                    </a>
+                    <button type="button" id="btnResetQuantity" class="btn-reset-quantity" disabled
+                            aria-label="Đặt lại số lượng ban đầu">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <polyline points="1 4 1 10 7 10"></polyline>
+                            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                        </svg>
+                        <span>Đặt lại</span>
+                    </button>
+                    <button type="submit" id="btnSaveQuantity" class="btn-save-quantity" disabled
+                            aria-label="Lưu các thay đổi số lượng mặt hàng">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                            <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                            <polyline points="7 3 7 8 15 8"></polyline>
+                        </svg>
+                        <span>Lưu thay đổi</span>
+                        <span id="badgeChangeCount" class="badge-change-count d-none">0</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table>
+                    <caption class="sr-only">Danh sách chi tiết các mặt hàng trong đơn hàng</caption>
+                    <thead>
+                    <tr>
+                        <th scope="col" class="col-stt">STT</th>
+                        <th scope="col" class="col-product-name">Sản phẩm</th>
+                        <th scope="col" class="col-product-code">Mã sản phẩm</th>
+                        <th scope="col" class="col-price">Đơn giá</th>
+                        <th scope="col" class="col-current-qty">SL hiện tại</th>
+                        <th scope="col" class="col-new-qty">SL mới</th>
+                        <th scope="col" class="col-subtotal">Thành tiền</th>
+                    </tr>
+                    </thead>
+                    <tbody id="orderItemsTableBody">
+                    <tr th:each="item, stat : ${order.items}"
+                        class="order-item-row"
+                        th:attr="data-item-id=${item.id}, data-unit-price=${item.unitPrice}, data-original-qty=${item.quantity}">
+                        <td class="cell-stt" th:text="${stat.count}">1</td>
+                        <td class="order-table-item-name">
+                            <span th:text="${item.productName != null ? item.productName : 'Sản phẩm'}">Kem dưỡng ẩm Laneige Water Bank</span>
+                        </td>
+                        <td class="cell-center">
+                            <span class="product-code-pill" th:text="${item.productCode != null ? item.productCode : '-'}">SP26000001</span>
+                        </td>
+                        <td class="order-table-item-price cell-right"
+                            th:attr="data-unit-price=${item.unitPrice}"
+                            th:text="${#numbers.formatDecimal(item.unitPrice, 0, 'COMMA', 0, 'POINT')} + ' đ'">450,000 đ</td>
+                        <td class="cell-current-qty" th:text="${item.quantity != null ? item.quantity : 0}">1</td>
+                        <td class="order-table-item-qty cell-center">
+                            <input type="hidden" th:field="*{items[__${stat.index}__].orderItemId}" />
+                            <!-- Quantity Stepper -->
+                            <div class="quantity-stepper" th:classappend="${order.status != null and order.status.name() != 'PENDING' and order.status.name() != 'PROCESSING' ? 'disabled' : ''}">
+                                <button type="button" class="btn-stepper btn-decrement"
+                                       th:aria-label="'Giảm 1 sản phẩm ' + ${item.productName != null ? item.productName : 'sản phẩm'}"
+                                       th:disabled="${order.status != null and order.status.name() != 'PENDING' and order.status.name() != 'PROCESSING'}">-</button>
+                                <input type="number"
+                                       class="input-quantity"
+                                       th:field="*{items[__${stat.index}__].quantity}"
+                                       min="1" max="999"
+                                       role="spinbutton"
+                                       aria-valuemin="1"
+                                       aria-valuemax="999"
+                                       th:aria-label="'Số lượng sản phẩm ' + ${item.productName != null ? item.productName : 'sản phẩm'}"
+                                       th:disabled="${order.status != null and order.status.name() != 'PENDING' and order.status.name() != 'PROCESSING'}" />
+                                <button type="button" class="btn-stepper btn-increment"
+                                       th:aria-label="'Tăng 1 sản phẩm ' + ${item.productName != null ? item.productName : 'sản phẩm'}"
+                                       th:disabled="${order.status != null and order.status.name() != 'PENDING' and order.status.name() != 'PROCESSING'}">+</button>
+                            </div>
+                            <!-- Inline JSR-380 Validation Error -->
+                            <span th:if="${#fields.hasErrors('items[' + stat.index + '].quantity')}"
+                                  th:errors="*{items[__${stat.index}__].quantity}"
+                                  class="field-error-feedback"></span>
+                        </td>
+                        <td class="order-table-item-subtotal cell-right">
+                            <span class="subtotal-val" th:text="${#numbers.formatDecimal(item.subtotal, 0, 'COMMA', 0, 'POINT')} + ' đ'">450,000 đ</span>
+                            <span class="price-diff-hint d-none"></span>
+                        </td>
+                    </tr>
+                    <!-- Empty State -->
+                    <tr th:if="${#lists.isEmpty(order.items)}">
+                        <td colspan="7" class="order-empty-state-cell">
+                            <svg class="order-empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                                <line x1="8" y1="21" x2="16" y2="21"></line>
+                                <line x1="12" y1="17" x2="12" y2="21"></line>
+                            </svg>
+                            <p class="order-empty-state-text">Đơn hàng này hiện không có sản phẩm nào được ghi nhận.</p>
+                        </td>
+                    </tr>
+                    </tbody>
+                    <!-- Financial Summary Footer -->
+                    <tfoot class="order-table-footer">
+                    <tr>
+                        <td colspan="4" class="order-table-total-label">Tổng tiền đơn hàng:</td>
+                        <td class="cell-current-qty" th:text="${order.totalItems != null ? order.totalItems : 0}">0</td>
+                        <td class="order-table-total-items cell-center" id="totalItemsSummary" th:text="${order.totalItems != null ? order.totalItems : 0}">0</td>
+                        <td class="order-table-total-amount cell-right">
+                            <span id="totalAmountSummary" th:text="${order.totalAmount != null ? (#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT') + ' đ') : '0 đ'}">850,000 đ</span>
+                            <span id="totalAmountDiff" class="price-diff-hint d-none"></span>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </section>
+    </form>
+    </div>
+
+    <!-- Client-side Interactive Stepper & Financial Preview Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('updateQuantityForm');
+            if (!form) return;
+
+            const btnSave = document.getElementById('btnSaveQuantity');
+            const btnReset = document.getElementById('btnResetQuantity');
+            const badgeCount = document.getElementById('badgeChangeCount');
+            const totalItemsHeader = document.getElementById('totalItemsHeader');
+            const totalItemsSummary = document.getElementById('totalItemsSummary');
+            const totalAmountSummary = document.getElementById('totalAmountSummary');
+            const totalAmountDiff = document.getElementById('totalAmountDiff');
+            const rows = Array.from(document.querySelectorAll('.order-item-row'));
+
+            if (rows.length === 0) return;
+
+            function formatVND(amount) {
+                return new Intl.NumberFormat('vi-VN').format(amount) + ' đ';
+            }
+
+            function calculateInitialTotal() {
+                let total = 0;
+                rows.forEach(function (row) {
+                    const price = parseFloat(row.getAttribute('data-unit-price')) || 0;
+                    const originalQty = parseInt(row.getAttribute('data-original-qty'), 10) || 0;
+                    total += price * originalQty;
+                });
+                return total;
+            }
+
+            const initialTotalAmount = calculateInitialTotal();
+
+            function updateRowFinancials(row) {
+                const price = parseFloat(row.getAttribute('data-unit-price')) || 0;
+                const originalQty = parseInt(row.getAttribute('data-original-qty'), 10) || 0;
+                const input = row.querySelector('.input-quantity');
+                const currentQty = parseInt(input.value, 10) || 0;
+                const subtotalEl = row.querySelector('.subtotal-val');
+                const diffEl = row.querySelector('.price-diff-hint');
+                const btnDec = row.querySelector('.btn-decrement');
+
+                if (btnDec) {
+                    btnDec.disabled = currentQty <= 1;
+                }
+
+                const newSubtotal = price * currentQty;
+                const originalSubtotal = price * originalQty;
+                const diff = newSubtotal - originalSubtotal;
+
+                if (subtotalEl) {
+                    subtotalEl.textContent = formatVND(newSubtotal);
+                }
+
+                if (diff !== 0) {
+                    row.classList.add('dirty');
+                    if (subtotalEl) subtotalEl.classList.add('price-changed-highlight');
+                    if (diffEl) {
+                        diffEl.classList.remove('d-none');
+                        const sign = diff > 0 ? '+' : '';
+                        diffEl.textContent = sign + formatVND(diff);
+                        diffEl.className = 'price-diff-hint ' + (diff > 0 ? 'price-diff-positive' : 'price-diff-negative');
+                    }
+                } else {
+                    row.classList.remove('dirty');
+                    if (subtotalEl) subtotalEl.classList.remove('price-changed-highlight');
+                    if (diffEl) {
+                        diffEl.classList.add('d-none');
+                        diffEl.textContent = '';
+                    }
+                }
+            }
+
+            function updateTotals() {
+                let dirtyRowsCount = 0;
+                let grandTotalItems = 0;
+                let grandTotalAmount = 0;
+
+                rows.forEach(function (row) {
+                    const price = parseFloat(row.getAttribute('data-unit-price')) || 0;
+                    const input = row.querySelector('.input-quantity');
+                    const currentQty = parseInt(input.value, 10) || 0;
+                    const originalQty = parseInt(row.getAttribute('data-original-qty'), 10) || 0;
+
+                    grandTotalItems += currentQty;
+                    grandTotalAmount += price * currentQty;
+
+                    if (currentQty !== originalQty) {
+                        dirtyRowsCount++;
+                    }
+                });
+
+                if (totalItemsHeader) totalItemsHeader.textContent = grandTotalItems;
+                if (totalItemsSummary) totalItemsSummary.textContent = grandTotalItems;
+                if (totalAmountSummary) totalAmountSummary.textContent = formatVND(grandTotalAmount);
+
+                const totalDiff = grandTotalAmount - initialTotalAmount;
+                if (totalAmountDiff) {
+                    if (totalDiff !== 0) {
+                        totalAmountDiff.classList.remove('d-none');
+                        const sign = totalDiff > 0 ? '+' : '';
+                        totalAmountDiff.textContent = sign + formatVND(totalDiff);
+                        totalAmountDiff.className = 'price-diff-hint ' + (totalDiff > 0 ? 'price-diff-positive' : 'price-diff-negative');
+                        if (totalAmountSummary) totalAmountSummary.classList.add('price-changed-highlight');
+                    } else {
+                        totalAmountDiff.classList.add('d-none');
+                        totalAmountDiff.textContent = '';
+                        if (totalAmountSummary) totalAmountSummary.classList.remove('price-changed-highlight');
+                    }
+                }
+
+                const isDirty = dirtyRowsCount > 0;
+                if (btnSave) {
+                    btnSave.disabled = !isDirty;
+                }
+                if (btnReset) {
+                    btnReset.disabled = !isDirty;
+                }
+                if (badgeCount) {
+                    if (isDirty) {
+                        badgeCount.classList.remove('d-none');
+                        badgeCount.textContent = dirtyRowsCount;
+                    } else {
+                        badgeCount.classList.add('d-none');
+                        badgeCount.textContent = '0';
+                    }
+                }
+            }
+
+            rows.forEach(function (row) {
+                const input = row.querySelector('.input-quantity');
+                const btnDec = row.querySelector('.btn-decrement');
+                const btnInc = row.querySelector('.btn-increment');
+                if (!input) return;
+
+                const initialQty = parseInt(input.value, 10) || 1;
+                if (btnDec) {
+                    btnDec.disabled = initialQty <= 1;
+                }
+
+                if (btnDec) {
+                    btnDec.addEventListener('click', function () {
+                        let val = parseInt(input.value, 10) || 1;
+                        if (val > 1) {
+                            input.value = val - 1;
+                            updateRowFinancials(row);
+                            updateTotals();
+                        }
+                    });
+                }
+
+                if (btnInc) {
+                    btnInc.addEventListener('click', function () {
+                        let val = parseInt(input.value, 10) || 1;
+                        if (val < 999) {
+                            input.value = val + 1;
+                            updateRowFinancials(row);
+                            updateTotals();
+                        }
+                    });
+                }
+
+                input.addEventListener('input', function () {
+                    let val = parseInt(input.value, 10);
+                    if (isNaN(val) || val < 1) {
+                        // Allow typing temporarily
+                    } else if (val > 999) {
+                        input.value = 999;
+                    }
+                    updateRowFinancials(row);
+                    updateTotals();
+                });
+
+                input.addEventListener('blur', function () {
+                    let val = parseInt(input.value, 10);
+                    if (isNaN(val) || val < 1) {
+                        input.value = 1;
+                    } else if (val > 999) {
+                        input.value = 999;
+                    }
+                    updateRowFinancials(row);
+                    updateTotals();
+                });
+
+                input.addEventListener('keydown', function (e) {
+                    if (e.key === 'Escape') {
+                        input.value = row.getAttribute('data-original-qty');
+                        updateRowFinancials(row);
+                        updateTotals();
+                    } else if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (btnSave && !btnSave.disabled) {
+                            form.submit();
+                        }
+                    }
+                });
+            });
+
+            if (btnReset) {
+                btnReset.addEventListener('click', function () {
+                    rows.forEach(function (row) {
+                        const input = row.querySelector('.input-quantity');
+                        const orig = row.getAttribute('data-original-qty');
+                        if (input && orig) {
+                            input.value = orig;
+                            updateRowFinancials(row);
+                        }
+                    });
+                    updateTotals();
+                });
+            }
+        });
+    </script>
+</main>
+</html>

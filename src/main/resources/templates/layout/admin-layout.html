@@ -128,6 +128,214 @@
             backdrop.classList.toggle('active');
         }
     }
+
+    function parseVietnameseDate(value) {
+        if (!value) {
+            return null;
+        }
+
+        const match = value.trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+        if (!match) {
+            return null;
+        }
+
+        const day = Number(match[1]);
+        const month = Number(match[2]);
+        const year = Number(match[3]);
+        const date = new Date(year, month - 1, day);
+
+        if (
+            date.getFullYear() !== year ||
+            date.getMonth() !== month - 1 ||
+            date.getDate() !== day
+        ) {
+            return null;
+        }
+
+        return date;
+    }
+
+    function formatVietnameseDate(date) {
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return day + '/' + month + '/' + year;
+    }
+
+    function clampMonth(date) {
+        return new Date(date.getFullYear(), date.getMonth(), 1);
+    }
+
+    function getVietnameseMonthLabel(date) {
+        return 'Tháng ' + (date.getMonth() + 1) + ' ' + date.getFullYear();
+    }
+
+    function createDatePicker() {
+        const picker = document.createElement('div');
+        picker.className = 'date-picker-popup';
+        picker.setAttribute('role', 'dialog');
+        picker.setAttribute('aria-hidden', 'true');
+        picker.innerHTML = [
+            '<div class="date-picker-header">',
+            '  <button type="button" class="date-picker-nav" data-action="prev" aria-label="Tháng trước">&lsaquo;</button>',
+            '  <div class="date-picker-title" data-role="title"></div>',
+            '  <button type="button" class="date-picker-nav" data-action="next" aria-label="Tháng sau">&rsaquo;</button>',
+            '</div>',
+            '<div class="date-picker-weekdays">',
+            '  <span>T2</span><span>T3</span><span>T4</span><span>T5</span><span>T6</span><span>T7</span><span>CN</span>',
+            '</div>',
+            '<div class="date-picker-grid" data-role="grid"></div>'
+        ].join('');
+        document.body.appendChild(picker);
+        return picker;
+    }
+
+    function initDatePickers() {
+        const inputs = document.querySelectorAll('[data-datepicker]');
+        if (!inputs.length) {
+            return;
+        }
+
+        const picker = createDatePicker();
+        const title = picker.querySelector('[data-role="title"]');
+        const grid = picker.querySelector('[data-role="grid"]');
+        let activeInput = null;
+        let viewMonth = clampMonth(new Date());
+
+        function closePicker() {
+            picker.classList.remove('open');
+            picker.setAttribute('aria-hidden', 'true');
+            activeInput = null;
+        }
+
+        function openPicker(input) {
+            activeInput = input;
+            const parsed = parseVietnameseDate(input.value);
+            viewMonth = clampMonth(parsed || new Date());
+            renderPicker();
+
+            const rect = input.getBoundingClientRect();
+            picker.style.left = rect.left + 'px';
+            picker.style.top = (rect.bottom + 8) + 'px';
+            picker.classList.add('open');
+            picker.setAttribute('aria-hidden', 'false');
+        }
+
+        function renderPicker() {
+            title.textContent = getVietnameseMonthLabel(viewMonth);
+            grid.innerHTML = '';
+
+            const firstDay = new Date(viewMonth.getFullYear(), viewMonth.getMonth(), 1);
+            const startOffset = (firstDay.getDay() + 6) % 7;
+            const daysInMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 0).getDate();
+            const today = new Date();
+            const selectedDate = activeInput ? parseVietnameseDate(activeInput.value) : null;
+
+            for (let i = 0; i < startOffset; i++) {
+                const emptyCell = document.createElement('div');
+                emptyCell.className = 'date-picker-day empty';
+                grid.appendChild(emptyCell);
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const cellDate = new Date(viewMonth.getFullYear(), viewMonth.getMonth(), day);
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'date-picker-day';
+                button.textContent = String(day);
+                button.dataset.value = formatVietnameseDate(cellDate);
+
+                if (
+                    selectedDate &&
+                    selectedDate.getFullYear() === cellDate.getFullYear() &&
+                    selectedDate.getMonth() === cellDate.getMonth() &&
+                    selectedDate.getDate() === cellDate.getDate()
+                ) {
+                    button.classList.add('selected');
+                }
+
+                if (
+                    today.getFullYear() === cellDate.getFullYear() &&
+                    today.getMonth() === cellDate.getMonth() &&
+                    today.getDate() === cellDate.getDate()
+                ) {
+                    button.classList.add('today');
+                }
+
+                button.addEventListener('click', function () {
+                    if (!activeInput) {
+                        return;
+                    }
+                    activeInput.value = button.dataset.value;
+                    activeInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    activeInput.dispatchEvent(new Event('change', { bubbles: true }));
+                    closePicker();
+                });
+
+                grid.appendChild(button);
+            }
+        }
+
+        picker.querySelector('[data-action="prev"]').addEventListener('click', function () {
+            viewMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() - 1, 1);
+            renderPicker();
+        });
+
+        picker.querySelector('[data-action="next"]').addEventListener('click', function () {
+            viewMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 1);
+            renderPicker();
+        });
+
+        inputs.forEach(function (input) {
+            input.addEventListener('focus', function () {
+                openPicker(input);
+            });
+
+            input.addEventListener('click', function () {
+                openPicker(input);
+            });
+
+            input.addEventListener('input', function () {
+                if (picker.classList.contains('open') && activeInput === input) {
+                    renderPicker();
+                }
+            });
+        });
+
+        document.addEventListener('click', function (event) {
+            if (!picker.classList.contains('open')) {
+                return;
+            }
+
+            if (picker.contains(event.target)) {
+                return;
+            }
+
+            if (event.target && event.target.closest && event.target.closest('[data-datepicker]')) {
+                return;
+            }
+
+            closePicker();
+        });
+
+        window.addEventListener('resize', function () {
+            if (picker.classList.contains('open') && activeInput) {
+                const rect = activeInput.getBoundingClientRect();
+                picker.style.left = rect.left + 'px';
+                picker.style.top = (rect.bottom + 8) + 'px';
+            }
+        });
+
+        window.addEventListener('scroll', function () {
+            if (picker.classList.contains('open') && activeInput) {
+                const rect = activeInput.getBoundingClientRect();
+                picker.style.left = rect.left + 'px';
+                picker.style.top = (rect.bottom + 8) + 'px';
+            }
+        }, true);
+    }
+
+    document.addEventListener('DOMContentLoaded', initDatePickers);
 </script>
 
 </body>
