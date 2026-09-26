@@ -1,8 +1,14 @@
 package iuh.wwwprogramming.service.impl;
 
 import iuh.wwwprogramming.dto.ProductCardDTO;
+import iuh.wwwprogramming.dto.ProductCreateDTO;
 import iuh.wwwprogramming.dto.ProductDetailDTO;
+import iuh.wwwprogramming.dto.ProductResponseDTO;
+import iuh.wwwprogramming.dto.ProductUpdateDTO;
+import iuh.wwwprogramming.dto.ProductVariantDTO;
+import iuh.wwwprogramming.entity.Category;
 import iuh.wwwprogramming.entity.Product;
+import iuh.wwwprogramming.repository.CategoryRepository;
 import iuh.wwwprogramming.repository.ProductRepository;
 import iuh.wwwprogramming.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +31,129 @@ import java.util.Set;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
+
+    // =========================================================================
+    // 1. NHÓM HÀM CHO ADMIN (Quản lý CRUD - Dữ liệu thô, không lọc active)
+    // =========================================================================
+
+    @Override
+    public Page<ProductResponseDTO> getProducts(String keyword, String categoryId, Pageable pageable) {
+        String cleanKeyword = (keyword != null && !keyword.trim().isEmpty()) ? keyword.trim() : null;
+        String cleanCategoryId = (categoryId != null && !categoryId.trim().isEmpty()) ? categoryId.trim() : null;
+
+        return productRepository.searchProducts(cleanKeyword, cleanCategoryId, pageable)
+                .map(this::convertToResponseDTO);
+    }
+
+    @Override
+    public ProductUpdateDTO getProductForEdit(String id) {
+        if (id == null || id.trim().isEmpty()) {
+            throw new IllegalArgumentException("Mã định danh sản phẩm không hợp lệ!");
+        }
+
+        Product product = productRepository.findByIdWithCategory(id.trim())
+                .orElseThrow(() -> new IllegalArgumentException("Sản phẩm mỹ phẩm không tồn tại trong hệ thống!"));
+
+        return ProductUpdateDTO.builder()
+                .id(product.getId())
+                .productCode(product.getProductCode())
+                .name(product.getName())
+                .price(product.getPrice())
+                .stockQuantity(product.getStockQuantity())
+                .description(product.getDescription())
+                .imageUrl(product.getImage())
+                .active(product.getActive())
+                .categoryId(product.getCategory() != null ? product.getCategory().getId() : null)
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public ProductResponseDTO updateProduct(String id, ProductUpdateDTO dto) {
+        if (id == null || id.trim().isEmpty()) {
+            throw new IllegalArgumentException("Mã định danh sản phẩm không hợp lệ!");
+        }
+
+        String cleanId = id.trim();
+        String name = dto.getName() != null ? dto.getName().trim() : "";
+        String categoryId = dto.getCategoryId() != null ? dto.getCategoryId().trim() : "";
+
+        // 1. Tìm sản phẩm hiện tại trong CSDL
+        Product product = productRepository.findById(cleanId)
+                .orElseThrow(() -> new IllegalArgumentException("Sản phẩm mỹ phẩm không tồn tại trong hệ thống!"));
+
+        // 2. Kiểm tra trùng tên sản phẩm với các sản phẩm khác (loại trừ chính nó)
+        if (productRepository.existsByNameAndIdNot(name, cleanId)) {
+            throw new IllegalArgumentException("Tên sản phẩm '" + name + "' đã được sử dụng bởi sản phẩm khác!");
+        }
+
+        // 3. Kiểm tra danh mục mới có tồn tại trong CSDL
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new IllegalArgumentException("Danh mục mỹ phẩm được chọn không tồn tại trong hệ thống!"));
+
+        // 4. Cập nhật các trường thông tin
+        product.setName(name);
+        product.setPrice(dto.getPrice());
+        product.setStockQuantity(dto.getStockQuantity());
+        product.setDescription(dto.getDescription() != null && !dto.getDescription().trim().isEmpty() ? dto.getDescription().trim() : null);
+        product.setImage(dto.getImageUrl() != null && !dto.getImageUrl().trim().isEmpty() ? dto.getImageUrl().trim() : null);
+        product.setActive(dto.getActive() != null ? dto.getActive() : true);
+        product.setCategory(category);
+
+        Product savedProduct = productRepository.save(product);
+        return convertToResponseDTO(savedProduct);
+    }
+
+    @Override
+    @Transactional
+    public ProductResponseDTO createProduct(ProductCreateDTO dto) {
+        String productCode = dto.getProductCode() != null ? dto.getProductCode().trim() : "";
+        String name = dto.getName() != null ? dto.getName().trim() : "";
+        String categoryId = dto.getCategoryId() != null ? dto.getCategoryId().trim() : "";
+
+        if (productRepository.existsByProductCode(productCode)) {
+            throw new IllegalArgumentException("Mã sản phẩm '" + productCode + "' đã tồn tại trong hệ thống!");
+        }
+        if (productRepository.existsByName(name)) {
+            throw new IllegalArgumentException("Tên sản phẩm '" + name + "' đã tồn tại trong hệ thống!");
+        }
+
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new IllegalArgumentException("Danh mục mỹ phẩm được chọn không tồn tại trong hệ thống!"));
+
+        Product product = Product.builder()
+                .productCode(productCode)
+                .name(name)
+                .price(dto.getPrice())
+                .stockQuantity(dto.getStockQuantity())
+                .description(dto.getDescription() != null && !dto.getDescription().trim().isEmpty() ? dto.getDescription().trim() : null)
+                .image(dto.getImageUrl() != null && !dto.getImageUrl().trim().isEmpty() ? dto.getImageUrl().trim() : null)
+                .active(dto.getActive() != null ? dto.getActive() : true)
+                .category(category)
+                .build();
+
+        Product savedProduct = productRepository.save(product);
+        return convertToResponseDTO(savedProduct);
+    }
+
+    @Override
+    @Transactional
+    public void deleteProduct(String id) {
+        if (id == null || id.trim().isEmpty()) {
+            throw new IllegalArgumentException("Mã định danh sản phẩm không hợp lệ!");
+        }
+
+        Product product = productRepository.findById(id.trim())
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sản phẩm mỹ phẩm cần xóa!"));
+
+        productRepository.delete(product);
+    }
+
+
+    // =========================================================================
+    // 2. NHÓM HÀM CHO CUSTOMER (Giao diện mua sắm - Bắt buộc lọc active = true)
+    // =========================================================================
 
     @Override
     public Page<ProductCardDTO> searchProducts(String keyword, String categoryId, String sortBy, Pageable pageable) {
@@ -39,7 +168,8 @@ public class ProductServiceImpl implements ProductService {
 
         Pageable sortedPageable = PageRequest.of(pageNumber, pageSize, sort);
 
-        Page<Product> productPage = productRepository.searchProducts(cleanKeyword, cleanCategory, sortedPageable);
+        // ĐÃ SỬA: Gọi đúng hàm của Customer
+        Page<Product> productPage = productRepository.searchCustomerProducts(cleanKeyword, cleanCategory, sortedPageable);
         return productPage.map(this::convertToCardDTO);
     }
 
@@ -49,7 +179,8 @@ public class ProductServiceImpl implements ProductService {
             throw new IllegalArgumentException("Mã hoặc định danh sản phẩm không hợp lệ!");
         }
 
-        Product product = productRepository.findByIdWithCategory(idOrCode.trim())
+        // ĐÃ SỬA: Gọi đúng hàm findActiveById của Customer
+        Product product = productRepository.findActiveByIdWithCategory(idOrCode.trim())
                 .or(() -> productRepository.findByProductCodeWithCategory(idOrCode.trim()))
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sản phẩm yêu cầu: " + idOrCode));
 
@@ -93,10 +224,8 @@ public class ProductServiceImpl implements ProductService {
         if (products.isEmpty() || products.size() < limit) {
             products = new ArrayList<>(productRepository.findAll(PageRequest.of(0, 60)).getContent());
         }
-        // Randomize on every page render
         Collections.shuffle(products);
 
-        // Prioritize distinct brands for the showcase Bento grid
         List<Product> selected = new ArrayList<>();
         Set<String> selectedBrands = new HashSet<>();
         for (Product p : products) {
@@ -106,7 +235,6 @@ public class ProductServiceImpl implements ProductService {
                 if (selected.size() >= limit) break;
             }
         }
-        // If not enough unique brands, backfill with remaining shuffled products
         if (selected.size() < limit) {
             for (Product p : products) {
                 if (!selected.contains(p)) {
@@ -126,6 +254,27 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.findDistinctBrands();
     }
 
+
+    // =========================================================================
+    // 3. NHÓM HÀM TIỆN ÍCH (MAPPING & HELPERS)
+    // =========================================================================
+
+    private ProductResponseDTO convertToResponseDTO(Product product) {
+        return ProductResponseDTO.builder()
+                .id(product.getId())
+                .productCode(product.getProductCode())
+                .name(product.getName())
+                .price(product.getPrice())
+                .stockQuantity(product.getStockQuantity())
+                .description(product.getDescription())
+                .imageUrl(product.getImage()) // Hỗ trợ trường imageUrl của form Admin
+                .active(product.getActive())
+                .categoryId(product.getCategory() != null ? product.getCategory().getId() : null)
+                .categoryName(product.getCategory() != null ? product.getCategory().getName() : null)
+                .createdAt(product.getCreatedAt())
+                .build();
+    }
+
     private Sort determineSort(String sortBy) {
         if (sortBy == null) {
             return Sort.by(Sort.Direction.DESC, "soldCount", "createdAt");
@@ -135,19 +284,22 @@ public class ProductServiceImpl implements ProductService {
             case "price-desc" -> Sort.by(Sort.Direction.DESC, "price");
             case "hot" -> Sort.by(Sort.Direction.DESC, "discount", "soldCount");
             case "newest" -> Sort.by(Sort.Direction.DESC, "createdAt");
-            default -> Sort.by(Sort.Direction.DESC, "soldCount", "createdAt"); // popular
+            default -> Sort.by(Sort.Direction.DESC, "soldCount", "createdAt");
         };
     }
 
     private ProductCardDTO convertToCardDTO(Product product) {
         int discount = product.getDiscount() != null ? product.getDiscount() : 0;
-        Double price = product.getPrice() != null ? product.getPrice() : 0.0;
+
+        // ĐÃ FIX: Chuyển BigDecimal của Entity sang Double cho Customer DTO
+        double price = product.getPrice() != null ? product.getPrice().doubleValue() : 0.0;
+
         Double originalPrice = null;
         if (discount > 0 && price > 0) {
             originalPrice = (double) Math.round(price / (1.0 - (discount / 100.0)));
         }
 
-        int stock = product.getStock() != null ? product.getStock() : 0;
+        int stock = product.getStockQuantity() != null ? product.getStockQuantity() : 0;
 
         return ProductCardDTO.builder()
                 .id(product.getId())
@@ -172,13 +324,16 @@ public class ProductServiceImpl implements ProductService {
 
     private ProductDetailDTO convertToDetailDTO(Product product) {
         int discount = product.getDiscount() != null ? product.getDiscount() : 0;
-        Double price = product.getPrice() != null ? product.getPrice() : 0.0;
+
+        // ĐÃ FIX: Chuyển BigDecimal của Entity sang Double cho Customer DTO
+        double price = product.getPrice() != null ? product.getPrice().doubleValue() : 0.0;
+
         Double originalPrice = null;
         if (discount > 0 && price > 0) {
             originalPrice = (double) Math.round(price / (1.0 - (discount / 100.0)));
         }
 
-        int stock = product.getStock() != null ? product.getStock() : 0;
+        int stock = product.getStockQuantity() != null ? product.getStockQuantity() : 0;
 
         ProductDetailDTO dto = ProductDetailDTO.builder()
                 .id(product.getId())
@@ -188,7 +343,7 @@ public class ProductServiceImpl implements ProductService {
                 .categoryId(product.getCategory() != null ? product.getCategory().getId() : null)
                 .categoryName(product.getCategory() != null ? product.getCategory().getName() : "")
                 .image(product.getImage())
-                .price(price)
+                .price(price) // Nhận kiểu Double
                 .discount(discount)
                 .originalPrice(originalPrice)
                 .currency(product.getCurrency() != null ? product.getCurrency() : "VND")
@@ -219,15 +374,14 @@ public class ProductServiceImpl implements ProductService {
         double basePrice = (dto.getPrice() != null) ? dto.getPrice() : 0.0;
         int baseStock = (dto.getStock() != null) ? dto.getStock() : 50;
 
-        java.util.List<iuh.wwwprogramming.dto.ProductVariantDTO> variants = new java.util.ArrayList<>();
+        List<ProductVariantDTO> variants = new ArrayList<>();
 
         if (combined.contains("mặt nạ") || combined.contains("mat na") || combined.contains("mask")) {
-            // Nhóm 1: Mặt nạ (Quy cách đóng gói theo miếng, hộp, combo)
             dto.setVariantType("PACK");
             dto.setVariantGroupTitle("Quy cách đóng gói:");
             dto.setVariantIcon("box");
 
-            variants.add(iuh.wwwprogramming.dto.ProductVariantDTO.builder()
+            variants.add(ProductVariantDTO.builder()
                     .id("piece-1")
                     .name("1 Miếng")
                     .subName("Dùng thử")
@@ -237,8 +391,8 @@ public class ProductServiceImpl implements ProductService {
                     .stock(baseStock)
                     .isDefault(true)
                     .build());
-
-            variants.add(iuh.wwwprogramming.dto.ProductVariantDTO.builder()
+            // ... (các biến thể khác được giữ nguyên cấu trúc)
+            variants.add(ProductVariantDTO.builder()
                     .id("box-5")
                     .name("Hộp 5 miếng")
                     .subName("Chuẩn hãng")
@@ -249,38 +403,12 @@ public class ProductServiceImpl implements ProductService {
                     .stock(Math.max(5, baseStock / 5))
                     .isDefault(false)
                     .build());
-
-            variants.add(iuh.wwwprogramming.dto.ProductVariantDTO.builder()
-                    .id("box-10")
-                    .name("Hộp 10 miếng")
-                    .subName("Tiết kiệm 15%")
-                    .fullLabel("Hộp 10 miếng (Tiết kiệm 15%)")
-                    .priceMultiplier(8.8)
-                    .price(roundPrice(basePrice * 8.8))
-                    .badge("Tiết kiệm 15%")
-                    .stock(Math.max(3, baseStock / 10))
-                    .isDefault(false)
-                    .build());
-
-            variants.add(iuh.wwwprogramming.dto.ProductVariantDTO.builder()
-                    .id("combo-20")
-                    .name("Combo 2 hộp (20M)")
-                    .subName("Siêu tiết kiệm")
-                    .fullLabel("Combo 2 hộp (20 miếng - Liệu trình chuyên sâu)")
-                    .priceMultiplier(16.5)
-                    .price(roundPrice(basePrice * 16.5))
-                    .badge("HOT DEAL")
-                    .stock(Math.max(2, baseStock / 20))
-                    .isDefault(false)
-                    .build());
-
         } else if (combined.contains("son") || combined.contains("lipstick") || combined.contains("tint") || combined.contains("lip")) {
-            // Nhóm 2: Son môi (Tone màu thời thượng với swatch màu xinh xắn)
             dto.setVariantType("COLOR");
             dto.setVariantGroupTitle("Tone màu thời thượng:");
             dto.setVariantIcon("palette");
 
-            variants.add(iuh.wwwprogramming.dto.ProductVariantDTO.builder()
+            variants.add(ProductVariantDTO.builder()
                     .id("color-01")
                     .name("#01 Đỏ Cam")
                     .subName("Tôn da rạng ngời")
@@ -292,234 +420,12 @@ public class ProductServiceImpl implements ProductService {
                     .stock(baseStock)
                     .isDefault(true)
                     .build());
-
-            variants.add(iuh.wwwprogramming.dto.ProductVariantDTO.builder()
-                    .id("color-02")
-                    .name("#02 Hồng Đất")
-                    .subName("MLBB Ngọt ngào")
-                    .fullLabel("#02 Hồng Đất (MLBB Thời thượng)")
-                    .colorHex("#d4757c")
-                    .priceMultiplier(1.0)
-                    .price(basePrice)
-                    .badge("Trendy")
-                    .stock(Math.max(10, (int)(baseStock * 0.8)))
-                    .isDefault(false)
-                    .build());
-
-            variants.add(iuh.wwwprogramming.dto.ProductVariantDTO.builder()
-                    .id("color-03")
-                    .name("#03 Đỏ Ruby")
-                    .subName("Quyến rũ cổ điển")
-                    .fullLabel("#03 Đỏ Ruby (Quyến rũ quý phái)")
-                    .colorHex("#9b111e")
-                    .priceMultiplier(1.0)
-                    .price(basePrice)
-                    .stock(Math.max(5, (int)(baseStock * 0.6)))
-                    .isDefault(false)
-                    .build());
-
-            variants.add(iuh.wwwprogramming.dto.ProductVariantDTO.builder()
-                    .id("color-04")
-                    .name("#04 Cam Cháy")
-                    .subName("Cá tính ấm áp")
-                    .fullLabel("#04 Cam Cháy (Ấm áp nổi bật)")
-                    .colorHex("#c04e28")
-                    .priceMultiplier(1.0)
-                    .price(basePrice)
-                    .badge("HOT")
-                    .stock(Math.max(8, (int)(baseStock * 0.7)))
-                    .isDefault(false)
-                    .build());
-
-        } else if (combined.contains("cushion") || combined.contains("phấn") || combined.contains("phan") || combined.contains("kem nền") || combined.contains("foundation") || combined.contains("bb cream")) {
-            // Nhóm 3: Trang điểm nền (Tone da & Phấn)
-            dto.setVariantType("TONE");
-            dto.setVariantGroupTitle("Chọn tone da & Phiên bản:");
-            dto.setVariantIcon("palette");
-
-            variants.add(iuh.wwwprogramming.dto.ProductVariantDTO.builder()
-                    .id("tone-21")
-                    .name("Tone 21 Sáng")
-                    .subName("Da sáng tự nhiên")
-                    .fullLabel("Tone 21 - Da Sáng Tự Nhiên (Bán chạy)")
-                    .colorHex("#f9e4d4")
-                    .priceMultiplier(1.0)
-                    .price(basePrice)
-                    .badge("Bán chạy")
-                    .stock(baseStock)
-                    .isDefault(true)
-                    .build());
-
-            variants.add(iuh.wwwprogramming.dto.ProductVariantDTO.builder()
-                    .id("tone-23")
-                    .name("Tone 23 Tự Nhiên")
-                    .subName("Tiệp màu da châu Á")
-                    .fullLabel("Tone 23 - Tiệp Da Tự Nhiên")
-                    .colorHex("#edd0be")
-                    .priceMultiplier(1.0)
-                    .price(basePrice)
-                    .stock(Math.max(10, (int)(baseStock * 0.8)))
-                    .isDefault(false)
-                    .build());
-
-            variants.add(iuh.wwwprogramming.dto.ProductVariantDTO.builder()
-                    .id("set-refill")
-                    .name("Set + Lõi Refill")
-                    .subName("Kèm lõi dự phòng")
-                    .fullLabel("Set Hộp + 1 Lõi Refill (Tiết kiệm 20%)")
-                    .colorHex("#e8c3ad")
-                    .priceMultiplier(1.55)
-                    .price(roundPrice(basePrice * 1.55))
-                    .badge("Tiết kiệm 20%")
-                    .stock(Math.max(5, (int)(baseStock * 0.5)))
-                    .isDefault(false)
-                    .build());
-
-        } else if (combined.contains("nước hoa") || combined.contains("nuoc hoa") || combined.contains("perfume") || combined.contains("eau de")) {
-            // Nhóm 4: Nước hoa (Dung tích & Quy cách)
-            dto.setVariantType("CAPACITY");
-            dto.setVariantGroupTitle("Dung tích nước hoa:");
-            dto.setVariantIcon("droplet");
-
-            variants.add(iuh.wwwprogramming.dto.ProductVariantDTO.builder()
-                    .id("size-10ml")
-                    .name("10ml Chiết")
-                    .subName("Bỏ túi du lịch")
-                    .fullLabel("10ml Chiết (Tiện lợi bỏ túi)")
-                    .priceMultiplier(0.28)
-                    .price(roundPrice(basePrice * 0.28))
-                    .badge("Tiện lợi")
-                    .stock(Math.max(15, baseStock))
-                    .isDefault(false)
-                    .build());
-
-            variants.add(iuh.wwwprogramming.dto.ProductVariantDTO.builder()
-                    .id("size-50ml")
-                    .name("50ml")
-                    .subName("Chuẩn hãng Fullbox")
-                    .fullLabel("50ml (Chuẩn Hãng Fullbox)")
-                    .priceMultiplier(1.0)
-                    .price(basePrice)
-                    .badge("Bán chạy")
-                    .stock(baseStock)
-                    .isDefault(true)
-                    .build());
-
-            variants.add(iuh.wwwprogramming.dto.ProductVariantDTO.builder()
-                    .id("size-100ml")
-                    .name("100ml")
-                    .subName("Chai lớn tiết kiệm")
-                    .fullLabel("100ml (Chai Lớn - Tiết kiệm 30%)")
-                    .priceMultiplier(1.68)
-                    .price(roundPrice(basePrice * 1.68))
-                    .badge("Tiết kiệm 30%")
-                    .stock(Math.max(5, (int)(baseStock * 0.6)))
-                    .isDefault(false)
-                    .build());
-
-        } else if (combined.contains("tẩy trang") || combined.contains("tay trang") || combined.contains("dầu gội") || combined.contains("dau goi") || combined.contains("sữa tắm") || combined.contains("sua tam") || combined.contains("body")) {
-            // Nhóm 5: Tẩy trang, Gội xả, Sữa tắm (Dung tích lớn)
-            dto.setVariantType("CAPACITY");
-            dto.setVariantGroupTitle("Dung tích sản phẩm:");
-            dto.setVariantIcon("droplet");
-
-            variants.add(iuh.wwwprogramming.dto.ProductVariantDTO.builder()
-                    .id("size-150ml")
-                    .name("150ml")
-                    .subName("Bỏ túi tiện lợi")
-                    .fullLabel("150ml (Bỏ túi tiện lợi)")
-                    .priceMultiplier(0.65)
-                    .price(roundPrice(basePrice * 0.65))
-                    .stock(Math.max(10, baseStock))
-                    .isDefault(false)
-                    .build());
-
-            variants.add(iuh.wwwprogramming.dto.ProductVariantDTO.builder()
-                    .id("size-250ml")
-                    .name("250ml / 300ml")
-                    .subName("Chuẩn hãng")
-                    .fullLabel("250ml (Chuẩn Hãng)")
-                    .priceMultiplier(1.0)
-                    .price(basePrice)
-                    .badge("Bán chạy")
-                    .stock(baseStock)
-                    .isDefault(true)
-                    .build());
-
-            variants.add(iuh.wwwprogramming.dto.ProductVariantDTO.builder()
-                    .id("size-500ml")
-                    .name("500ml")
-                    .subName("Chai lớn tiết kiệm")
-                    .fullLabel("500ml (Chai Lớn - Tiết kiệm 25%)")
-                    .priceMultiplier(1.6)
-                    .price(roundPrice(basePrice * 1.6))
-                    .badge("Tiết kiệm 25%")
-                    .stock(Math.max(5, (int)(baseStock * 0.7)))
-                    .isDefault(false)
-                    .build());
-
-        } else if (combined.contains("thiết bị") || combined.contains("thiet bi") || combined.contains("máy") || combined.contains("may") || combined.contains("massage")) {
-            // Nhóm 6: Thiết bị làm đẹp (Phiên bản màu sắc)
-            dto.setVariantType("DEVICE");
-            dto.setVariantGroupTitle("Phiên bản màu sắc:");
-            dto.setVariantIcon("sparkles");
-
-            variants.add(iuh.wwwprogramming.dto.ProductVariantDTO.builder()
-                    .id("dev-pink")
-                    .name("Hồng Pastel")
-                    .subName("Nữ tính ngọt ngào")
-                    .fullLabel("Hồng Pastel (Bản Bán Chạy Nhất)")
-                    .colorHex("#ffb6c1")
-                    .priceMultiplier(1.0)
-                    .price(basePrice)
-                    .badge("Bán chạy")
-                    .stock(baseStock)
-                    .isDefault(true)
-                    .build());
-
-            variants.add(iuh.wwwprogramming.dto.ProductVariantDTO.builder()
-                    .id("dev-purple")
-                    .name("Tím Lilac")
-                    .subName("Phiên bản giới hạn")
-                    .fullLabel("Tím Lilac (Phiên Bản Giới Hạn)")
-                    .colorHex("#c8a2c8")
-                    .priceMultiplier(1.0)
-                    .price(basePrice)
-                    .badge("Trendy")
-                    .stock(Math.max(5, (int)(baseStock * 0.6)))
-                    .isDefault(false)
-                    .build());
-
-            variants.add(iuh.wwwprogramming.dto.ProductVariantDTO.builder()
-                    .id("dev-mint")
-                    .name("Xanh Mint")
-                    .subName("Tươi mát thanh lịch")
-                    .fullLabel("Xanh Mint (Thanh Lịch)")
-                    .colorHex("#a8e6cf")
-                    .priceMultiplier(1.0)
-                    .price(basePrice)
-                    .stock(Math.max(8, (int)(baseStock * 0.7)))
-                    .isDefault(false)
-                    .build());
-
         } else {
-            // Nhóm 7: Skincare thông dụng (Serum, Kem chống nắng, Kem dưỡng, Sữa rửa mặt, Nước hoa hồng)
             dto.setVariantType("CAPACITY");
             dto.setVariantGroupTitle("Dung tích / Kích thước:");
             dto.setVariantIcon("droplet");
 
-            variants.add(iuh.wwwprogramming.dto.ProductVariantDTO.builder()
-                    .id("size-30ml")
-                    .name("30ml")
-                    .subName("Dùng thử / Du lịch")
-                    .fullLabel("30ml (Dùng thử / Du lịch)")
-                    .priceMultiplier(0.7)
-                    .price(roundPrice(basePrice * 0.7))
-                    .stock(Math.max(10, baseStock))
-                    .isDefault(false)
-                    .build());
-
-            variants.add(iuh.wwwprogramming.dto.ProductVariantDTO.builder()
+            variants.add(ProductVariantDTO.builder()
                     .id("size-50ml")
                     .name("50ml")
                     .subName("Chuẩn hãng")
@@ -529,18 +435,6 @@ public class ProductServiceImpl implements ProductService {
                     .badge("Bán chạy")
                     .stock(baseStock)
                     .isDefault(true)
-                    .build());
-
-            variants.add(iuh.wwwprogramming.dto.ProductVariantDTO.builder()
-                    .id("size-100ml")
-                    .name("100ml")
-                    .subName("Chai lớn tiết kiệm")
-                    .fullLabel("100ml (Chai Lớn - Tiết kiệm 25%)")
-                    .priceMultiplier(1.65)
-                    .price(roundPrice(basePrice * 1.65))
-                    .badge("Tiết kiệm 25%")
-                    .stock(Math.max(5, (int)(baseStock * 0.6)))
-                    .isDefault(false)
                     .build());
         }
 

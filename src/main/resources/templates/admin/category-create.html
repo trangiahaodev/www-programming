@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{layout/admin-layout :: layout(~{::main})}"
+      lang="vi">
+<head>
+    <title>Thêm mới danh mục - Quản trị</title>
+</head>
+<body>
+
+<main class="page-container form-page-container">
+    <!-- Header Area -->
+    <header class="page-header">
+        <div>
+            <nav class="breadcrumb" aria-label="Breadcrumb">
+                <a th:href="@{/admin}">Trang chủ</a>
+                <span>/</span>
+                <span>Quản lý bán hàng</span>
+                <span>/</span>
+                <a th:href="@{/admin/categories}">Danh mục</a>
+                <span>/</span>
+                <span class="breadcrumb-current">Thêm mới</span>
+            </nav>
+            <h1 class="page-title">Thêm mới danh mục mỹ phẩm</h1>
+            <p class="page-subtitle">Tạo phân loại danh mục mới để cấu trúc các sản phẩm mỹ phẩm trong cửa hàng</p>
+        </div>
+        <div>
+            <a th:href="@{/admin/categories}" class="btn btn-secondary" aria-label="Quay lại danh sách danh mục">
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                <span>Quay lại</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Error Flash / Model Banner -->
+    <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+        <span th:text="${errorMessage}">Đã xảy ra lỗi khi tạo danh mục!</span>
+    </div>
+
+    <!-- Create Category Card Form -->
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Thông tin danh mục</h2>
+        </div>
+        <div class="card-body">
+            <form th:action="@{/admin/categories/create}" th:object="${categoryDTO}" method="post" class="form-layout" novalidate>
+                
+                <!-- Field 1: Category Code -->
+                <div class="form-group">
+                    <label for="categoryCode" class="form-label">
+                        Mã danh mục <span class="required-mark">*</span>
+                    </label>
+                    <input type="text"
+                           id="categoryCode"
+                           th:field="*{categoryCode}"
+                           class="form-control"
+                           th:errorclass="is-invalid"
+                           placeholder="VD: SKINCARE, BODY_CARE, MAKEUP"
+                           autofocus
+                           required
+                           aria-describedby="categoryCodeHelp categoryCodeError">
+                    <p class="form-help-text" id="categoryCodeHelp">Mã viết liền không dấu, gồm chữ hoa, chữ số và dấu gạch (2 - 20 ký tự).</p>
+                    <p th:if="${#fields.hasErrors('categoryCode')}" th:errors="*{categoryCode}" class="form-error-text" id="categoryCodeError"></p>
+                </div>
+
+                <!-- Field 2: Category Name -->
+                <div class="form-group">
+                    <label for="name" class="form-label">
+                        Tên danh mục <span class="required-mark">*</span>
+                    </label>
+                    <input type="text"
+                           id="name"
+                           th:field="*{name}"
+                           class="form-control"
+                           th:errorclass="is-invalid"
+                           placeholder="VD: Chăm sóc da mặt chuyên sâu"
+                           required
+                           aria-describedby="nameHelp nameError">
+                    <p class="form-help-text" id="nameHelp">Tên danh mục hiển thị cho khách hàng (2 - 150 ký tự).</p>
+                    <p th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="form-error-text" id="nameError"></p>
+                </div>
+
+                <!-- Field 3: Description -->
+                <div class="form-group">
+                    <div class="form-group-header">
+                        <label for="description" class="form-label">Mô tả danh mục</label>
+                        <span class="char-counter" id="charCounter">0 / 500 ký tự</span>
+                    </div>
+                    <textarea id="description"
+                              th:field="*{description}"
+                              class="form-control"
+                              th:errorclass="is-invalid"
+                              rows="4"
+                              maxlength="500"
+                              placeholder="Nhập tóm tắt hoặc ghi chú về dòng sản phẩm thuộc danh mục này..."
+                              oninput="updateCharCount(this)"
+                              aria-describedby="descriptionError"></textarea>
+                    <p th:if="${#fields.hasErrors('description')}" th:errors="*{description}" class="form-error-text" id="descriptionError"></p>
+                </div>
+
+                <!-- Field 4: Active Status -->
+                <div class="form-group">
+                    <label class="form-label">Trạng thái phát hành</label>
+                    <label class="checkbox-card" for="activeStatus">
+                        <input type="checkbox"
+                               id="activeStatus"
+                               th:field="*{active}">
+                        <div class="checkbox-card-content">
+                            <span class="checkbox-card-title">Kích hoạt danh mục ngay</span>
+                            <span class="checkbox-card-desc">Danh mục và các sản phẩm bên trong sẽ hiển thị công khai trên cửa hàng.</span>
+                        </div>
+                    </label>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span>Lưu danh mục</span>
+                    </button>
+                    <a th:href="@{/admin/categories}" class="btn btn-secondary">
+                        Hủy bỏ
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+<!-- Live Character Counter Script -->
+<script>
+    function updateCharCount(textarea) {
+        const counter = document.getElementById('charCounter');
+        if (counter && textarea) {
+            counter.textContent = textarea.value.length + ' / 500 ký tự';
+        }
+    }
+    // Initialize character count on load
+    document.addEventListener('DOMContentLoaded', function() {
+        const textarea = document.getElementById('description');
+        if (textarea) {
+            updateCharCount(textarea);
+        }
+    });
+</script>
+
+</body>
+</html>

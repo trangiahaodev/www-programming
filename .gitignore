@@ -32,15 +32,11 @@ build/
 ### VS Code ###
 .vscode/
 
-### Agents ###
 agents/
 .agents/
-.planning/
 AGENTS.md
 agents.rar
-*.rar
 
-### Python Helper Scripts & Logs ###
 *.py
 *.log
 

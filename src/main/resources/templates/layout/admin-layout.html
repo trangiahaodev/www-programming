@@ -8,7 +8,7 @@
     <!-- Google Fonts Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Admin Master Stylesheet -->
     <link rel="stylesheet" th:href="@{/css/admin.css}">
@@ -19,7 +19,7 @@
     <!-- Backdrop for Mobile Drawer -->
     <div id="sidebarBackdrop" class="sidebar-backdrop" onclick="toggleSidebar()" aria-hidden="true"></div>
 
-    <!-- Sidebar Navigation (Material Dark Flat) -->
+    <!-- Sidebar Navigation (Minimalist White & Crisp Borders) -->
     <aside id="adminSidebar" class="sidebar">
         <div class="sidebar-header">
             <div class="brand-icon">P</div>
@@ -28,31 +28,31 @@
 
         <nav class="sidebar-nav" aria-label="Admin Navigation">
             <div class="nav-section-title">Tổng quan</div>
-            <a th:href="@{/admin}" class="nav-link" th:classappend="${#httpServletRequest != null && #httpServletRequest.requestURI == '/admin' ? 'active' : ''}">
+            <a th:href="@{/admin}" class="nav-link">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
                 </svg>
                 <span>Bảng điều khiển</span>
             </a>
 
             <div class="nav-section-title">Quản lý bán hàng</div>
-            <a th:href="@{/admin/categories}" class="nav-link" th:classappend="${#httpServletRequest != null && #strings.startsWith(#httpServletRequest.requestURI, '/admin/categories') ? 'active' : 'active'}">
+            <a th:href="@{/admin/categories}" class="nav-link active">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
                 </svg>
                 <span>Danh mục</span>
             </a>
 
-            <a th:href="@{/admin/products}" class="nav-link" th:classappend="${#httpServletRequest != null && #strings.startsWith(#httpServletRequest.requestURI, '/admin/products') ? 'active' : ''}">
+            <a th:href="@{/admin/products}" class="nav-link">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
                 </svg>
                 <span>Sản phẩm</span>
             </a>
 
-            <a th:href="@{/admin/orders}" class="nav-link" th:classappend="${#httpServletRequest != null && #strings.startsWith(#httpServletRequest.requestURI, '/admin/orders') ? 'active' : ''}">
+            <a th:href="@{/admin/orders}" class="nav-link">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
                 </svg>
                 <span>Đơn hàng</span>
             </a>
@@ -69,13 +69,13 @@
         <header class="admin-header">
             <div class="header-left">
                 <!-- Hamburger Button for Mobile -->
-                <button type="button" class="mobile-toggle-btn" onclick="toggleSidebar()" aria-label="Toggle Navigation Menu">
-                    <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <button type="button" class="mobile-toggle-btn" onclick="toggleSidebar()" aria-label="Mở menu chuyển hướng">
+                    <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                     </svg>
                 </button>
 
-                <!-- Borderless Flat Grey Search Bar -->
+                <!-- Search Bar -->
                 <div class="header-search-bar">
                     <span class="header-search-icon">
                         <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -84,7 +84,7 @@
                     </span>
                     <input type="text" 
                            class="header-search-input" 
-                           placeholder="Tìm kiếm nhanh sản phẩm, đơn hàng, danh mục..." 
+                           placeholder="Tìm kiếm nhanh hệ thống..." 
                            aria-label="Tìm kiếm toàn hệ thống">
                 </div>
             </div>
@@ -125,9 +125,217 @@
         const backdrop = document.getElementById('sidebarBackdrop');
         if (sidebar && backdrop) {
             sidebar.classList.toggle('open');
-            backdrop.classList.toggle('open');
+            backdrop.classList.toggle('active');
         }
     }
+
+    function parseVietnameseDate(value) {
+        if (!value) {
+            return null;
+        }
+
+        const match = value.trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+        if (!match) {
+            return null;
+        }
+
+        const day = Number(match[1]);
+        const month = Number(match[2]);
+        const year = Number(match[3]);
+        const date = new Date(year, month - 1, day);
+
+        if (
+            date.getFullYear() !== year ||
+            date.getMonth() !== month - 1 ||
+            date.getDate() !== day
+        ) {
+            return null;
+        }
+
+        return date;
+    }
+
+    function formatVietnameseDate(date) {
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return day + '/' + month + '/' + year;
+    }
+
+    function clampMonth(date) {
+        return new Date(date.getFullYear(), date.getMonth(), 1);
+    }
+
+    function getVietnameseMonthLabel(date) {
+        return 'Tháng ' + (date.getMonth() + 1) + ' ' + date.getFullYear();
+    }
+
+    function createDatePicker() {
+        const picker = document.createElement('div');
+        picker.className = 'date-picker-popup';
+        picker.setAttribute('role', 'dialog');
+        picker.setAttribute('aria-hidden', 'true');
+        picker.innerHTML = [
+            '<div class="date-picker-header">',
+            '  <button type="button" class="date-picker-nav" data-action="prev" aria-label="Tháng trước">&lsaquo;</button>',
+            '  <div class="date-picker-title" data-role="title"></div>',
+            '  <button type="button" class="date-picker-nav" data-action="next" aria-label="Tháng sau">&rsaquo;</button>',
+            '</div>',
+            '<div class="date-picker-weekdays">',
+            '  <span>T2</span><span>T3</span><span>T4</span><span>T5</span><span>T6</span><span>T7</span><span>CN</span>',
+            '</div>',
+            '<div class="date-picker-grid" data-role="grid"></div>'
+        ].join('');
+        document.body.appendChild(picker);
+        return picker;
+    }
+
+    function initDatePickers() {
+        const inputs = document.querySelectorAll('[data-datepicker]');
+        if (!inputs.length) {
+            return;
+        }
+
+        const picker = createDatePicker();
+        const title = picker.querySelector('[data-role="title"]');
+        const grid = picker.querySelector('[data-role="grid"]');
+        let activeInput = null;
+        let viewMonth = clampMonth(new Date());
+
+        function closePicker() {
+            picker.classList.remove('open');
+            picker.setAttribute('aria-hidden', 'true');
+            activeInput = null;
+        }
+
+        function openPicker(input) {
+            activeInput = input;
+            const parsed = parseVietnameseDate(input.value);
+            viewMonth = clampMonth(parsed || new Date());
+            renderPicker();
+
+            const rect = input.getBoundingClientRect();
+            picker.style.left = rect.left + 'px';
+            picker.style.top = (rect.bottom + 8) + 'px';
+            picker.classList.add('open');
+            picker.setAttribute('aria-hidden', 'false');
+        }
+
+        function renderPicker() {
+            title.textContent = getVietnameseMonthLabel(viewMonth);
+            grid.innerHTML = '';
+
+            const firstDay = new Date(viewMonth.getFullYear(), viewMonth.getMonth(), 1);
+            const startOffset = (firstDay.getDay() + 6) % 7;
+            const daysInMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 0).getDate();
+            const today = new Date();
+            const selectedDate = activeInput ? parseVietnameseDate(activeInput.value) : null;
+
+            for (let i = 0; i < startOffset; i++) {
+                const emptyCell = document.createElement('div');
+                emptyCell.className = 'date-picker-day empty';
+                grid.appendChild(emptyCell);
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const cellDate = new Date(viewMonth.getFullYear(), viewMonth.getMonth(), day);
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'date-picker-day';
+                button.textContent = String(day);
+                button.dataset.value = formatVietnameseDate(cellDate);
+
+                if (
+                    selectedDate &&
+                    selectedDate.getFullYear() === cellDate.getFullYear() &&
+                    selectedDate.getMonth() === cellDate.getMonth() &&
+                    selectedDate.getDate() === cellDate.getDate()
+                ) {
+                    button.classList.add('selected');
+                }
+
+                if (
+                    today.getFullYear() === cellDate.getFullYear() &&
+                    today.getMonth() === cellDate.getMonth() &&
+                    today.getDate() === cellDate.getDate()
+                ) {
+                    button.classList.add('today');
+                }
+
+                button.addEventListener('click', function () {
+                    if (!activeInput) {
+                        return;
+                    }
+                    activeInput.value = button.dataset.value;
+                    activeInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    activeInput.dispatchEvent(new Event('change', { bubbles: true }));
+                    closePicker();
+                });
+
+                grid.appendChild(button);
+            }
+        }
+
+        picker.querySelector('[data-action="prev"]').addEventListener('click', function () {
+            viewMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() - 1, 1);
+            renderPicker();
+        });
+
+        picker.querySelector('[data-action="next"]').addEventListener('click', function () {
+            viewMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 1);
+            renderPicker();
+        });
+
+        inputs.forEach(function (input) {
+            input.addEventListener('focus', function () {
+                openPicker(input);
+            });
+
+            input.addEventListener('click', function () {
+                openPicker(input);
+            });
+
+            input.addEventListener('input', function () {
+                if (picker.classList.contains('open') && activeInput === input) {
+                    renderPicker();
+                }
+            });
+        });
+
+        document.addEventListener('click', function (event) {
+            if (!picker.classList.contains('open')) {
+                return;
+            }
+
+            if (picker.contains(event.target)) {
+                return;
+            }
+
+            if (event.target && event.target.closest && event.target.closest('[data-datepicker]')) {
+                return;
+            }
+
+            closePicker();
+        });
+
+        window.addEventListener('resize', function () {
+            if (picker.classList.contains('open') && activeInput) {
+                const rect = activeInput.getBoundingClientRect();
+                picker.style.left = rect.left + 'px';
+                picker.style.top = (rect.bottom + 8) + 'px';
+            }
+        });
+
+        window.addEventListener('scroll', function () {
+            if (picker.classList.contains('open') && activeInput) {
+                const rect = activeInput.getBoundingClientRect();
+                picker.style.left = rect.left + 'px';
+                picker.style.top = (rect.bottom + 8) + 'px';
+            }
+        }, true);
+    }
+
+    document.addEventListener('DOMContentLoaded', initDatePickers);
 </script>
 
 </body>

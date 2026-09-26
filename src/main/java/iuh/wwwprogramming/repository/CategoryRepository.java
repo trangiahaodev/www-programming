@@ -23,10 +23,13 @@ public interface CategoryRepository extends JpaRepository<Category, String> {
                    OR LOWER(c.categoryCode) LIKE LOWER(CONCAT('%', :keyword, '%')))
         """
     )
-
     Page<Category> searchCategories(@Param("keyword") String keyword, Pageable pageable);
 
     boolean existsByCategoryCode(String categoryCode);
 
     boolean existsByName(String name);
+
+    boolean existsByNameAndIdNot(String name, String id);
+
+    java.util.List<Category> findByActiveTrueOrderByNameAsc();
 }

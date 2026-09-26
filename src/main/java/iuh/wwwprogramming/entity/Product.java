@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -42,15 +43,18 @@ public class Product {
     @Column(nullable = false, length = 100, columnDefinition = "NVARCHAR(100)")
     private String brand;
 
-    @Column(nullable = false)
-    private Double price;
+    @Column(nullable = false, precision = 18, scale = 2)
+    private BigDecimal price;
 
     @Builder.Default
     @Column(nullable = false)
     private Integer discount = 0; // % discount (e.g. 10, 15, 20)
 
-    @Column(length = 255)
+    @Column(name="image_url", length = 255)
     private String image;
+
+    @Column(name = "stock_quantity", nullable = false)
+    private Integer stockQuantity;
 
     @Builder.Default
     @Column(length = 10)
@@ -68,10 +72,6 @@ public class Product {
 
     @Column(name = "usage_instructions", columnDefinition = "NVARCHAR(MAX)")
     private String usageInstructions;
-
-    @Builder.Default
-    @Column(nullable = false)
-    private Integer stock = 50;
 
     @Column(length = 50)
     private String barcode;
