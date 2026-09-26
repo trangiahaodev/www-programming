@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -455,46 +456,6 @@ public class DataInitializer implements CommandLineRunner {
     private void seedVouchers() {
         List<Voucher> vouchers = List.of(
                 Voucher.builder()
-                        .code("PINKY15")
-                        .title("Giảm 15% toàn bộ đơn hàng")
-                        .detail("Áp dụng cho đơn từ 499.000₫")
-                        .status("active")
-                        .accent("linear-gradient(135deg, #fff1f5 0%, #ffd6e3 100%)")
-                        .discountPercent(15)
-                        .minOrderAmount(new BigDecimal("499000.00"))
-                        .active(true)
-                        .build(),
-                Voucher.builder()
-                        .code("FREESHIP")
-                        .title("Freeship toàn quốc")
-                        .detail("Cho đơn từ 299.000₫")
-                        .status("active")
-                        .accent("linear-gradient(135deg, #fff8df 0%, #ffe38a 100%)")
-                        .discountAmount(new BigDecimal("30000.00"))
-                        .minOrderAmount(new BigDecimal("299000.00"))
-                        .active(true)
-                        .build(),
-                Voucher.builder()
-                        .code("HOTDEAL")
-                        .title("Giảm 50.000₫ makeup")
-                        .detail("Số lượng voucher có hạn mỗi ngày")
-                        .status("active")
-                        .accent("linear-gradient(135deg, #eef7ff 0%, #cde8ff 100%)")
-                        .discountAmount(new BigDecimal("50000.00"))
-                        .minOrderAmount(new BigDecimal("350000.00"))
-                        .active(true)
-                        .build(),
-                Voucher.builder()
-                        .code("SKINCARE10")
-                        .title("Giảm 10% dòng dưỡng da")
-                        .detail("Áp dụng cho mọi khách hàng mới")
-                        .status("active")
-                        .accent("linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%)")
-                        .discountPercent(10)
-                        .minOrderAmount(new BigDecimal("200000.00"))
-                        .active(true)
-                        .build(),
-                Voucher.builder()
                         .code("PINKYNEW")
                         .title("Chào bạn mới: Giảm 20.000₫")
                         .detail("Áp dụng cho đơn hàng đầu tiên từ 199.000₫")
@@ -502,6 +463,9 @@ public class DataInitializer implements CommandLineRunner {
                         .accent("linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%)")
                         .discountAmount(new BigDecimal("20000.00"))
                         .minOrderAmount(new BigDecimal("199000.00"))
+                        .targetAudience("NEW_CUSTOMER")
+                        .badgeText("🌟 CHÀO BẠN MỚI")
+                        .priority(100)
                         .active(true)
                         .build(),
                 Voucher.builder()
@@ -512,16 +476,9 @@ public class DataInitializer implements CommandLineRunner {
                         .accent("linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%)")
                         .discountAmount(new BigDecimal("70000.00"))
                         .minOrderAmount(new BigDecimal("599000.00"))
-                        .active(true)
-                        .build(),
-                Voucher.builder()
-                        .code("COMBO3")
-                        .title("Combo Tiết Kiệm: Giảm 100.000₫")
-                        .detail("Áp dụng cho đơn hàng mỹ phẩm từ 899.000₫")
-                        .status("active")
-                        .accent("linear-gradient(135deg, #ede7f6 0%, #d1c4e9 100%)")
-                        .discountAmount(new BigDecimal("100000.00"))
-                        .minOrderAmount(new BigDecimal("899000.00"))
+                        .targetAudience("WEEKEND_ONLY")
+                        .badgeText("⚡ FLASH DEAL CUỐI TUẦN")
+                        .priority(90)
                         .active(true)
                         .build(),
                 Voucher.builder()
@@ -532,17 +489,95 @@ public class DataInitializer implements CommandLineRunner {
                         .accent("linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%)")
                         .discountPercent(20)
                         .minOrderAmount(new BigDecimal("1200000.00"))
+                        .targetAudience("VIP_ONLY")
+                        .badgeText("👑 ĐẶC QUYỀN VIP")
+                        .priority(80)
+                        .active(true)
+                        .build(),
+                Voucher.builder()
+                        .code("PINKY15")
+                        .title("Giảm 15% toàn bộ đơn hàng")
+                        .detail("Áp dụng cho đơn từ 499.000₫")
+                        .status("active")
+                        .accent("linear-gradient(135deg, #fff1f5 0%, #ffd6e3 100%)")
+                        .discountPercent(15)
+                        .minOrderAmount(new BigDecimal("499000.00"))
+                        .targetAudience("ALL")
+                        .badgeText("🔥 GIẢM 15%")
+                        .priority(70)
+                        .active(true)
+                        .build(),
+                Voucher.builder()
+                        .code("FREESHIP")
+                        .title("Freeship toàn quốc")
+                        .detail("Cho đơn từ 299.000₫")
+                        .status("active")
+                        .accent("linear-gradient(135deg, #fff8df 0%, #ffe38a 100%)")
+                        .discountAmount(new BigDecimal("30000.00"))
+                        .minOrderAmount(new BigDecimal("299000.00"))
+                        .targetAudience("ALL")
+                        .badgeText("🚚 FREESHIP")
+                        .priority(60)
+                        .active(true)
+                        .build(),
+                Voucher.builder()
+                        .code("HOTDEAL")
+                        .title("Giảm 50.000₫ makeup")
+                        .detail("Số lượng voucher có hạn mỗi ngày")
+                        .status("active")
+                        .accent("linear-gradient(135deg, #eef7ff 0%, #cde8ff 100%)")
+                        .discountAmount(new BigDecimal("50000.00"))
+                        .minOrderAmount(new BigDecimal("350000.00"))
+                        .targetAudience("ALL")
+                        .badgeText("💄 MAKEUP")
+                        .priority(50)
+                        .active(true)
+                        .build(),
+                Voucher.builder()
+                        .code("SKINCARE10")
+                        .title("Giảm 10% dòng dưỡng da")
+                        .detail("Áp dụng cho mọi khách hàng mới")
+                        .status("active")
+                        .accent("linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%)")
+                        .discountPercent(10)
+                        .minOrderAmount(new BigDecimal("200000.00"))
+                        .targetAudience("ALL")
+                        .badgeText("🌿 DƯỠNG DA")
+                        .priority(40)
+                        .active(true)
+                        .build(),
+                Voucher.builder()
+                        .code("COMBO3")
+                        .title("Combo Tiết Kiệm: Giảm 100.000₫")
+                        .detail("Áp dụng cho đơn hàng mỹ phẩm từ 899.000₫")
+                        .status("active")
+                        .accent("linear-gradient(135deg, #ede7f6 0%, #d1c4e9 100%)")
+                        .discountAmount(new BigDecimal("100000.00"))
+                        .minOrderAmount(new BigDecimal("899000.00"))
+                        .targetAudience("ALL")
+                        .badgeText("🎁 COMBO 3 MÓN")
+                        .priority(30)
                         .active(true)
                         .build()
         );
 
         int seededVoucherCount = 0;
         for (Voucher voucher : vouchers) {
-            if (!voucherRepository.existsByCode(voucher.getCode())) {
+            Optional<Voucher> existing = voucherRepository.findByCodeIgnoreCaseAndActiveTrue(voucher.getCode());
+            if (existing.isPresent()) {
+                Voucher ev = existing.get();
+                ev.setTargetAudience(voucher.getTargetAudience());
+                ev.setBadgeText(voucher.getBadgeText());
+                ev.setPriority(voucher.getPriority());
+                ev.setDiscountPercent(voucher.getDiscountPercent());
+                ev.setDiscountAmount(voucher.getDiscountAmount());
+                ev.setMinOrderAmount(voucher.getMinOrderAmount());
+                voucherRepository.save(ev);
+            } else {
                 voucherRepository.save(voucher);
                 seededVoucherCount++;
             }
         }
-        log.info("Initialized {} new vouchers into SQL Server (total available: {}).", seededVoucherCount, vouchers.size());
+        log.info("Initialized/Updated {} vouchers into SQL Server (total available: {}).", seededVoucherCount, vouchers.size());
     }
 }

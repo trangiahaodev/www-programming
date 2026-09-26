@@ -13,6 +13,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -99,56 +101,89 @@ public class HomeContentServiceImpl implements HomeContentService {
 
     @Override
     public List<VoucherDTO> getActiveVouchers() {
+        return getActiveVouchers(null, null, false);
+    }
+
+    @Override
+    public List<VoucherDTO> getActiveVouchers(Boolean isWeekendOverride, String customerTier, boolean hasUsedPinkyNew) {
+        LocalDate now = LocalDate.now();
+        DayOfWeek dow = now.getDayOfWeek();
+        boolean isWeekend = (isWeekendOverride != null) ? isWeekendOverride : (dow == DayOfWeek.SATURDAY || dow == DayOfWeek.SUNDAY);
+
         List<iuh.wwwprogramming.entity.Voucher> dbVouchers = voucherRepository.findByActiveTrue();
+        List<VoucherDTO> dtoList;
+
         if (dbVouchers != null && !dbVouchers.isEmpty()) {
-            return dbVouchers.stream().map(v -> VoucherDTO.builder()
-                    .id(v.getId().intValue())
-                    .title(v.getTitle())
-                    .code(v.getCode())
-                    .detail(v.getDetail())
-                    .status(v.getStatus())
-                    .accent(v.getAccent())
-                    .build()
-            ).collect(Collectors.toList());
+            dtoList = dbVouchers.stream().map(this::toVoucherDTO).collect(Collectors.toList());
+        } else {
+            dtoList = getFallbackVouchers();
         }
 
-        return getFallbackVouchers();
+        return dtoList.stream()
+                .filter(v -> {
+                    // 1. Voucher Cuối tuần: chỉ hiển thị vào ngày cuối tuần (Thứ 7 & Chủ Nhật). Các ngày còn lại không hiển thị.
+                    if ("WEEKEND_ONLY".equalsIgnoreCase(v.getTargetAudience()) || "WEEKEND".equalsIgnoreCase(v.getCode())) {
+                        return isWeekend;
+                    }
+                    // 2. Voucher Chào bạn mới: chỉ hiển thị với người mới đăng ký/chưa từng dùng. Đã từng dùng thì không hiển thị nữa.
+                    if ("NEW_CUSTOMER".equalsIgnoreCase(v.getTargetAudience()) || "PINKYNEW".equalsIgnoreCase(v.getCode())) {
+                        return !hasUsedPinkyNew;
+                    }
+                    return true;
+                })
+                .sorted((a, b) -> {
+                    // Ưu tiên Chào bạn mới lên đầu (#1)
+                    // Ưu tiên Cuối tuần lên đầu vào ngày cuối tuần (#2 hoặc #1 nếu đã dùng mã mới)
+                    int scoreA = getVoucherScore(a, isWeekend);
+                    int scoreB = getVoucherScore(b, isWeekend);
+                    return Integer.compare(scoreB, scoreA);
+                })
+                .collect(Collectors.toList());
+    }
+
+    private int getVoucherScore(VoucherDTO v, boolean isWeekend) {
+        if ("PINKYNEW".equalsIgnoreCase(v.getCode())) {
+            return 1000;
+        }
+        if ("WEEKEND".equalsIgnoreCase(v.getCode()) && isWeekend) {
+            return 900;
+        }
+        if (v.getPriority() != null) {
+            return v.getPriority();
+        }
+        return 50;
+    }
+
+    private VoucherDTO toVoucherDTO(iuh.wwwprogramming.entity.Voucher v) {
+        String aud = v.getTargetAudience() != null ? v.getTargetAudience() : "ALL";
+        String bText = v.getBadgeText();
+        if (bText == null || bText.isEmpty()) {
+            if ("NEW_CUSTOMER".equalsIgnoreCase(aud)) bText = "🌟 CHÀO BẠN MỚI";
+            else if ("WEEKEND_ONLY".equalsIgnoreCase(aud)) bText = "⚡ FLASH DEAL CUỐI TUẦN";
+            else if ("VIP_ONLY".equalsIgnoreCase(aud)) bText = "👑 ĐẶC QUYỀN VIP";
+            else bText = "🔥 VOUCHER HOT";
+        }
+        return VoucherDTO.builder()
+                .id(v.getId().intValue())
+                .title(v.getTitle())
+                .code(v.getCode())
+                .detail(v.getDetail())
+                .status(v.getStatus())
+                .accent(v.getAccent())
+                .discountPercent(v.getDiscountPercent())
+                .discountAmount(v.getDiscountAmount())
+                .minOrderAmount(v.getMinOrderAmount())
+                .targetAudience(aud)
+                .badgeText(bText)
+                .priority(v.getPriority() != null ? v.getPriority() : 50)
+                .isWeekendOnly("WEEKEND_ONLY".equalsIgnoreCase(aud) || "WEEKEND".equalsIgnoreCase(v.getCode()))
+                .isNewCustomerOnly("NEW_CUSTOMER".equalsIgnoreCase(aud) || "PINKYNEW".equalsIgnoreCase(v.getCode()))
+                .isVipOnly("VIP_ONLY".equalsIgnoreCase(aud) || "VIPBEAUTY".equalsIgnoreCase(v.getCode()))
+                .build();
     }
 
     private List<VoucherDTO> getFallbackVouchers() {
         return List.of(
-                VoucherDTO.builder()
-                        .id(1)
-                        .title("Giảm 15% toàn bộ đơn hàng")
-                        .code("PINKY15")
-                        .detail("Áp dụng cho đơn từ 499.000₫")
-                        .status("active")
-                        .accent("linear-gradient(135deg, #fff1f5 0%, #ffd6e3 100%)")
-                        .build(),
-                VoucherDTO.builder()
-                        .id(2)
-                        .title("Freeship toàn quốc")
-                        .code("FREESHIP")
-                        .detail("Cho đơn từ 299.000₫")
-                        .status("active")
-                        .accent("linear-gradient(135deg, #fff8df 0%, #ffe38a 100%)")
-                        .build(),
-                VoucherDTO.builder()
-                        .id(3)
-                        .title("Giảm 50.000₫ makeup")
-                        .code("HOTDEAL")
-                        .detail("Số lượng voucher có hạn mỗi ngày")
-                        .status("active")
-                        .accent("linear-gradient(135deg, #eef7ff 0%, #cde8ff 100%)")
-                        .build(),
-                VoucherDTO.builder()
-                        .id(4)
-                        .title("Giảm 10% dòng dưỡng da")
-                        .code("SKINCARE10")
-                        .detail("Áp dụng cho mọi khách hàng mới")
-                        .status("active")
-                        .accent("linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%)")
-                        .build(),
                 VoucherDTO.builder()
                         .id(5)
                         .title("Chào bạn mới: Giảm 20.000₫")
@@ -156,6 +191,10 @@ public class HomeContentServiceImpl implements HomeContentService {
                         .detail("Áp dụng cho đơn hàng đầu tiên từ 199.000₫")
                         .status("active")
                         .accent("linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%)")
+                        .targetAudience("NEW_CUSTOMER")
+                        .badgeText("🌟 CHÀO BẠN MỚI")
+                        .priority(100)
+                        .isNewCustomerOnly(true)
                         .build(),
                 VoucherDTO.builder()
                         .id(6)
@@ -164,14 +203,10 @@ public class HomeContentServiceImpl implements HomeContentService {
                         .detail("Dành riêng cho đơn hàng cuối tuần từ 599.000₫")
                         .status("active")
                         .accent("linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%)")
-                        .build(),
-                VoucherDTO.builder()
-                        .id(7)
-                        .title("Combo Tiết Kiệm: Giảm 100.000₫")
-                        .code("COMBO3")
-                        .detail("Áp dụng cho đơn hàng mỹ phẩm từ 899.000₫")
-                        .status("active")
-                        .accent("linear-gradient(135deg, #ede7f6 0%, #d1c4e9 100%)")
+                        .targetAudience("WEEKEND_ONLY")
+                        .badgeText("⚡ FLASH DEAL CUỐI TUẦN")
+                        .priority(90)
+                        .isWeekendOnly(true)
                         .build(),
                 VoucherDTO.builder()
                         .id(8)
@@ -180,6 +215,65 @@ public class HomeContentServiceImpl implements HomeContentService {
                         .detail("Tối đa 200.000₫ cho đơn từ 1.200.000₫")
                         .status("active")
                         .accent("linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%)")
+                        .targetAudience("VIP_ONLY")
+                        .badgeText("👑 ĐẶC QUYỀN VIP")
+                        .priority(80)
+                        .isVipOnly(true)
+                        .build(),
+                VoucherDTO.builder()
+                        .id(1)
+                        .title("Giảm 15% toàn bộ đơn hàng")
+                        .code("PINKY15")
+                        .detail("Áp dụng cho đơn từ 499.000₫")
+                        .status("active")
+                        .accent("linear-gradient(135deg, #fff1f5 0%, #ffd6e3 100%)")
+                        .targetAudience("ALL")
+                        .badgeText("🔥 GIẢM 15%")
+                        .priority(70)
+                        .build(),
+                VoucherDTO.builder()
+                        .id(2)
+                        .title("Freeship toàn quốc")
+                        .code("FREESHIP")
+                        .detail("Cho đơn từ 299.000₫")
+                        .status("active")
+                        .accent("linear-gradient(135deg, #fff8df 0%, #ffe38a 100%)")
+                        .targetAudience("ALL")
+                        .badgeText("🚚 FREESHIP")
+                        .priority(60)
+                        .build(),
+                VoucherDTO.builder()
+                        .id(3)
+                        .title("Giảm 50.000₫ makeup")
+                        .code("HOTDEAL")
+                        .detail("Số lượng voucher có hạn mỗi ngày")
+                        .status("active")
+                        .accent("linear-gradient(135deg, #eef7ff 0%, #cde8ff 100%)")
+                        .targetAudience("ALL")
+                        .badgeText("💄 MAKEUP")
+                        .priority(50)
+                        .build(),
+                VoucherDTO.builder()
+                        .id(4)
+                        .title("Giảm 10% dòng dưỡng da")
+                        .code("SKINCARE10")
+                        .detail("Áp dụng cho mọi khách hàng mới")
+                        .status("active")
+                        .accent("linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%)")
+                        .targetAudience("ALL")
+                        .badgeText("🌿 DƯỠNG DA")
+                        .priority(40)
+                        .build(),
+                VoucherDTO.builder()
+                        .id(7)
+                        .title("Combo Tiết Kiệm: Giảm 100.000₫")
+                        .code("COMBO3")
+                        .detail("Áp dụng cho đơn hàng mỹ phẩm từ 899.000₫")
+                        .status("active")
+                        .accent("linear-gradient(135deg, #ede7f6 0%, #d1c4e9 100%)")
+                        .targetAudience("ALL")
+                        .badgeText("🎁 COMBO 3 MÓN")
+                        .priority(30)
                         .build()
         );
     }

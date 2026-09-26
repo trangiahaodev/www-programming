@@ -64,6 +64,18 @@ public class Voucher {
     private Integer usedCount = 0;
 
     @Builder.Default
+    @Column(name = "target_audience", length = 50)
+    private String targetAudience = "ALL"; // ALL, NEW_CUSTOMER, WEEKEND_ONLY, VIP_ONLY
+
+    @org.hibernate.annotations.Nationalized
+    @Column(name = "badge_text", length = 100, columnDefinition = "NVARCHAR(100)")
+    private String badgeText;
+
+    @Builder.Default
+    @Column(name = "priority")
+    private Integer priority = 50;
+
+    @Builder.Default
     @Column(nullable = false)
     private Boolean active = true;
 

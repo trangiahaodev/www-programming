@@ -18,30 +18,67 @@
 
                 <div class="hero-voucher-popup" id="voucherPopup">
                     <div class="hero-voucher-header">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <span>🎟️ Mã Giảm Giá Đang Áp Dụng</span>
-                            <span class="hero-voucher-badge" th:text="${#lists.size(hotVouchers)} + ' mã'">8 mã</span>
+                        <div class="hero-voucher-top-bar">
+                            <div class="hero-voucher-title-box">
+                                <span class="hero-voucher-title-text">🎟️ Mã Giảm Giá Đang Áp Dụng</span>
+                                <span class="hero-voucher-badge" id="voucherCountBadge" th:text="${#lists.size(hotVouchers)} + ' mã'">8 mã</span>
+                            </div>
+                            <button type="button" class="hero-voucher-close-btn" id="closeVoucherBtn" aria-label="Đóng popup">&times;</button>
                         </div>
-                        <span class="hero-voucher-hint">Cuộn xem &bull; Nhấn sao chép</span>
+                        <div class="hero-voucher-subbar">
+                            <span class="hero-voucher-hint">💡 Nhấn mã để sao chép • Cuộn xem thêm</span>
+                            <span class="hero-voucher-user-tier" id="userTierBadge"
+                                  th:classappend="${customerTier == 'VIP' ? 'vip' : (customerTier == 'NEW' ? 'new' : '')}"
+                                  th:text="${customerTier == 'VIP' ? '👑 Khách VIP' : (customerTier == 'NEW' ? '✨ Khách mới' : '🛍️ Thành viên')}">✨ Khách mới</span>
+                        </div>
                     </div>
-                    <div class="hero-voucher-grid">
+
+                    <div class="hero-voucher-grid" id="voucherGridContainer">
                         <div th:each="voucher : ${hotVouchers}"
                              class="hero-voucher-card"
+                             th:classappend="${voucher.isNewCustomerOnly ? 'voucher-priority-new' : (voucher.isWeekendOnly ? 'voucher-priority-weekend' : (voucher.isVipOnly ? 'voucher-priority-vip' : ''))}"
                              th:style="'background: ' + ${voucher.accent}">
                             <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
-                                <div>
-                                    <div class="hero-voucher-label">VOUCHER HOT</div>
+                                <div style="flex: 1; min-width: 0;">
+                                    <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                                        <span class="hero-voucher-label" th:text="${voucher.badgeText != null ? voucher.badgeText : 'VOUCHER HOT'}">VOUCHER HOT</span>
+                                        <span th:if="${voucher.isVipOnly}" class="hero-voucher-tag-pill" style="background: #fed7aa; color: #9c4221;">VIP</span>
+                                        <span th:if="${voucher.isWeekendOnly}" class="hero-voucher-tag-pill" style="background: #feebc8; color: #975a16;">T7 & CN</span>
+                                        <span th:if="${voucher.isNewCustomerOnly}" class="hero-voucher-tag-pill" style="background: #c6f6d5; color: #22543d;">ĐƠN ĐẦU</span>
+                                    </div>
                                     <h4 class="hero-voucher-title" th:text="${voucher.title}">Giảm 15% toàn bộ đơn hàng</h4>
                                     <div class="hero-voucher-detail" th:text="${voucher.detail}">Áp dụng cho đơn từ 499.000₫</div>
                                 </div>
                                 <div class="hero-voucher-code"
                                      th:text="${voucher.code}"
-                                     th:attr="data-code=${voucher.code}"
-                                     onclick="copyCode(this.getAttribute('data-code'), this)"
-                                     title="Nhấn để sao chép">
+                                     th:attr="data-code=${voucher.code}, data-audience=${voucher.targetAudience}, data-min=${voucher.minOrderAmount}"
+                                     onclick="handleVoucherCodeClick(this)"
+                                     title="Nhấn để sao chép & kiểm tra">
                                     PINKY15
                                 </div>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Simulator / Fast-Testing Bar for Business Requirements -->
+                    <div class="hero-voucher-footer" style="padding-top: 8px; margin-top: 8px; border-top: 1px dashed rgba(247, 108, 133, 0.25);">
+                        <div style="display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: #718096; margin-bottom: 6px;">
+                            <span style="font-weight: 700;">⚙️ Kiểm thử nhanh trạng thái:</span>
+                            <span id="currentStatusText" style="font-weight: 600; color: #f76c85;" th:text="${isWeekend ? 'Cuối tuần (T7 & CN)' : 'Ngày thường (T2 - T6)'}">Cuối tuần (T7 & CN)</span>
+                        </div>
+                        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                            <button type="button" class="btn-voucher-filter" onclick="switchCustomerProfile('NEW', false, null)" title="Khách hàng mới (hiển thị PINKYNEW đầu tiên)" style="font-size: 10.5px; padding: 4px 8px; border-radius: 6px; border: 1px solid #cbd5e0; background: #f7fafc; cursor: pointer;">
+                                ✨ Khách mới
+                            </button>
+                            <button type="button" class="btn-voucher-filter" onclick="switchCustomerProfile('STANDARD', true, null)" title="Khách đã dùng mã PINKYNEW (ẩn PINKYNEW)" style="font-size: 10.5px; padding: 4px 8px; border-radius: 6px; border: 1px solid #cbd5e0; background: #f7fafc; cursor: pointer;">
+                                🛍️ Đã dùng mã mới
+                            </button>
+                            <button type="button" class="btn-voucher-filter" onclick="switchCustomerProfile('VIP', null, null)" title="Khách VIP (được áp dụng VIPBEAUTY)" style="font-size: 10.5px; padding: 4px 8px; border-radius: 6px; border: 1px solid #fed7aa; background: #fffaf0; color: #9c4221; cursor: pointer; font-weight: 700;">
+                                👑 Khách VIP
+                            </button>
+                            <button type="button" class="btn-voucher-filter" id="btnToggleWeekend" onclick="toggleWeekendSimulation()" title="Chuyển đổi Thứ 7 & CN vs Ngày thường" style="font-size: 10.5px; padding: 4px 8px; border-radius: 6px; border: 1px solid #f6ad55; background: #fffaf0; cursor: pointer; font-weight: 700; color: #dd6b20;">
+                                📅 Đổi Thứ/CN
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -499,6 +536,13 @@
 
         <!-- CUSTOM INTERACTIVE JAVASCRIPT (INSIDE MAIN SO THYMELEAF INCLUDES IT) -->
         <script th:inline="javascript">
+            // Trạng thái kiểm thử / hồ sơ khách hàng hiện tại
+            window.customerState = {
+                tier: /*[[${customerTier}]]*/ 'NEW',
+                usedNew: /*[[${usedNewCustomerVoucher}]]*/ false,
+                isWeekend: /*[[${isWeekend}]]*/ true
+            };
+
             // 1. Toast Notification Helper
             function showToast(message) {
                 const toast = document.getElementById('customToast');
@@ -511,7 +555,7 @@
                 }, 2500);
             }
 
-            // 2. Copy Code to Clipboard with feedback
+            // 2. Generic Copy Code Helper (Dùng cho Chi nhánh)
             function copyCode(code, element) {
                 if (!code) return;
                 navigator.clipboard.writeText(code).then(() => {
@@ -534,9 +578,185 @@
                 });
             }
 
-            // 3. Hotdeal Voucher Popup Toggle
+            // 3. Xử lý click mã Voucher với kiểm tra nghiệp vụ đầy đủ
+            function handleVoucherCodeClick(element) {
+                const code = element.getAttribute('data-code');
+                if (!code) return;
+
+                // Gửi request kiểm tra điều kiện áp dụng lên API
+                fetch('/api/vouchers/apply', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        code: code,
+                        customerTier: window.customerState.tier,
+                        hasUsedNewCustomerVoucher: window.customerState.usedNew,
+                        isWeekendOverride: window.customerState.isWeekend,
+                        orderAmount: 500000
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.valid) {
+                        // Thỏa mãn điều kiện: Cho phép sao chép mã
+                        navigator.clipboard.writeText(code).then(() => {
+                            const originalText = element.textContent;
+                            element.textContent = 'Đã copy!';
+                            setTimeout(() => { element.textContent = originalText; }, 1800);
+                            if (window.showToast) {
+                                window.showToast('Sao chép thành công', '✅ Đã lưu mã ' + code + ' vào bộ nhớ tạm! Áp dụng khi thanh toán.', 'success');
+                            }
+                        }).catch(() => {
+                            if (window.showToast) {
+                                window.showToast('Mã ưu đãi', '✅ Mã ' + code + ' đã sẵn sàng sử dụng!', 'success');
+                            }
+                        });
+                    } else {
+                        // Không thỏa mãn điều kiện (Ví dụ VIPBEAUTY với khách thường, PINKYNEW đã dùng, ...)
+                        if (window.showToast) {
+                            window.showToast('Thông báo áp dụng Voucher', data.message, 'warning', 5000);
+                        } else {
+                            alert('⚠️ ' + data.message);
+                        }
+                    }
+                })
+                .catch(err => {
+                    console.error('Lỗi khi kiểm tra voucher:', err);
+                    copyCode(code, element);
+                });
+            }
+
+            // 4. Render lại danh sách Voucher theo dữ liệu mới
+            function renderVoucherList(vouchers) {
+                const container = document.getElementById('voucherGridContainer');
+                const badgeCount = document.getElementById('voucherCountBadge');
+                if (!container) return;
+
+                if (badgeCount) {
+                    badgeCount.textContent = (vouchers ? vouchers.length : 0) + ' mã';
+                }
+
+                if (!vouchers || vouchers.length === 0) {
+                    container.innerHTML = '<div style="text-align: center; padding: 25px 15px; color: #718096; font-size: 13px;">Hiện không có mã ưu đãi nào khả dụng trong trạng thái này.</div>';
+                    return;
+                }
+
+                container.innerHTML = vouchers.map(v => {
+                    let cardClass = 'hero-voucher-card';
+                    let tagPill = '';
+                    if (v.isNewCustomerOnly) {
+                        cardClass += ' voucher-priority-new';
+                        tagPill = '<span class="hero-voucher-tag-pill" style="background: #c6f6d5; color: #22543d;">ĐƠN ĐẦU</span>';
+                    } else if (v.isWeekendOnly) {
+                        cardClass += ' voucher-priority-weekend';
+                        tagPill = '<span class="hero-voucher-tag-pill" style="background: #feebc8; color: #975a16;">T7 & CN</span>';
+                    } else if (v.isVipOnly) {
+                        cardClass += ' voucher-priority-vip';
+                        tagPill = '<span class="hero-voucher-tag-pill" style="background: #fed7aa; color: #9c4221;">VIP</span>';
+                    }
+
+                    const labelText = v.badgeText || 'VOUCHER HOT';
+
+                    return `
+                        <div class="${cardClass}" style="background: ${v.accent || '#fff0f3'}">
+                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+                                <div style="flex: 1; min-width: 0;">
+                                    <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                                        <span class="hero-voucher-label">${labelText}</span>
+                                        ${tagPill}
+                                    </div>
+                                    <h4 class="hero-voucher-title">${v.title || ''}</h4>
+                                    <div class="hero-voucher-detail">${v.detail || ''}</div>
+                                </div>
+                                <div class="hero-voucher-code"
+                                     data-code="${v.code}"
+                                     data-audience="${v.targetAudience || 'ALL'}"
+                                     data-min="${v.minOrderAmount || 0}"
+                                     onclick="handleVoucherCodeClick(this)"
+                                     title="Nhấn để sao chép & kiểm tra">
+                                    ${v.code}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // 5. Tải danh sách voucher từ API theo cấu hình filter
+            function fetchAndUpdateVouchers() {
+                const params = new URLSearchParams();
+                if (window.customerState.tier) params.append('tier', window.customerState.tier);
+                if (window.customerState.usedNew !== null) params.append('usedNew', window.customerState.usedNew);
+                if (window.customerState.isWeekend !== null) params.append('weekend', window.customerState.isWeekend);
+
+                fetch('/api/vouchers?' + params.toString())
+                    .then(res => res.json())
+                    .then(data => {
+                        renderVoucherList(data);
+                    })
+                    .catch(err => console.error('Lỗi tải danh sách voucher:', err));
+            }
+
+            // 6. Chuyển đổi hồ sơ khách hàng (Demo nghiệp vụ)
+            function switchCustomerProfile(tier, usedNew, weekend) {
+                if (tier !== null && tier !== undefined) window.customerState.tier = tier;
+                if (usedNew !== null && usedNew !== undefined) window.customerState.usedNew = usedNew;
+                if (weekend !== null && weekend !== undefined) window.customerState.isWeekend = weekend;
+
+                // Cập nhật badge hiển thị
+                const tierBadge = document.getElementById('userTierBadge');
+                if (tierBadge) {
+                    tierBadge.className = 'hero-voucher-user-tier';
+                    if (window.customerState.tier === 'VIP') {
+                        tierBadge.classList.add('vip');
+                        tierBadge.textContent = '👑 Khách VIP';
+                    } else if (window.customerState.tier === 'NEW' && !window.customerState.usedNew) {
+                        tierBadge.classList.add('new');
+                        tierBadge.textContent = '✨ Khách mới';
+                    } else {
+                        tierBadge.textContent = '🛍️ Thành viên';
+                    }
+                }
+
+                fetchAndUpdateVouchers();
+
+                let desc = '';
+                if (window.customerState.tier === 'VIP') {
+                    desc = 'Hạng Khách VIP: Đủ điều kiện sử dụng mã VIPBEAUTY';
+                } else if (window.customerState.usedNew) {
+                    desc = 'Khách đã từng sử dụng voucher chào bạn mới (Ẩn mã PINKYNEW)';
+                } else {
+                    desc = 'Khách hàng mới: Ưu tiên mã PINKYNEW hiển thị ngay đầu danh sách';
+                }
+                if (window.showToast) {
+                    window.showToast('Hồ sơ khách hàng', desc, 'info', 3500);
+                }
+            }
+
+            // 7. Chuyển đổi trạng thái Cuối tuần vs Ngày thường (Demo nghiệp vụ)
+            function toggleWeekendSimulation() {
+                window.customerState.isWeekend = !window.customerState.isWeekend;
+                const statusText = document.getElementById('currentStatusText');
+                if (statusText) {
+                    statusText.textContent = window.customerState.isWeekend ? 'Cuối tuần (T7 & CN)' : 'Ngày thường (T2 - T6)';
+                }
+
+                fetchAndUpdateVouchers();
+
+                if (window.showToast) {
+                    if (window.customerState.isWeekend) {
+                        window.showToast('Trạng thái: Cuối tuần', '🎉 Đang là cuối tuần! Mã WEEKEND được ưu tiên đẩy lên đầu danh sách.', 'success', 3500);
+                    } else {
+                        window.showToast('Trạng thái: Ngày thường', '📅 Đang là ngày thường (Thứ 2 - Thứ 6)! Mã WEEKEND tự động được ẩn.', 'warning', 3500);
+                    }
+                }
+            }
+
+            // 8. Hotdeal Voucher Popup Toggle & Close
             const hotdealBtn = document.getElementById('hotdealBtn');
             const voucherPopup = document.getElementById('voucherPopup');
+            const closeVoucherBtn = document.getElementById('closeVoucherBtn');
+
             if (hotdealBtn && voucherPopup) {
                 hotdealBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
@@ -546,6 +766,12 @@
                     if (!voucherPopup.contains(e.target) && e.target !== hotdealBtn) {
                         voucherPopup.classList.remove('show');
                     }
+                });
+            }
+            if (closeVoucherBtn && voucherPopup) {
+                closeVoucherBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    voucherPopup.classList.remove('show');
                 });
             }
 
