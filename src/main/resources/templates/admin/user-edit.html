@@ -1,0 +1,14 @@
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/admin-layout :: layout(~{::main})}">
+<main class="account-panel">
+<h1>CẬP NHẬT NGƯỜI DÙNG</h1>
+<form th:action="@{/admin/users/{id}/edit(id=${userId})}" th:object="${userForm}" method="post" class="account-form">
+    <p th:each="error : ${#fields.globalErrors()}" th:text="${error}" class="account-error" role="alert"></p>
+    <label for="fullName">Họ tên</label><input th:field="*{fullName}" maxlength="100" required><p th:errors="*{fullName}" class="account-error"></p>
+    <label for="email">Email</label><input th:field="*{email}" type="email" maxlength="100" required><p th:errors="*{email}" class="account-error"></p>
+    <label for="phone">Điện thoại</label><input th:field="*{phone}" type="tel" maxlength="20"><p th:errors="*{phone}" class="account-error"></p>
+    <label for="address">Địa chỉ</label><textarea th:field="*{address}" maxlength="255"></textarea><p th:errors="*{address}" class="account-error"></p>
+    <label for="active">Trạng thái</label><select th:field="*{active}"><option value="true">Hoạt động</option><option value="false">Đã khóa</option></select><p th:errors="*{active}" class="account-error"></p>
+    <div class="user-actions"><button type="submit" class="account-button">Lưu thay đổi</button><a class="account-button secondary" th:href="@{/admin/users}">Hủy</a></div>
+</form>
+</main>
+</html>
