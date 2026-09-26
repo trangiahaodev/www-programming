@@ -32,10 +32,12 @@ public class Category {
     @Column(name = "category_code", unique = true, updatable = false, length = 20, nullable = false)
     private String categoryCode;
 
-    @Column(nullable = false, length = 150)
+    @org.hibernate.annotations.Nationalized
+    @Column(nullable = false, length = 150, columnDefinition = "NVARCHAR(150)")
     private String name;
 
-    @Column(length = 500)
+    @org.hibernate.annotations.Nationalized
+    @Column(length = 500, columnDefinition = "NVARCHAR(500)")
     private String description;
 
     @Builder.Default

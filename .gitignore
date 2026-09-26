@@ -32,6 +32,11 @@ build/
 ### VS Code ###
 .vscode/
 
-AGENTS.md
+agents/
 .agents/
-.planning/
+AGENTS.md
+agents.rar
+
+*.py
+*.log
+

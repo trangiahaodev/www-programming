@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
     indexes = {
         @Index(name = "idx_products_code", columnList = "product_code"),
         @Index(name = "idx_products_name", columnList = "name"),
+        @Index(name = "idx_products_brand", columnList = "brand"),
         @Index(name = "idx_products_category", columnList = "category_id")
     }
 )
@@ -31,27 +32,72 @@ public class Product {
     private String id;
 
     // 2. Business Key
-    @Column(name = "product_code", unique = true, updatable = false, length = 20, nullable = false)
+    @Column(name = "product_code", unique = true, updatable = false, length = 30, nullable = false)
     private String productCode;
 
-    @Column(nullable = false, length = 150)
+    @org.hibernate.annotations.Nationalized
+    @Column(nullable = false, length = 255, columnDefinition = "NVARCHAR(255)")
     private String name;
+
+    @org.hibernate.annotations.Nationalized
+    @Column(nullable = false, length = 100, columnDefinition = "NVARCHAR(100)")
+    private String brand;
 
     @Column(nullable = false, precision = 18, scale = 2)
     private BigDecimal price;
 
+    @Builder.Default
+    @Column(nullable = false)
+    private Integer discount = 0; // % discount (e.g. 10, 15, 20)
+
+    @Column(name="image_url", length = 255)
+    private String image;
+
     @Column(name = "stock_quantity", nullable = false)
     private Integer stockQuantity;
 
-    @Column(length = 2000)
+    @Builder.Default
+    @Column(length = 10)
+    private String currency = "VND";
+
+    @org.hibernate.annotations.Nationalized
+    @Column(length = 100, columnDefinition = "NVARCHAR(100)")
+    private String origin;
+
+    @Column(columnDefinition = "NVARCHAR(MAX)")
     private String description;
 
-    @Column(name = "image_url", length = 500)
-    private String imageUrl;
+    @Column(columnDefinition = "NVARCHAR(MAX)")
+    private String ingredients;
+
+    @Column(name = "usage_instructions", columnDefinition = "NVARCHAR(MAX)")
+    private String usageInstructions;
+
+    @Column(length = 50)
+    private String barcode;
 
     @Builder.Default
-    @Column(nullable = false)
+    @Column(name = "is_active", nullable = false)
     private Boolean active = true;
+
+    @Builder.Default
+    @Column(name = "is_hot", nullable = false)
+    private Boolean isHot = false;
+
+    @Builder.Default
+    @Column(name = "is_new", nullable = false)
+    private Boolean isNew = false;
+
+    @Builder.Default
+    private Double rating = 5.0;
+
+    @Builder.Default
+    @Column(name = "review_count")
+    private Integer reviewCount = 0;
+
+    @Builder.Default
+    @Column(name = "sold_count")
+    private Integer soldCount = 0;
 
     // 3. Relationships
     @ManyToOne(fetch = FetchType.LAZY)
