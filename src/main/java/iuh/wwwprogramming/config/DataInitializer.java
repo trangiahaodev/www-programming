@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.text.Normalizer;
 import java.util.HashMap;
 import java.util.Map;
@@ -94,14 +95,14 @@ public class DataInitializer implements CommandLineRunner {
                             .productCode(productCode)
                             .name(name)
                             .brand(brand)
-                            .price(price)
+                            .price(BigDecimal.valueOf(price))
                             .discount(discount)
                             .image(image)
                             .origin(origin)
                             .description(description)
                             .ingredients(ingredients)
                             .usageInstructions(usage)
-                            .stock(stock)
+                            .stockQuantity(stock)
                             .active(true)
                             .isHot(discount >= 15 || count % 4 == 0)
                             .isNew(count % 3 == 0)

@@ -292,7 +292,7 @@ public class ProductServiceImpl implements ProductService {
         int discount = product.getDiscount() != null ? product.getDiscount() : 0;
 
         // ĐÃ FIX: Chuyển BigDecimal của Entity sang Double cho Customer DTO
-        Double price = product.getPrice() != null ? product.getPrice().doubleValue() : 0.0;
+        double price = product.getPrice() != null ? product.getPrice().doubleValue() : 0.0;
 
         Double originalPrice = null;
         if (discount > 0 && price > 0) {
@@ -308,7 +308,7 @@ public class ProductServiceImpl implements ProductService {
                 .brand(product.getBrand())
                 .categoryId(product.getCategory() != null ? product.getCategory().getId() : null)
                 .categoryName(product.getCategory() != null ? product.getCategory().getName() : "")
-                .image(product.getImage() != null ? product.getImage() : product.getImageUrl())
+                .image(product.getImage())
                 .price(price)
                 .discount(discount)
                 .originalPrice(originalPrice)
@@ -326,7 +326,7 @@ public class ProductServiceImpl implements ProductService {
         int discount = product.getDiscount() != null ? product.getDiscount() : 0;
 
         // ĐÃ FIX: Chuyển BigDecimal của Entity sang Double cho Customer DTO
-        Double price = product.getPrice() != null ? product.getPrice().doubleValue() : 0.0;
+        double price = product.getPrice() != null ? product.getPrice().doubleValue() : 0.0;
 
         Double originalPrice = null;
         if (discount > 0 && price > 0) {
@@ -342,7 +342,7 @@ public class ProductServiceImpl implements ProductService {
                 .brand(product.getBrand())
                 .categoryId(product.getCategory() != null ? product.getCategory().getId() : null)
                 .categoryName(product.getCategory() != null ? product.getCategory().getName() : "")
-                .image(product.getImage() != null ? product.getImage() : product.getImageUrl())
+                .image(product.getImage())
                 .price(price) // Nhận kiểu Double
                 .discount(discount)
                 .originalPrice(originalPrice)

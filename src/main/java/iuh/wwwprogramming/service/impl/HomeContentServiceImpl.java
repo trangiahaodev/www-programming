@@ -205,7 +205,7 @@ public class HomeContentServiceImpl implements HomeContentService {
 
         return products.stream().map(p -> {
             int discount = (p.getDiscount() != null) ? p.getDiscount() : 0;
-            Double price = (p.getPrice() != null) ? p.getPrice() : 0.0;
+            double price = (p.getPrice() != null) ? p.getPrice().doubleValue() : 0.0;
             Double origPrice = (discount > 0 && price > 0)
                     ? (double) Math.round(price / (1.0 - (discount / 100.0)))
                     : null;
