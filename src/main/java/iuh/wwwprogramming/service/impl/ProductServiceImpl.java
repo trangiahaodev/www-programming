@@ -1,6 +1,8 @@
 package iuh.wwwprogramming.service.impl;
 
-import iuh.wwwprogramming.dto.ProductCardDTO;
+import iuh.wwwprogramming.dto.*;
+import iuh.wwwprogramming.entity.Category;
+import iuh.wwwprogramming.repository.CategoryRepository;
 import iuh.wwwprogramming.dto.ProductDetailDTO;
 import iuh.wwwprogramming.entity.Product;
 import iuh.wwwprogramming.repository.ProductRepository;
@@ -25,6 +27,7 @@ import java.util.Set;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
 
     @Override
     public Page<ProductCardDTO> searchProducts(String keyword, String categoryId, String sortBy, Pageable pageable) {
@@ -549,5 +552,141 @@ public class ProductServiceImpl implements ProductService {
 
     private double roundPrice(double raw) {
         return Math.round(raw / 1000.0) * 1000.0;
+    }
+
+
+    @Override
+    public Page<ProductResponseDTO> getProducts(String keyword, String categoryId, Pageable pageable) {
+        String cleanKeyword = (keyword != null && !keyword.trim().isEmpty()) ? keyword.trim() : null;
+        String cleanCategoryId = (categoryId != null && !categoryId.trim().isEmpty()) ? categoryId.trim() : null;
+
+        return productRepository.searchAdminProducts(cleanKeyword, cleanCategoryId, pageable)
+                .map(this::convertToResponseDTO);
+    }
+
+    @Override
+    public ProductUpdateDTO getProductForEdit(String id) {
+        if (id == null || id.trim().isEmpty()) {
+            throw new IllegalArgumentException("Mã định danh sản phẩm không hợp lệ!");
+        }
+
+        Product product = productRepository.findAdminByIdWithCategory(id.trim())
+                .orElseThrow(() -> new IllegalArgumentException("Sản phẩm mỹ phẩm không tồn tại trong hệ thống!"));
+
+        return ProductUpdateDTO.builder()
+                .id(product.getId())
+                .productCode(product.getProductCode())
+                .name(product.getName())
+                .price(java.math.BigDecimal.valueOf(product.getPrice()))
+                .stockQuantity(product.getStock())
+                .description(product.getDescription())
+                .imageUrl(product.getImage())
+                .active(product.getActive())
+                .categoryId(product.getCategory() != null ? product.getCategory().getId() : null)
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public ProductResponseDTO updateProduct(String id, ProductUpdateDTO dto) {
+        if (id == null || id.trim().isEmpty()) {
+            throw new IllegalArgumentException("Mã định danh sản phẩm không hợp lệ!");
+        }
+
+        String cleanId = id.trim();
+        String name = dto.getName() != null ? dto.getName().trim() : "";
+        String categoryId = dto.getCategoryId() != null ? dto.getCategoryId().trim() : "";
+
+        // 1. Tìm sản phẩm hiện tại trong CSDL
+        Product product = productRepository.findById(cleanId)
+                .orElseThrow(() -> new IllegalArgumentException("Sản phẩm mỹ phẩm không tồn tại trong hệ thống!"));
+
+        // 2. Kiểm tra trùng tên sản phẩm với các sản phẩm khác (loại trừ chính nó)
+        if (productRepository.existsByNameAndIdNot(name, cleanId)) {
+            throw new IllegalArgumentException("Tên sản phẩm '" + name + "' đã được sử dụng bởi sản phẩm khác!");
+        }
+
+        // 3. Kiểm tra danh mục mới có tồn tại trong CSDL
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new IllegalArgumentException("Danh mục mỹ phẩm được chọn không tồn tại trong hệ thống!"));
+
+        // 4. Cập nhật các trường thông tin (giữ nguyên productCode - Business Key bất biến)
+        product.setName(name);
+        product.setPrice(dto.getPrice().doubleValue());
+        product.setStock(dto.getStockQuantity());
+        product.setDescription(dto.getDescription() != null && !dto.getDescription().trim().isEmpty() ? dto.getDescription().trim() : null);
+        product.setImage(dto.getImageUrl() != null && !dto.getImageUrl().trim().isEmpty() ? dto.getImageUrl().trim() : null);
+        product.setActive(dto.getActive() != null ? dto.getActive() : true);
+        product.setCategory(category);
+
+        Product savedProduct = productRepository.save(product);
+        return convertToResponseDTO(savedProduct);
+    }
+
+    @Override
+    @Transactional
+    public ProductResponseDTO createProduct(ProductCreateDTO dto) {
+        String productCode = dto.getProductCode() != null ? dto.getProductCode().trim() : "";
+        String name = dto.getName() != null ? dto.getName().trim() : "";
+        String categoryId = dto.getCategoryId() != null ? dto.getCategoryId().trim() : "";
+
+        // 1. Kiểm tra trùng mã sản phẩm (Business Key)
+        if (productRepository.existsByProductCode(productCode)) {
+            throw new IllegalArgumentException("Mã sản phẩm '" + productCode + "' đã tồn tại trong hệ thống!");
+        }
+
+        // 2. Kiểm tra trùng tên sản phẩm
+        if (productRepository.existsByName(name)) {
+            throw new IllegalArgumentException("Tên sản phẩm '" + name + "' đã tồn tại trong hệ thống!");
+        }
+
+        // 3. Kiểm tra danh mục có thực sự tồn tại trong CSDL
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new IllegalArgumentException("Danh mục mỹ phẩm được chọn không tồn tại trong hệ thống!"));
+
+        // 4. Tạo entity qua Builder
+        Product product = Product.builder()
+                .brand("PinkyCloud")
+                .productCode(productCode)
+                .name(name)
+                .price(dto.getPrice().doubleValue())
+                .stock(dto.getStockQuantity())
+                .description(dto.getDescription() != null && !dto.getDescription().trim().isEmpty() ? dto.getDescription().trim() : null)
+                .image(dto.getImageUrl() != null && !dto.getImageUrl().trim().isEmpty() ? dto.getImageUrl().trim() : null)
+                .active(dto.getActive() != null ? dto.getActive() : true)
+                .category(category)
+                .build();
+
+        Product savedProduct = productRepository.save(product);
+        return convertToResponseDTO(savedProduct);
+    }
+
+    @Override
+    @Transactional
+    public void deleteProduct(String id) {
+        if (id == null || id.trim().isEmpty()) {
+            throw new IllegalArgumentException("Mã định danh sản phẩm không hợp lệ!");
+        }
+
+        Product product = productRepository.findById(id.trim())
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sản phẩm mỹ phẩm cần xóa!"));
+
+        productRepository.delete(product);
+    }
+
+    private ProductResponseDTO convertToResponseDTO(Product product) {
+        return ProductResponseDTO.builder()
+                .id(product.getId())
+                .productCode(product.getProductCode())
+                .name(product.getName())
+                .price(java.math.BigDecimal.valueOf(product.getPrice()))
+                .stockQuantity(product.getStock())
+                .description(product.getDescription())
+                .imageUrl(product.getImage())
+                .active(product.getActive())
+                .categoryId(product.getCategory() != null ? product.getCategory().getId() : null)
+                .categoryName(product.getCategory() != null ? product.getCategory().getName() : null)
+                .createdAt(product.getCreatedAt())
+                .build();
     }
 }

@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/admin-layout :: layout(~{::main})}"
+      lang="vi">
+<head>
+    <title>Quản lý sản phẩm mỹ phẩm - Quản trị</title>
+</head>
+<body>
+
+<main class="page-container">
+    <!-- Header Area -->
+    <header class="page-header">
+        <div>
+            <nav class="breadcrumb" aria-label="Breadcrumb">
+                <a th:href="@{/admin}">Trang chủ</a>
+                <span>/</span>
+                <span>Quản lý bán hàng</span>
+                <span>/</span>
+                <span class="breadcrumb-current">Sản phẩm</span>
+            </nav>
+            <h1 class="page-title">Danh sách sản phẩm mỹ phẩm</h1>
+            <p class="page-subtitle">Quản lý danh mục hàng hóa, tồn kho, giá bán và trạng thái kinh doanh của cửa hàng</p>
+        </div>
+        <div>
+            <a th:href="@{/admin/products/create}" class="btn btn-primary" aria-label="Thêm mới sản phẩm mỹ phẩm">
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                <span>Thêm mới sản phẩm</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Success Flash Alert -->
+    <div th:if="${successMessage}" class="alert alert-success" role="alert">
+        <span th:text="${successMessage}">Thực hiện thao tác thành công!</span>
+    </div>
+
+    <!-- Error Alert -->
+    <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+        <span th:text="${errorMessage}">Đã xảy ra lỗi!</span>
+    </div>
+
+    <!-- Filter Toolbar Card -->
+    <div class="card" style="margin-bottom: var(--space-6);">
+        <form th:action="@{/admin/products}" method="get" class="toolbar" style="padding: var(--space-4) var(--space-6);">
+            
+            <!-- Left Filter Controls -->
+            <div class="filter-controls-group">
+                <!-- Search Input -->
+                <div class="search-input-wrapper" style="max-width: 320px;">
+                    <span class="search-icon">
+                        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </span>
+                    <input type="text"
+                           name="keyword"
+                           th:value="${keyword}"
+                           class="search-input"
+                           placeholder="Tìm theo mã hoặc tên sản phẩm..."
+                           aria-label="Tìm kiếm sản phẩm">
+                </div>
+
+                <!-- Category Dropdown Filter -->
+                <select name="categoryId" class="filter-select" aria-label="Lọc theo danh mục mỹ phẩm">
+                    <option value="">-- Tất cả danh mục --</option>
+                    <option th:each="cat : ${categories}"
+                            th:value="${cat.id}"
+                            th:text="${cat.name}"
+                            th:selected="${cat.id == categoryId}">Chăm sóc da mặt</option>
+                </select>
+
+                <!-- Page Size Selector -->
+                <div class="page-size-selector">
+                    <label for="pageSizeSelect" style="white-space: nowrap;">Hiển thị:</label>
+                    <select id="pageSizeSelect" name="size" aria-label="Số bản ghi mỗi trang">
+                        <option value="10" th:selected="${pageSize == 10}">10</option>
+                        <option value="20" th:selected="${pageSize == 20}">20</option>
+                        <option value="50" th:selected="${pageSize == 50}">50</option>
+                    </select>
+                </div>
+
+                <!-- Filter Actions -->
+                <button type="submit" class="btn btn-secondary" aria-label="Áp dụng bộ lọc">
+                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                    </svg>
+                    <span>Lọc</span>
+                </button>
+
+                <a th:if="${(keyword != null and !keyword.isEmpty()) or (categoryId != null and !categoryId.isEmpty())}"
+                   th:href="@{/admin/products}"
+                   class="btn btn-secondary"
+                   title="Xóa bộ lọc tìm kiếm">
+                    Đặt lại
+                </a>
+            </div>
+
+            <!-- Total Products Count Badge -->
+            <div class="toolbar-meta">
+                <span class="search-filter-tag">
+                    Tổng cộng: <strong th:text="${products.totalElements}">0</strong> sản phẩm
+                </span>
+            </div>
+
+        </form>
+    </div>
+
+    <!-- Data Table Card -->
+    <div class="card">
+        <div class="table-responsive">
+            <table aria-label="Bảng danh sách sản phẩm mỹ phẩm">
+                <thead>
+                    <tr>
+                        <th style="width: 60px; text-align: center;">Ảnh</th>
+                        <th style="width: 130px;">Mã SP</th>
+                        <th>Tên sản phẩm</th>
+                        <th style="width: 170px;">Danh mục</th>
+                        <th style="width: 130px; text-align: right;">Giá bán</th>
+                        <th style="width: 120px; text-align: center;">Tồn kho</th>
+                        <th style="width: 130px; text-align: center;">Trạng thái</th>
+                        <th style="width: 110px; text-align: center;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Empty State Row -->
+                    <tr th:if="${products.empty}">
+                        <td colspan="8">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">
+                                    <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                                    </svg>
+                                </div>
+                                <h2 class="empty-state-title">Không tìm thấy sản phẩm nào</h2>
+                                <p class="empty-state-text" th:if="${(keyword != null and !keyword.isEmpty()) or (categoryId != null and !categoryId.isEmpty())}">
+                                    Không có sản phẩm mỹ phẩm nào phù hợp với điều kiện tìm kiếm hoặc danh mục đã chọn.
+                                </p>
+                                <p class="empty-state-text" th:unless="${(keyword != null and !keyword.isEmpty()) or (categoryId != null and !categoryId.isEmpty())}">
+                                    Hiện chưa có sản phẩm nào trong kho. Nhấn vào nút bên dưới để tạo sản phẩm đầu tiên!
+                                </p>
+                                <div style="display: flex; gap: var(--space-3);">
+                                    <a th:if="${(keyword != null and !keyword.isEmpty()) or (categoryId != null and !categoryId.isEmpty())}"
+                                       th:href="@{/admin/products}" class="btn btn-secondary">
+                                        Xóa bộ lọc
+                                    </a>
+                                    <a th:href="@{/admin/products/create}" class="btn btn-primary">
+                                        + Thêm sản phẩm mới
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Product Rows -->
+                    <tr th:each="product : ${products.content}">
+                        <!-- Product Image Thumbnail -->
+                        <td style="text-align: center;">
+                            <div class="product-thumb-container">
+                                <img th:if="${product.imageUrl != null and !product.imageUrl.trim().isEmpty()}"
+                                     th:src="${product.imageUrl}"
+                                     th:alt="${product.name}"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div class="product-thumb-fallback"
+                                     th:style="${product.imageUrl != null and !product.imageUrl.trim().isEmpty()} ? 'display: none;' : 'display: flex;'">
+                                    <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- Product Code -->
+                        <td>
+                            <span class="col-code" th:text="${product.productCode}">SP0001</span>
+                        </td>
+
+                        <!-- Product Name -->
+                        <td>
+                            <div class="product-name-title" th:text="${product.name}" th:title="${product.name}">Tên sản phẩm mỹ phẩm</div>
+                            <span th:if="${product.createdAt != null}" class="date-cell" style="font-size: 11.5px; color: var(--color-text-muted);"
+                                  th:text="${#temporals.format(product.createdAt, 'dd/MM/yyyy HH:mm')}">25/09/2026 14:30</span>
+                        </td>
+
+                        <!-- Category Name -->
+                        <td>
+                            <span class="category-tag-badge" th:text="${product.categoryName != null ? product.categoryName : 'Chưa phân loại'}">Chăm sóc da</span>
+                        </td>
+
+                        <!-- Price -->
+                        <td style="text-align: right;">
+                            <span class="product-price-display" th:text="${#numbers.formatDecimal(product.price, 0, 'POINT', 0, 'COMMA') + ' ₫'}">350.000 ₫</span>
+                        </td>
+
+                        <!-- Stock Quantity -->
+                        <td style="text-align: center;">
+                            <span th:if="${product.stockQuantity == 0}" class="status-badge stock-badge-out">
+                                <span class="dot"></span> Hết hàng
+                            </span>
+                            <span th:if="${product.stockQuantity > 0 and product.stockQuantity <= 10}" class="status-badge stock-badge-low" th:title="'Chỉ còn ' + ${product.stockQuantity} + ' sản phẩm'">
+                                <span class="dot"></span> Còn <strong th:text="${product.stockQuantity}" style="margin-left: 2px;">5</strong>
+                            </span>
+                            <span th:if="${product.stockQuantity > 10}" class="status-badge stock-badge-ok">
+                                <span class="dot"></span> Còn <span th:text="${product.stockQuantity}" style="margin-left: 2px;">50</span>
+                            </span>
+                        </td>
+
+                        <!-- Visibility Status -->
+                        <td style="text-align: center;">
+                            <span th:if="${product.active}" class="status-badge status-active">
+                                <span class="dot"></span> Đang bán
+                            </span>
+                            <span th:unless="${product.active}" class="status-badge status-inactive">
+                                <span class="dot"></span> Tạm ngưng
+                            </span>
+                        </td>
+
+                        <!-- Actions -->
+                        <td style="text-align: center;">
+                            <div class="actions-cell" style="justify-content: center;">
+                                <a th:href="@{/admin/products/edit/{id}(id=${product.id})}" class="btn-icon-only" title="Chỉnh sửa sản phẩm">
+                                    <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                </a>
+                                <button type="button" class="btn-icon-only btn-icon-danger"
+                                        th:data-id="${product.id}"
+                                        th:data-code="${product.productCode}"
+                                        th:data-name="${product.name}"
+                                        onclick="openDeleteModal(this)"
+                                        title="Xóa sản phẩm">
+                                    <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination Footer -->
+        <div th:if="${!products.empty}" class="card-footer">
+            <div class="footer-info">
+                Hiển thị <strong th:text="${(currentPage * pageSize) + 1}">1</strong> - 
+                <strong th:text="${T(java.lang.Math).min((currentPage + 1) * pageSize, products.totalElements)}">10</strong>
+                trên tổng số <strong th:text="${products.totalElements}">45</strong> sản phẩm
+            </div>
+
+            <!-- Pagination Nav -->
+            <nav th:if="${products.totalPages > 1}" aria-label="Phân trang danh sách sản phẩm">
+                <ul class="pagination">
+                    <!-- Previous Page Link -->
+                    <li>
+                        <a th:if="${!products.first}"
+                           th:href="@{/admin/products(keyword=${keyword}, categoryId=${categoryId}, page=${currentPage - 1}, size=${pageSize})}"
+                           class="page-link"
+                           aria-label="Trang trước">
+                            &laquo;
+                        </a>
+                        <span th:if="${products.first}" class="page-link disabled" aria-hidden="true">&laquo;</span>
+                    </li>
+
+                    <!-- Page Numbers -->
+                    <li th:each="pageNum : ${#numbers.sequence(0, products.totalPages - 1)}">
+                        <a th:if="${pageNum != currentPage}"
+                           th:href="@{/admin/products(keyword=${keyword}, categoryId=${categoryId}, page=${pageNum}, size=${pageSize})}"
+                           class="page-link"
+                           th:text="${pageNum + 1}">1</a>
+                        <span th:if="${pageNum == currentPage}"
+                              class="page-link active"
+                              th:text="${pageNum + 1}">1</span>
+                    </li>
+
+                    <!-- Next Page Link -->
+                    <li>
+                        <a th:if="${!products.last}"
+                           th:href="@{/admin/products(keyword=${keyword}, categoryId=${categoryId}, page=${currentPage + 1}, size=${pageSize})}"
+                           class="page-link"
+                           aria-label="Trang sau">
+                            &raquo;
+                        </a>
+                        <span th:if="${products.last}" class="page-link disabled" aria-hidden="true">&raquo;</span>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Danger Confirmation Modal for Product Deletion -->
+    <div id="deleteModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-icon-danger">
+                    <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                </div>
+                <div>
+                    <h3 id="modalTitle" class="modal-title">Xác nhận xóa sản phẩm</h3>
+                    <p class="modal-subtitle">Hành động này sẽ xóa dữ liệu khỏi hệ thống</p>
+                </div>
+            </div>
+
+            <form id="deleteProductForm" method="post" action="">
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn xóa sản phẩm mỹ phẩm này không?</p>
+                    <div class="delete-target-info">
+                        <span class="target-name" id="modalProductName">Tên sản phẩm</span>
+                        <span class="target-code" id="modalProductCode">Mã SP</span>
+                    </div>
+                    <div class="warning-note">
+                        ⚠️ <strong>Cảnh báo:</strong> Sản phẩm sau khi xóa sẽ không thể phục hồi và bị gỡ hoàn toàn khỏi cửa hàng.
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">Hủy bỏ</button>
+                    <button type="submit" class="btn btn-danger">Xác nhận xóa</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript for Modal Control -->
+    <script>
+        function openDeleteModal(button) {
+            const productId = button.getAttribute('data-id');
+            const productCode = button.getAttribute('data-code');
+            const productName = button.getAttribute('data-name');
+
+            const modal = document.getElementById('deleteModal');
+            const form = document.getElementById('deleteProductForm');
+            const nameElem = document.getElementById('modalProductName');
+            const codeElem = document.getElementById('modalProductCode');
+
+            if (modal && form) {
+                form.action = '/admin/products/delete/' + encodeURIComponent(productId);
+                if (nameElem) nameElem.textContent = productName;
+                if (codeElem) codeElem.textContent = productCode;
+                modal.classList.add('show');
+            }
+        }
+
+        function closeDeleteModal() {
+            const modal = document.getElementById('deleteModal');
+            if (modal) {
+                modal.classList.remove('show');
+            }
+        }
+
+        // Close when clicking outside backdrop or pressing Escape
+        document.addEventListener('DOMContentLoaded', function () {
+            const modal = document.getElementById('deleteModal');
+            if (modal) {
+                modal.addEventListener('click', function (e) {
+                    if (e.target === modal) {
+                        closeDeleteModal();
+                    }
+                });
+            }
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    closeDeleteModal();
+                }
+            });
+        });
+    </script>
+</main>
+
+</body>
+</html>

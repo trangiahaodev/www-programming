@@ -1,6 +1,6 @@
 package iuh.wwwprogramming.service;
 
-import iuh.wwwprogramming.dto.ProductCardDTO;
+import iuh.wwwprogramming.dto.*;
 import iuh.wwwprogramming.dto.ProductDetailDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,4 +22,15 @@ public interface ProductService {
     List<ProductCardDTO> getFeaturedBrandProducts(int limit);
 
     List<String> getTopBrands();
+
+
+    ProductResponseDTO createProduct(ProductCreateDTO dto);
+
+    Page<ProductResponseDTO> getProducts(String keyword, String categoryId, Pageable pageable);
+
+    ProductUpdateDTO getProductForEdit(String id);
+
+    ProductResponseDTO updateProduct(String id, ProductUpdateDTO dto);
+
+    void deleteProduct(String id);
 }
