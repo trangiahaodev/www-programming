@@ -472,7 +472,7 @@ img {
   border-radius: 32px;
   box-shadow: 0 24px 60px rgba(247, 108, 133, 0.22);
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   isolation: isolate;
   display: flex;
   flex-direction: column;
@@ -499,7 +499,9 @@ img {
 .hero-banner::before {
   content: "";
   position: absolute;
-  inset: -25% -10%;
+  inset: 0;
+  border-radius: 32px;
+  overflow: hidden;
   z-index: 1;
   pointer-events: none;
   background:
@@ -514,6 +516,8 @@ img {
   content: "";
   position: absolute;
   inset: 0;
+  border-radius: 32px;
+  overflow: hidden;
   z-index: 1;
   pointer-events: none;
   background-image:
@@ -541,6 +545,8 @@ img {
   z-index: 0;
   pointer-events: none;
   contain: layout style;
+  border-radius: 32px;
+  overflow: hidden;
 }
 
 .hero-slider-mask {
@@ -715,7 +721,7 @@ img {
   position: absolute;
   top: 24px;
   right: 28px;
-  z-index: 25;
+  z-index: 100;
 }
 
 .hero-hotdeal-btn {
@@ -742,18 +748,18 @@ img {
 
 .hero-voucher-popup {
   position: absolute;
-  top: calc(100% + 12px);
+  top: calc(100% + 10px);
   right: 0;
-  width: min(490px, calc(100vw - 32px));
-  max-height: min(540px, calc(100vh - 100px));
-  background: rgba(255, 255, 255, 0.97);
+  width: min(485px, calc(100vw - 32px));
+  max-height: min(495px, calc(100vh - 120px));
+  background: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(28px);
   -webkit-backdrop-filter: blur(28px);
   border: 1px solid rgba(255, 255, 255, 0.95);
   border-radius: 26px;
-  padding: 18px 18px 14px 18px;
+  padding: 16px 16px 12px 16px;
   box-shadow: 0 24px 60px rgba(130, 50, 70, 0.28);
-  z-index: 99;
+  z-index: 101;
   display: none;
   flex-direction: column;
 }
@@ -871,7 +877,7 @@ img {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  max-height: 360px;
+  max-height: min(255px, 38vh);
   overflow-y: auto;
   overflow-x: hidden;
   padding-right: 6px;
@@ -940,9 +946,10 @@ img {
 
 .hero-voucher-footer {
   flex-shrink: 0;
-  margin-top: 10px;
+  margin-top: 8px;
   padding-top: 8px;
-  border-top: 1px dashed rgba(247, 108, 133, 0.2);
+  padding-bottom: 2px;
+  border-top: 1px dashed rgba(247, 108, 133, 0.25);
 }
 .hero-voucher-label {
   font-size: 11px;
@@ -5135,6 +5142,44 @@ img {
 @media (min-width: 768px) {
   .pl-cat-scroll-arrow {
     display: flex;
+  }
+}
+
+/* Responsive adjustments for Voucher Popup & Hotdeal Button */
+@media (max-width: 768px) {
+  .hero-hotdeal {
+    top: 16px;
+    right: 16px;
+  }
+  .hero-voucher-popup {
+    width: min(440px, calc(100vw - 28px));
+    right: -4px;
+    padding: 14px 14px 10px 14px;
+  }
+  .hero-voucher-grid {
+    max-height: 220px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-hotdeal {
+    top: 12px;
+    right: 12px;
+  }
+  .hero-hotdeal-btn {
+    font-size: 0.8rem;
+    padding: 6px 12px;
+  }
+  .hero-voucher-popup {
+    width: calc(100vw - 20px);
+    right: -6px;
+    padding: 12px 10px 8px 10px;
+  }
+  .hero-voucher-title-text {
+    font-size: 13.5px;
+  }
+  .hero-voucher-grid {
+    max-height: 200px;
   }
 }
 
