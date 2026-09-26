@@ -1,488 +1,563 @@
 <!DOCTYPE html>
 <html th:replace="~{layout/customer-layout :: layout(~{::content})}" xmlns:th="http://www.thymeleaf.org" lang="vi">
 <head>
-    <title>Cẩm Nang Skincare &amp; Tin Tức - PinkyCloud</title>
+    <title th:text="${isHandbook != null and isHandbook} ? 'Cẩm Nang Skincare Khoa Học - PinkyCloud' : 'Tin Tức & Xu Hướng Làm Đẹp - PinkyCloud'">Tin Tức &amp; Cẩm Nang - PinkyCloud</title>
 </head>
 <body>
 <div th:fragment="content">
 
     <div class="handbook-page">
-        <!-- HERO SECTION: 2-COLUMN LUXURY EDITORIAL SHOWCASE -->
-        <section class="hb-hero position-relative">
-            <div class="hb-hero-overlay"></div>
-            <div class="container position-relative z-1" style="max-width: 1240px; margin: 0 auto; padding: 0 20px;">
-                <!-- Breadcrumb -->
-                <div class="hb-breadcrumb">
-                    <a th:href="@{/}">Trang chủ</a>
-                    <span class="hb-breadcrumb-sep">/</span>
-                    <span class="hb-breadcrumb-current">Cẩm nang Dưỡng Da &amp; Tin tức</span>
-                </div>
-
-                <div class="hb-hero-grid">
-                    <!-- Left Column: Editorial Information -->
-                    <div class="hb-hero-content">
-                        <div class="hb-hero-badge">
-                            <span>🌸</span> PinkyCloud Editorial &bull; Skincare Handbook
-                        </div>
-                        <h1 class="hb-hero-title">
-                            Bí Quyết Làn Da Thủy Tinh Tỏa Sáng Tự Nhiên
-                        </h1>
-                        <p class="hb-hero-desc">
-                            Cẩm nang dưỡng da chuẩn khoa học từ chuyên gia PinkyCloud. Hướng dẫn toàn diện từ cách thấu hiểu nền da, làm chủ hoạt chất đến xây dựng chu trình chăm sóc da tối ưu mỗi ngày.
-                        </p>
-                        
-                        <div class="hb-hero-actions">
-                            <a href="#skincare-routine" class="hb-btn-primary">
-                                Khám Phá Quy Trình 4 Bước
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
-                            </a>
-                            <button type="button" class="hb-btn-secondary" onclick="scrollToSubscribe()">
-                                💌 Nhận E-Book &amp; Voucher 10%
-                            </button>
-                        </div>
-
-                        <!-- Stats Highlights Bar -->
-                        <div class="hb-hero-stats">
-                            <div class="hb-stat-item">
-                                <div class="hb-stat-num">4 Bước</div>
-                                <div class="hb-stat-label">Chu trình chuẩn y khoa</div>
-                            </div>
-                            <div class="hb-stat-divider"></div>
-                            <div class="hb-stat-item">
-                                <div class="hb-stat-num">100%</div>
-                                <div class="hb-stat-label">Hoạt chất kiểm nghiệm</div>
-                            </div>
-                            <div class="hb-stat-divider"></div>
-                            <div class="hb-stat-item">
-                                <div class="hb-stat-num">50.000+</div>
-                                <div class="hb-stat-label">Khách hàng tin chọn</div>
-                            </div>
-                        </div>
+        <!-- ============================================================== -->
+        <!-- 1. TRƯỜNG HỢP: TRANG CẨM NANG (/cam-nang)                      -->
+        <!-- ============================================================== -->
+        <th:block th:if="${isHandbook != null and isHandbook}">
+            <!-- HERO SECTION: CẨM NANG DƯỠNG DA KHOA HỌC -->
+            <section class="hb-hero position-relative">
+                <div class="hb-hero-overlay"></div>
+                <div class="container position-relative z-1" style="max-width: 1240px; margin: 0 auto; padding: 0 20px;">
+                    <!-- Breadcrumb -->
+                    <div class="hb-breadcrumb">
+                        <a th:href="@{/}">Trang chủ</a>
+                        <span class="hb-breadcrumb-sep">/</span>
+                        <span class="hb-breadcrumb-current">Cẩm nang Dưỡng Da Khoa Học</span>
                     </div>
 
-                    <!-- Right Column: Visual Composition -->
-                    <div class="hb-hero-visual">
-                        <div class="hb-visual-card-wrap">
-                            <div class="hb-visual-card-main">
-                                <img src="https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=700&q=80" alt="Chăm sóc da chuyên sâu PinkyCloud" class="hb-hero-img">
-                                <div class="hb-hero-img-gradient"></div>
-                                <div class="hb-img-badge-overlay">
-                                    <span class="hb-badge-dot"></span>
-                                    <span>Routine of the Season &bull; Spring/Summer 2026</span>
-                                </div>
+                    <div class="hb-hero-grid">
+                        <!-- Left Column: Editorial Information -->
+                        <div class="hb-hero-content">
+                            <div class="hb-hero-badge">
+                                <span>🌸</span> PinkyCloud Editorial &bull; Skincare Handbook
                             </div>
-
-                            <!-- Floating Pill 1 (Top Right) - Real Cosmetic Hydration Icon -->
-                            <div class="hb-floating-pill hb-float-top">
-                                <div class="hb-float-icon">
-                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <div class="hb-float-title">Hyaluronic Acid &amp; B5</div>
-                                    <div class="hb-float-sub">Cấp ẩm tầng sâu 72 giờ</div>
-                                </div>
-                            </div>
-
-                            <!-- Floating Pill 2 (Bottom Left) - Real Cosmetic Serum Bottle Icon -->
-                            <div class="hb-floating-pill hb-float-bottom">
-                                <div class="hb-float-icon">
-                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f76c85" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <rect x="7" y="9" width="10" height="12" rx="3"></rect>
-                                        <path d="M10 9V5a2 2 0 0 1 4 0v4"></path>
-                                        <line x1="12" y1="13" x2="12" y2="16"></line>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <div class="hb-float-title">Niacinamide 10% + Zinc</div>
-                                    <div class="hb-float-sub">Mịn lỗ chân lông &bull; ⭐ 4.9/5</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <div class="container pb-5" style="max-width: 1240px; margin: 0 auto; padding: 0 20px;">
-            
-            <!-- SECTION 1: 4-STEP SKINCARE MASTERCLASS -->
-            <section id="skincare-routine" class="hb-reveal" style="scroll-margin-top: 100px;">
-                <div class="hb-section-header">
-                    <span class="hb-section-tag">🌸 Chu trình dưỡng da chuẩn Y khoa</span>
-                    <h2 class="hb-section-title">4 Bước Chăm Sóc Da Toàn Diện Mỗi Ngày</h2>
-                    <p class="hb-section-desc">
-                        Không cần chu trình 10 bước cầu kỳ, chỉ cần 4 bước tinh gọn, chuẩn hoạt chất và đúng thứ tự sẽ giúp làn da phục hồi rạng rỡ từ sâu bên trong.
-                    </p>
-                </div>
-
-                <div class="routine-grid">
-                    <!-- Step 1 -->
-                    <div class="routine-card">
-                        <div class="routine-img-wrap">
-                            <img src="https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&w=600&q=80" alt="Làm sạch kép" class="routine-img" loading="lazy">
-                            <span class="routine-step-badge">BƯỚC 01</span>
-                            <span class="routine-time-badge">🌙 Buổi Tối</span>
-                        </div>
-                        <div class="routine-body">
-                            <h3 class="routine-title">Làm Sạch Kép (Double Cleansing)</h3>
-                            <p class="routine-text">
-                                Sử dụng nước/dầu tẩy trang hòa tan bã nhờn, kem chống nắng và bụi mịn PM2.5, sau đó dùng sữa rửa mặt pH 5.5 dịu nhẹ.
-                            </p>
-                            <div class="routine-actives">
-                                🌿 Dầu hoa trà • Chiết xuất cúc La Mã
-                            </div>
-                            <div class="routine-tip">
-                                💡 <strong>Mẹo chuyên gia:</strong> Nhũ hóa kỹ bằng nước ấm trong 60 giây để tránh đọng dầu thừa gây mụn ẩn.
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Step 2 (Fix 404 Image: Luxury hydrating toner bottle) -->
-                    <div class="routine-card">
-                        <div class="routine-img-wrap">
-                            <img src="https://images.unsplash.com/photo-1616683693504-3ea7e9ad6fec?auto=format&fit=crop&w=600&q=80" alt="Cân bằng da và toner" class="routine-img" loading="lazy">
-                            <span class="routine-step-badge">BƯỚC 02</span>
-                            <span class="routine-time-badge">☀️ Sáng &amp; Tối</span>
-                        </div>
-                        <div class="routine-body">
-                            <h3 class="routine-title">Cân Bằng &amp; Toner (Prep &amp; Hydrate)</h3>
-                            <p class="routine-text">
-                                Đưa da về trạng thái cân bằng sinh lý sau rửa mặt, làm mềm lớp sừng ngoài cùng mở đường cho dưỡng chất thẩm thấu sâu.
-                            </p>
-                            <div class="routine-actives">
-                                💧 Hyaluronic Acid Đa Phân Tử • B5
-                            </div>
-                            <div class="routine-tip">
-                                💡 <strong>Mẹo chuyên gia:</strong> Vỗ nhẹ toner khi bề mặt da còn hơi ẩm theo phương pháp 3-Skin Method.
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Step 3 -->
-                    <div class="routine-card">
-                        <div class="routine-img-wrap">
-                            <img src="https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=600&q=80" alt="Serum đặc trị" class="routine-img" loading="lazy">
-                            <span class="routine-step-badge">BƯỚC 03</span>
-                            <span class="routine-time-badge">☀️ Sáng &amp; Tối</span>
-                        </div>
-                        <div class="routine-body">
-                            <h3 class="routine-title">Tinh Chất Chuyên Sâu (Targeted Treatment)</h3>
-                            <p class="routine-text">
-                                Bổ sung nồng độ hoạt chất đặc trị trực tiếp: làm mờ thâm nám (Vitamin C), se nhỏ lỗ chân lông (Niacinamide) hoặc trẻ hóa (Retinol).
-                            </p>
-                            <div class="routine-actives">
-                                🧴 Niacinamide 10% • Vitamin C Tươi • Retinol
-                            </div>
-                            <div class="routine-tip">
-                                💡 <strong>Mẹo chuyên gia:</strong> Thoa serum lỏng trước đặc sau, chờ 2-3 phút giữa các lớp hoạt chất.
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Step 4 -->
-                    <div class="routine-card">
-                        <div class="routine-img-wrap">
-                            <img src="https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=600&q=80" alt="Khóa ẩm và bảo vệ" class="routine-img" loading="lazy">
-                            <span class="routine-step-badge">BƯỚC 04</span>
-                            <span class="routine-time-badge">☀️ KCN / 🌙 Khóa ẩm</span>
-                        </div>
-                        <div class="routine-body">
-                            <h3 class="routine-title">Khóa Ẩm &amp; Chống Nắng Phổ Rộng</h3>
-                            <p class="routine-text">
-                                Kem dưỡng Ceramide củng cố hàng rào khóa ẩm qua đêm; Ban ngày kem chống nắng SPF50+ PA++++ bảo vệ da toàn diện trước tia cực tím.
-                            </p>
-                            <div class="routine-actives">
-                                🛡️ Ceramide Complex • Màng lọc Tinosorb S
-                            </div>
-                            <div class="routine-tip">
-                                💡 <strong>Mẹo chuyên gia:</strong> Thoa đủ 2 đốt ngón tay kem chống nắng và thoa lại sau mỗi 3-4 giờ tiếp xúc nắng.
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- SECTION 2: SKIN TYPE & INGREDIENT MATCHING MATRIX -->
-            <section id="skin-matrix" class="hb-reveal" style="scroll-margin-top: 100px;">
-                <div class="hb-section-header">
-                    <span class="hb-section-tag">🌸 Bản đồ chẩn đoán làn da</span>
-                    <h2 class="hb-section-title">Thấu Hiểu Nền Da &amp; Lựa Chọn Hoạt Chất</h2>
-                    <p class="hb-section-desc">
-                        Nhận biết chính xác tình trạng nền da hiện tại để chọn đúng sản phẩm điều trị, tiết kiệm thời gian và mang lại hiệu quả bền vững.
-                    </p>
-                </div>
-
-                <div class="skin-matrix-grid">
-                    <!-- Skin Type 1 (Fix 404 Image) -->
-                    <div class="skin-card">
-                        <div class="skin-card-header">
-                            <img src="https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=150&q=80" alt="Da dầu mụn" class="skin-card-thumb">
-                            <div>
-                                <span class="skin-card-tag">Oily &amp; Acne-Prone</span>
-                                <h3 class="skin-card-title">Da Dầu &amp; Mụn Viêm</h3>
-                            </div>
-                        </div>
-                        <div class="skin-card-section-label">Đặc điểm nhận biết:</div>
-                        <p class="skin-card-text">
-                            Bề mặt đổ nhiều dầu vùng chữ T và hai má, lỗ chân lông to, nhiều mụn đầu đen và dễ bít tắc nổi mụn bọc.
-                        </p>
-                        <div class="skin-card-section-label">Hoạt chất vàng khuyên dùng:</div>
-                        <div>
-                            <span class="skin-badge-pill">BHA (Salicylic Acid)</span>
-                            <span class="skin-badge-pill">Niacinamide</span>
-                            <span class="skin-badge-pill">Kẽm Zinc PCA</span>
-                        </div>
-                        <div class="skin-avoid-box">
-                            ⚠️ <strong>Nên tránh:</strong> Dầu dừa, dầu khoáng nặng mặt, sữa rửa mặt có chất tẩy rửa mạnh làm mất cân bằng dầu-nước.
-                        </div>
-                    </div>
-
-                    <!-- Skin Type 2 -->
-                    <div class="skin-card">
-                        <div class="skin-card-header">
-                            <img src="https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=150&q=80" alt="Da khô lão hóa" class="skin-card-thumb">
-                            <div>
-                                <span class="skin-card-tag">Dry &amp; Dehydrated</span>
-                                <h3 class="skin-card-title">Da Khô &amp; Mất Nước</h3>
-                            </div>
-                        </div>
-                        <div class="skin-card-section-label">Đặc điểm nhận biết:</div>
-                        <p class="skin-card-text">
-                            Căng tức sau khi rửa mặt, bong tróc vảy nhỏ khi trời lạnh, da thiếu độ bóng mướt, dễ xuất hiện rãnh nhăn sớm.
-                        </p>
-                        <div class="skin-card-section-label">Hoạt chất vàng khuyên dùng:</div>
-                        <div>
-                            <span class="skin-badge-pill">Hyaluronic Acid</span>
-                            <span class="skin-badge-pill">Ceramide NP</span>
-                            <span class="skin-badge-pill">Squalane</span>
-                        </div>
-                        <div class="skin-avoid-box">
-                            ⚠️ <strong>Nên tránh:</strong> Cồn khô (Alcohol Denat), tẩy da chết hạt to (Scrub) gây tổn thương bề mặt biểu bì.
-                        </div>
-                    </div>
-
-                    <!-- Skin Type 3 -->
-                    <div class="skin-card">
-                        <div class="skin-card-header">
-                            <img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=150&q=80" alt="Da nhạy cảm" class="skin-card-thumb">
-                            <div>
-                                <span class="skin-card-tag">Sensitive &amp; Reactive</span>
-                                <h3 class="skin-card-title">Da Nhạy Cảm &amp; Kích Ứng</h3>
-                            </div>
-                        </div>
-                        <div class="skin-card-section-label">Đặc điểm nhận biết:</div>
-                        <p class="skin-card-text">
-                            Nền da mỏng manh, dễ đỏ ửng khi ra nắng hoặc đổi thời tiết, châm chích ngứa rát khi dùng mỹ phẩm mới.
-                        </p>
-                        <div class="skin-card-section-label">Hoạt chất vàng khuyên dùng:</div>
-                        <div>
-                            <span class="skin-badge-pill">Rau má (Centella)</span>
-                            <span class="skin-badge-pill">Panthenol (B5)</span>
-                            <span class="skin-badge-pill">Madecassoside</span>
-                        </div>
-                        <div class="skin-avoid-box">
-                            ⚠️ <strong>Nên tránh:</strong> Hương liệu nhân tạo (Parfum), tinh dầu nồng độ cao và các loại treatment mạnh chưa qua test da.
-                        </div>
-                    </div>
-
-                    <!-- Skin Type 4 -->
-                    <div class="skin-card">
-                        <div class="skin-card-header">
-                            <img src="https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=150&q=80" alt="Da thâm sạm lão hóa" class="skin-card-thumb">
-                            <div>
-                                <span class="skin-card-tag">Dull &amp; Aging</span>
-                                <h3 class="skin-card-title">Da Thâm Sạm &amp; Lão Hóa</h3>
-                            </div>
-                        </div>
-                        <div class="skin-card-section-label">Đặc điểm nhận biết:</div>
-                        <p class="skin-card-text">
-                            Vết thâm mụn nâu đỏ lâu phai, da xỉn màu thiếu sức sống, xuất hiện đốm tàn nhang và kém săn chắc đàn hồi.
-                        </p>
-                        <div class="skin-card-section-label">Hoạt chất vàng khuyên dùng:</div>
-                        <div>
-                            <span class="skin-badge-pill">Vitamin C (L-AA)</span>
-                            <span class="skin-badge-pill">Retinol / Peptide</span>
-                            <span class="skin-badge-pill">Tranexamic Acid</span>
-                        </div>
-                        <div class="skin-avoid-box">
-                            ⚠️ <strong>Nên tránh:</strong> Quên bôi kem chống nắng; dùng actives nồng độ cao dồn dập khi nền da chưa đủ khỏe.
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- SECTION 3: BENTO GRID MODULES (LÀM ĐẦY ĐỦ NỘI DUNG VÀ KHẮC PHỤC KHOẢNG TRỐNG) -->
-            <section class="hb-reveal my-5" style="margin-top: 50px; margin-bottom: 50px;">
-                <div class="hb-section-header">
-                    <span class="hb-section-tag">📚 Khám phá chuyên sâu</span>
-                    <h2 class="hb-section-title">Cẩm Nang Kiến Thức Hoạt Chất &amp; Routine</h2>
-                </div>
-
-                <div class="hb-bento-grid">
-                    <!-- Chương 1: Bổ sung checklist test da & hình ảnh chuẩn, không còn bị trống -->
-                    <div class="hb-card hb-card-large">
-                        <div>
-                            <div class="hb-card-tag">Chương 1 • Chẩn Đoán</div>
-                            <h2 class="hb-card-title">Thấu Hiểu Nền Da Của Bạn</h2>
-                            <p class="hb-card-text">
-                                Bạn không thể chăm sóc tốt nếu không hiểu da mình thuộc loại nào.
-                                Phương pháp test giấy thấm dầu vào buổi sáng sau 30 phút rửa mặt giúp bạn nhận biết ngay:
+                            <h1 class="hb-hero-title">
+                                Bí Quyết Làn Da Thủy Tinh Tỏa Sáng Tự Nhiên
+                            </h1>
+                            <p class="hb-hero-desc">
+                                Cẩm nang dưỡng da chuẩn khoa học từ chuyên gia PinkyCloud. Hướng dẫn toàn diện từ cách thấu hiểu nền da, làm chủ hoạt chất đến xây dựng chu trình chăm sóc da tối ưu mỗi ngày.
                             </p>
                             
-                            <!-- Skin Test Checklist -->
-                            <div class="hb-skin-test-box mt-3 mb-3">
-                                <div class="hb-test-row">
-                                    <span class="hb-test-badge hb-test-oil">💧 Da Dầu</span>
-                                    <span class="hb-test-desc">Vết dầu loang rõ cả vùng T lẫn 2 bên gò má.</span>
+                            <div class="hb-hero-actions">
+                                <a href="#skincare-routine" class="hb-btn-primary">
+                                    Khám Phá Quy Trình 4 Bước
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+                                </a>
+                                <button type="button" class="hb-btn-secondary" onclick="scrollToSubscribe()">
+                                    💌 Nhận E-Book &amp; Voucher 10%
+                                </button>
+                            </div>
+
+                            <!-- Stats Highlights Bar -->
+                            <div class="hb-hero-stats">
+                                <div class="hb-stat-item">
+                                    <div class="hb-stat-num">4 Bước</div>
+                                    <div class="hb-stat-label">Chu trình chuẩn y khoa</div>
                                 </div>
-                                <div class="hb-test-row">
-                                    <span class="hb-test-badge hb-test-mix">⚖️ Da Hỗn Hợp</span>
-                                    <span class="hb-test-desc">Thấm dầu ở trán, mũi và cằm; má khô thoáng.</span>
+                                <div class="hb-stat-divider"></div>
+                                <div class="hb-stat-item">
+                                    <div class="hb-stat-num">100%</div>
+                                    <div class="hb-stat-label">Hoạt chất kiểm nghiệm</div>
                                 </div>
-                                <div class="hb-test-row">
-                                    <span class="hb-test-badge hb-test-dry">🌵 Da Khô</span>
-                                    <span class="hb-test-desc">Giấy sạch hoàn toàn, cảm giác da căng rát khó chịu.</span>
-                                </div>
-                                <div class="hb-test-row">
-                                    <span class="hb-test-badge hb-test-sensitive">🌸 Da Nhạy Cảm</span>
-                                    <span class="hb-test-desc">Dễ châm chích, nổi mẩn đỏ khi thay đổi thời tiết.</span>
+                                <div class="hb-stat-divider"></div>
+                                <div class="hb-stat-item">
+                                    <div class="hb-stat-num">50.000+</div>
+                                    <div class="hb-stat-label">Khách hàng tin chọn</div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="hb-card-large-bottom mt-auto">
-                            <div class="hb-image-placeholder">
-                                <img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=600&q=80" alt="Chẩn đoán da chuyên sâu" style="height: 190px; object-fit: cover; width: 100%; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.06);">
-                            </div>
-                            <div class="mt-2 text-center" style="font-size: 0.8rem; color: #7a636e; font-weight: 500;">
-                                💡 Nhận diện đúng loại da giúp tăng 80% hiệu quả thẩm thấu dưỡng chất
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Routine Sáng Tối -->
-                    <div class="hb-card hb-card-medium">
-                        <div class="hb-card-tag">Routine Chuẩn</div>
-                        <h2 class="hb-card-title">Quy Trình Sáng &amp; Tối</h2>
-                        <p class="hb-card-text">
-                            Sáng bảo vệ (Antioxidant + Kem chống nắng), Tối phục hồi (Làm sạch + Treatment + Cấp ẩm). Quy tắc bất di bất dịch của làn da khỏe đẹp!
-                        </p>
-                        <div class="d-flex flex-column gap-2 my-2">
-                            <div class="small p-2 rounded-3" style="background: #fff8fa; border: 1px solid rgba(247, 108, 133, 0.15);">
-                                <strong>☀️ Sáng:</strong> Sữa rửa mặt &rarr; Toner cấp ẩm &rarr; Vitamin C &rarr; Kem chống nắng SPF 50+
-                            </div>
-                            <div class="small p-2 rounded-3" style="background: #fbfbfc; border: 1px solid rgba(0,0,0,0.06);">
-                                <strong>🌙 Tối:</strong> Tẩy trang &rarr; SRM &rarr; BHA/Retinol &rarr; Kem dưỡng ẩm Ceramide
-                            </div>
-                        </div>
-                        <div class="hb-image-placeholder mt-2">
-                            <img src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=600&q=80" alt="Routine" style="height: 140px; object-fit: cover; width: 100%; border-radius: 16px;">
-                        </div>
-                    </div>
-
-                    <!-- Lưu ý nhỏ -->
-                    <div class="hb-card hb-card-small" style="background: linear-gradient(135deg, #fff2f6 0%, #ffe3eb 100%);">
-                        <div style="font-size: 2rem; margin-bottom: 8px;">🌿</div>
-                        <h3 class="hb-card-title" style="font-size: 1.25rem;">Lưu Ý Nhỏ</h3>
-                        <p class="hb-card-text" style="font-size: 0.9rem;">Tẩy da chết hóa học (AHA/BHA) chỉ nên dùng 2-3 lần/tuần để tránh làm mỏng rào bảo vệ tự nhiên của da.</p>
-                    </div>
-
-                    <!-- Mẹo chọn KCN -->
-                    <div class="hb-card hb-card-small" style="background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);">
-                        <div style="font-size: 2rem; margin-bottom: 8px;">☀️</div>
-                        <h3 class="hb-card-title" style="font-size: 1.25rem;">Mẹo Chọn KCN</h3>
-                        <p class="hb-card-text" style="font-size: 0.9rem;">Ưu tiên SPF &gt; 30 và PA+++ trở lên. Bôi lại mỗi 2-4 tiếng nếu thường xuyên tiếp xúc ánh nắng mặt trời.</p>
-                    </div>
-
-                    <!-- Từ điển thành phần -->
-                    <div class="hb-card hb-card-wide">
-                        <div class="hb-card-tag">Từ Điển</div>
-                        <h2 class="hb-card-title">Từ Điển Thành Phần (Ingredients Dictionary)</h2>
-                        <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; margin-top: 16px;">
-                            <div style="flex: 1 1 340px;">
-                                <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;">
-                                    <span style="background: #fff; color: #333; border: 1px solid #ddd; padding: 8px 14px; border-radius: 12px; font-weight: 600; font-size: 0.9rem;">🌿 Niacinamide 10%</span>
-                                    <span style="background: #fff; color: #333; border: 1px solid #ddd; padding: 8px 14px; border-radius: 12px; font-weight: 600; font-size: 0.9rem;">⚛️ Retinol Bọc Liposome</span>
-                                    <span style="background: #fff; color: #333; border: 1px solid #ddd; padding: 8px 14px; border-radius: 12px; font-weight: 600; font-size: 0.9rem;">🍊 Vitamin C Tinh Khiết</span>
-                                    <span style="background: #fff; color: #333; border: 1px solid #ddd; padding: 8px 14px; border-radius: 12px; font-weight: 600; font-size: 0.9rem;">💧 Hyaluronic Acid Đa Tầng</span>
-                                    <span style="background: #fff; color: #333; border: 1px solid #ddd; padding: 8px 14px; border-radius: 12px; font-weight: 600; font-size: 0.9rem;">🛡️ Ceramide Complex</span>
+                        <!-- Right Column: Visual Composition -->
+                        <div class="hb-hero-visual">
+                            <div class="hb-visual-card-wrap">
+                                <div class="hb-visual-card-main">
+                                    <img src="https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=700&q=80" alt="Chăm sóc da chuyên sâu PinkyCloud" class="hb-hero-img">
+                                    <div class="hb-hero-img-gradient"></div>
+                                    <div class="hb-img-badge-overlay">
+                                        <span class="hb-badge-dot"></span>
+                                        <span>Routine of the Season &bull; Spring/Summer 2026</span>
+                                    </div>
                                 </div>
-                                <p style="color: #6c757d; line-height: 1.6; margin: 0;">Chi tiết công dụng, nồng độ an toàn và cách kết hợp các hoạt chất mà không gây xung đột có đầy đủ trong cuốn cẩm nang điện tử tải về miễn phí.</p>
-                            </div>
-                            <div style="flex: 0 0 280px; max-width: 100%;">
-                                <img src="https://images.unsplash.com/photo-1629198688000-71f23e745b6e?auto=format&fit=crop&w=600&q=80" alt="Ingredients" style="height: 160px; object-fit: cover; width: 100%; border-radius: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.06);">
+
+                                <div class="hb-floating-pill hb-float-top">
+                                    <div class="hb-float-icon">
+                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div class="hb-float-title">Hyaluronic Acid &amp; B5</div>
+                                        <div class="hb-float-sub">Cấp ẩm tầng sâu 72 giờ</div>
+                                    </div>
+                                </div>
+
+                                <div class="hb-floating-pill hb-float-bottom">
+                                    <div class="hb-float-icon">
+                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f76c85" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <rect x="7" y="9" width="10" height="12" rx="3"></rect>
+                                            <path d="M10 9V5a2 2 0 0 1 4 0v4"></path>
+                                            <line x1="12" y1="13" x2="12" y2="16"></line>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div class="hb-float-title">Niacinamide 10% + Zinc</div>
+                                        <div class="hb-float-sub">Mịn lỗ chân lông &bull; ⭐ 4.9/5</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- SECTION 4: SKINCARE EXPERT FAQS -->
-            <section class="hb-reveal my-5" style="margin-top: 50px; margin-bottom: 50px;">
-                <div class="hb-section-header">
-                    <span class="hb-section-tag">💬 Hỏi đáp cùng chuyên gia</span>
-                    <h2 class="hb-section-title">Giải Đáp Thắc Mắc Skincare Thường Gặp</h2>
-                    <p class="hb-section-desc">
-                        Những thắc mắc phổ biến nhất của các tín đồ làm đẹp được giải đáp dưới góc nhìn khoa học và thực tế.
-                    </p>
-                </div>
-
-                <div class="faq-grid">
-                    <!-- FAQ 1 -->
-                    <div class="faq-card">
-                        <div class="faq-question">
-                            <span class="faq-q-icon">?</span>
-                            <span>Người mới bắt đầu có nên dùng Retinol ngay không?</span>
-                        </div>
-                        <p class="faq-answer">
-                            Nên xây dựng routine cơ bản phục hồi vững chắc ít nhất 1-2 tháng trước khi bắt đầu. Khởi điểm với nồng độ thấp (0.1% - 0.3%) tần suất 1-2 lần/tuần kèm kỹ thuật "Sandwich" (kem dưỡng - retinol - kem dưỡng) để tránh bong tróc kích ứng.
+            <div class="container pb-5" style="max-width: 1240px; margin: 0 auto; padding: 0 20px;">
+                <!-- SECTION 1: 4-STEP SKINCARE MASTERCLASS -->
+                <section id="skincare-routine" class="hb-reveal" style="scroll-margin-top: 100px;">
+                    <div class="hb-section-header">
+                        <span class="hb-section-tag">🌸 Chu trình dưỡng da chuẩn Y khoa</span>
+                        <h2 class="hb-section-title">4 Bước Chăm Sóc Da Toàn Diện Mỗi Ngày</h2>
+                        <p class="hb-section-desc">
+                            Không cần chu trình 10 bước cầu kỳ, chỉ cần 4 bước tinh gọn, chuẩn hoạt chất và đúng thứ tự sẽ giúp làn da phục hồi rạng rỡ từ sâu bên trong.
                         </p>
                     </div>
 
-                    <!-- FAQ 2 -->
-                    <div class="faq-card">
-                        <div class="faq-question">
-                            <span class="faq-q-icon">?</span>
-                            <span>Làm việc trong phòng máy lạnh có cần bôi kem chống nắng?</span>
+                    <div class="routine-grid">
+                        <!-- Step 1 -->
+                        <div class="routine-card">
+                            <div class="routine-img-wrap">
+                                <img src="https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&w=600&q=80" alt="Làm sạch kép" class="routine-img" loading="lazy">
+                                <span class="routine-step-badge">BƯỚC 01</span>
+                                <span class="routine-time-badge">🌙 Buổi Tối</span>
+                            </div>
+                            <div class="routine-body">
+                                <h3 class="routine-title">Làm Sạch Kép (Double Cleansing)</h3>
+                                <p class="routine-text">
+                                    Sử dụng nước/dầu tẩy trang hòa tan bã nhờn, kem chống nắng và bụi mịn PM2.5, sau đó dùng sữa rửa mặt pH 5.5 dịu nhẹ.
+                                </p>
+                                <div class="routine-actives">
+                                    🌿 Dầu hoa trà • Chiết xuất cúc La Mã
+                                </div>
+                                <div class="routine-tip">
+                                    💡 <strong>Mẹo chuyên gia:</strong> Nhũ hóa kỹ bằng nước ấm trong 60 giây để tránh đọng dầu thừa gây mụn ẩn.
+                                </div>
+                            </div>
                         </div>
-                        <p class="faq-answer">
-                            Rất cần thiết! Tia UVA có bước sóng dài (320-400nm) xuyên thấu qua cửa kính và ánh sáng xanh (HEV Light) từ máy tính, điện thoại âm thầm phá hủy mạng lưới collagen, gây sạm nám và lão hóa da nhanh chóng.
+
+                        <!-- Step 2 -->
+                        <div class="routine-card">
+                            <div class="routine-img-wrap">
+                                <img src="https://images.unsplash.com/photo-1616683693504-3ea7e9ad6fec?auto=format&fit=crop&w=600&q=80" alt="Cân bằng da và toner" class="routine-img" loading="lazy">
+                                <span class="routine-step-badge">BƯỚC 02</span>
+                                <span class="routine-time-badge">☀️ Sáng &amp; Tối</span>
+                            </div>
+                            <div class="routine-body">
+                                <h3 class="routine-title">Cân Bằng &amp; Toner (Prep &amp; Hydrate)</h3>
+                                <p class="routine-text">
+                                    Đưa da về trạng thái cân bằng sinh lý sau rửa mặt, làm mềm lớp sừng ngoài cùng mở đường cho dưỡng chất thẩm thấu sâu.
+                                </p>
+                                <div class="routine-actives">
+                                    💧 Hyaluronic Acid Đa Phân Tử • B5
+                                </div>
+                                <div class="routine-tip">
+                                    💡 <strong>Mẹo chuyên gia:</strong> Vỗ nhẹ toner khi bề mặt da còn hơi ẩm theo phương pháp 3-Skin Method.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="routine-card">
+                            <div class="routine-img-wrap">
+                                <img src="https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=600&q=80" alt="Serum đặc trị" class="routine-img" loading="lazy">
+                                <span class="routine-step-badge">BƯỚC 03</span>
+                                <span class="routine-time-badge">☀️ Sáng &amp; Tối</span>
+                            </div>
+                            <div class="routine-body">
+                                <h3 class="routine-title">Tinh Chất Chuyên Sâu (Targeted Treatment)</h3>
+                                <p class="routine-text">
+                                    Bổ sung nồng độ hoạt chất đặc trị trực tiếp: làm mờ thâm nám (Vitamin C), se nhỏ lỗ chân lông (Niacinamide) hoặc trẻ hóa (Retinol).
+                                </p>
+                                <div class="routine-actives">
+                                    🧴 Niacinamide 10% • Vitamin C Tươi • Retinol
+                                </div>
+                                <div class="routine-tip">
+                                    💡 <strong>Mẹo chuyên gia:</strong> Thoa serum lỏng trước đặc sau, chờ 2-3 phút giữa các lớp hoạt chất.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 4 -->
+                        <div class="routine-card">
+                            <div class="routine-img-wrap">
+                                <img src="https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=600&q=80" alt="Khóa ẩm và bảo vệ" class="routine-img" loading="lazy">
+                                <span class="routine-step-badge">BƯỚC 04</span>
+                                <span class="routine-time-badge">☀️ KCN / 🌙 Khóa ẩm</span>
+                            </div>
+                            <div class="routine-body">
+                                <h3 class="routine-title">Khóa Ẩm &amp; Chống Nắng Phổ Rộng</h3>
+                                <p class="routine-text">
+                                    Kem dưỡng Ceramide củng cố hàng rào khóa ẩm qua đêm; Ban ngày kem chống nắng SPF50+ PA++++ bảo vệ da toàn diện trước tia cực tím.
+                                </p>
+                                <div class="routine-actives">
+                                    🛡️ Ceramide Complex • Màng lọc Tinosorb S
+                                </div>
+                                <div class="routine-tip">
+                                    💡 <strong>Mẹo chuyên gia:</strong> Thoa đủ 2 đốt ngón tay kem chống nắng và thoa lại sau mỗi 3-4 giờ tiếp xúc nắng.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 2: SKIN TYPE & INGREDIENT MATCHING MATRIX -->
+                <section id="skin-matrix" class="hb-reveal" style="scroll-margin-top: 100px;">
+                    <div class="hb-section-header">
+                        <span class="hb-section-tag">🌸 Bản đồ chẩn đoán làn da</span>
+                        <h2 class="hb-section-title">Thấu Hiểu Nền Da &amp; Lựa Chọn Hoạt Chất</h2>
+                        <p class="hb-section-desc">
+                            Nhận biết chính xác tình trạng nền da hiện tại để chọn đúng sản phẩm điều trị, tiết kiệm thời gian và mang lại hiệu quả bền vững.
                         </p>
                     </div>
 
-                    <!-- FAQ 3 -->
-                    <div class="faq-card">
-                        <div class="faq-question">
-                            <span class="faq-q-icon">?</span>
-                            <span>Phân biệt giữa Đẩy mụn (Purging) và Dị ứng nổi mụn (Breakout)?</span>
+                    <div class="skin-matrix-grid">
+                        <!-- Skin Type 1 -->
+                        <div class="skin-card">
+                            <div class="skin-card-header">
+                                <img src="https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=150&q=80" alt="Da dầu mụn" class="skin-card-thumb">
+                                <div>
+                                    <span class="skin-card-tag">Oily &amp; Acne-Prone</span>
+                                    <h3 class="skin-card-title">Da Dầu &amp; Mụn Viêm</h3>
+                                </div>
+                            </div>
+                            <div class="skin-card-section-label">Đặc điểm nhận biết:</div>
+                            <p class="skin-card-text">
+                                Bề mặt đổ nhiều dầu vùng chữ T và hai má, lỗ chân lông to, nhiều mụn đầu đen và dễ bít tắc nổi mụn bọc.
+                            </p>
+                            <div class="skin-card-section-label">Hoạt chất vàng khuyên dùng:</div>
+                            <div>
+                                <span class="skin-badge-pill">BHA (Salicylic Acid)</span>
+                                <span class="skin-badge-pill">Niacinamide</span>
+                                <span class="skin-badge-pill">Kẽm Zinc PCA</span>
+                            </div>
+                            <div class="skin-avoid-box">
+                                ⚠️ <strong>Nên tránh:</strong> Dầu dừa, dầu khoáng nặng mặt, sữa rửa mặt có chất tẩy rửa mạnh làm mất cân bằng dầu-nước.
+                            </div>
                         </div>
-                        <p class="faq-answer">
-                            Purging xuất hiện khi dùng AHA/BHA/Retinoids tại đúng các vị trí vốn đã có mụn ẩn từ trước, cồi mụn gom khô nhanh trong 2-4 tuần. Trong khi Breakout gây ngứa rát, nổi mụn mủ ở những vị trí da xưa nay chưa từng có mụn.
+
+                        <!-- Skin Type 2 -->
+                        <div class="skin-card">
+                            <div class="skin-card-header">
+                                <img src="https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=150&q=80" alt="Da khô lão hóa" class="skin-card-thumb">
+                                <div>
+                                    <span class="skin-card-tag">Dry &amp; Dehydrated</span>
+                                    <h3 class="skin-card-title">Da Khô &amp; Mất Nước</h3>
+                                </div>
+                            </div>
+                            <div class="skin-card-section-label">Đặc điểm nhận biết:</div>
+                            <p class="skin-card-text">
+                                Căng tức sau khi rửa mặt, bong tróc vảy nhỏ khi trời lạnh, da thiếu độ bóng mướt, dễ xuất hiện rãnh nhăn sớm.
+                            </p>
+                            <div class="skin-card-section-label">Hoạt chất vàng khuyên dùng:</div>
+                            <div>
+                                <span class="skin-badge-pill">Hyaluronic Acid</span>
+                                <span class="skin-badge-pill">Ceramide NP</span>
+                                <span class="skin-badge-pill">Squalane</span>
+                            </div>
+                            <div class="skin-avoid-box">
+                                ⚠️ <strong>Nên tránh:</strong> Cồn khô (Alcohol Denat), tẩy da chết hạt to (Scrub) gây tổn thương bề mặt biểu bì.
+                            </div>
+                        </div>
+
+                        <!-- Skin Type 3 -->
+                        <div class="skin-card">
+                            <div class="skin-card-header">
+                                <img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=150&q=80" alt="Da nhạy cảm" class="skin-card-thumb">
+                                <div>
+                                    <span class="skin-card-tag">Sensitive &amp; Reactive</span>
+                                    <h3 class="skin-card-title">Da Nhạy Cảm &amp; Kích Ứng</h3>
+                                </div>
+                            </div>
+                            <div class="skin-card-section-label">Đặc điểm nhận biết:</div>
+                            <p class="skin-card-text">
+                                Nền da mỏng manh, dễ đỏ ửng khi ra nắng hoặc đổi thời tiết, châm chích ngứa rát khi dùng mỹ phẩm mới.
+                            </p>
+                            <div class="skin-card-section-label">Hoạt chất vàng khuyên dùng:</div>
+                            <div>
+                                <span class="skin-badge-pill">Rau má (Centella)</span>
+                                <span class="skin-badge-pill">Panthenol (B5)</span>
+                                <span class="skin-badge-pill">Madecassoside</span>
+                            </div>
+                            <div class="skin-avoid-box">
+                                ⚠️ <strong>Nên tránh:</strong> Hương liệu nhân tạo (Parfum), tinh dầu nồng độ cao và các loại treatment mạnh chưa qua test da.
+                            </div>
+                        </div>
+
+                        <!-- Skin Type 4 -->
+                        <div class="skin-card">
+                            <div class="skin-card-header">
+                                <img src="https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=150&q=80" alt="Da thâm sạm lão hóa" class="skin-card-thumb">
+                                <div>
+                                    <span class="skin-card-tag">Dull &amp; Aging</span>
+                                    <h3 class="skin-card-title">Da Thâm Sạm &amp; Lão Hóa</h3>
+                                </div>
+                            </div>
+                            <div class="skin-card-section-label">Đặc điểm nhận biết:</div>
+                            <p class="skin-card-text">
+                                Vết thâm mụn nâu đỏ lâu phai, da xỉn màu thiếu sức sống, xuất hiện đốm tàn nhang và kém săn chắc đàn hồi.
+                            </p>
+                            <div class="skin-card-section-label">Hoạt chất vàng khuyên dùng:</div>
+                            <div>
+                                <span class="skin-badge-pill">Vitamin C (L-AA)</span>
+                                <span class="skin-badge-pill">Retinol / Peptide</span>
+                                <span class="skin-badge-pill">Tranexamic Acid</span>
+                            </div>
+                            <div class="skin-avoid-box">
+                                ⚠️ <strong>Nên tránh:</strong> Quên bôi kem chống nắng; dùng actives nồng độ cao dồn dập khi nền da chưa đủ khỏe.
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 3: BENTO GRID MODULES -->
+                <section class="hb-reveal my-5" style="margin-top: 50px; margin-bottom: 50px;">
+                    <div class="hb-section-header">
+                        <span class="hb-section-tag">📚 Khám phá chuyên sâu</span>
+                        <h2 class="hb-section-title">Cẩm Nang Kiến Thức Hoạt Chất &amp; Routine</h2>
+                    </div>
+
+                    <div class="hb-bento-grid">
+                        <!-- Chương 1 -->
+                        <div class="hb-card hb-card-large">
+                            <div>
+                                <div class="hb-card-tag">Chương 1 • Chẩn Đoán</div>
+                                <h2 class="hb-card-title">Thấu Hiểu Nền Da Của Bạn</h2>
+                                <p class="hb-card-text">
+                                    Bạn không thể chăm sóc tốt nếu không hiểu da mình thuộc loại nào.
+                                    Phương pháp test giấy thấm dầu vào buổi sáng sau 30 phút rửa mặt giúp bạn nhận biết ngay:
+                                </p>
+                                
+                                <div class="hb-skin-test-box mt-3 mb-3">
+                                    <div class="hb-test-row">
+                                        <span class="hb-test-badge hb-test-oil">💧 Da Dầu</span>
+                                        <span class="hb-test-desc">Vết dầu loang rõ cả vùng T lẫn 2 bên gò má.</span>
+                                    </div>
+                                    <div class="hb-test-row">
+                                        <span class="hb-test-badge hb-test-mix">⚖️ Da Hỗn Hợp</span>
+                                        <span class="hb-test-desc">Thấm dầu ở trán, mũi và cằm; má khô thoáng.</span>
+                                    </div>
+                                    <div class="hb-test-row">
+                                        <span class="hb-test-badge hb-test-dry">🌵 Da Khô</span>
+                                        <span class="hb-test-desc">Giấy sạch hoàn toàn, cảm giác da căng rát khó chịu.</span>
+                                    </div>
+                                    <div class="hb-test-row">
+                                        <span class="hb-test-badge hb-test-sensitive">🌸 Da Nhạy Cảm</span>
+                                        <span class="hb-test-desc">Dễ châm chích, nổi mẩn đỏ khi thay đổi thời tiết.</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="hb-card-large-bottom mt-auto">
+                                <div class="hb-image-placeholder">
+                                    <img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=600&q=80" alt="Chẩn đoán da chuyên sâu" style="height: 190px; object-fit: cover; width: 100%; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.06);">
+                                </div>
+                                <div class="mt-2 text-center" style="font-size: 0.8rem; color: #7a636e; font-weight: 500;">
+                                    💡 Nhận diện đúng loại da giúp tăng 80% hiệu quả thẩm thấu dưỡng chất
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Routine Sáng Tối -->
+                        <div class="hb-card hb-card-medium">
+                            <div class="hb-card-tag">Routine Chuẩn</div>
+                            <h2 class="hb-card-title">Quy Trình Sáng &amp; Tối</h2>
+                            <p class="hb-card-text">
+                                Sáng bảo vệ (Antioxidant + Kem chống nắng), Tối phục hồi (Làm sạch + Treatment + Cấp ẩm). Quy tắc bất di bất dịch của làn da khỏe đẹp!
+                            </p>
+                            <div class="d-flex flex-column gap-2 my-2">
+                                <div class="small p-2 rounded-3" style="background: #fff8fa; border: 1px solid rgba(247, 108, 133, 0.15);">
+                                    <strong>☀️ Sáng:</strong> Sữa rửa mặt &rarr; Toner cấp ẩm &rarr; Vitamin C &rarr; Kem chống nắng SPF 50+
+                                </div>
+                                <div class="small p-2 rounded-3" style="background: #fbfbfc; border: 1px solid rgba(0,0,0,0.06);">
+                                    <strong>🌙 Tối:</strong> Tẩy trang &rarr; SRM &rarr; BHA/Retinol &rarr; Kem dưỡng ẩm Ceramide
+                                </div>
+                            </div>
+                            <div class="hb-image-placeholder mt-2">
+                                <img src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=600&q=80" alt="Routine" style="height: 140px; object-fit: cover; width: 100%; border-radius: 16px;">
+                            </div>
+                        </div>
+
+                        <!-- Lưu ý nhỏ -->
+                        <div class="hb-card hb-card-small" style="background: linear-gradient(135deg, #fff2f6 0%, #ffe3eb 100%);">
+                            <div style="font-size: 2rem; margin-bottom: 8px;">🌿</div>
+                            <h3 class="hb-card-title" style="font-size: 1.25rem;">Lưu Ý Nhỏ</h3>
+                            <p class="hb-card-text" style="font-size: 0.9rem;">Tẩy da chết hóa học (AHA/BHA) chỉ nên dùng 2-3 lần/tuần để tránh làm mỏng rào bảo vệ tự nhiên của da.</p>
+                        </div>
+
+                        <!-- Mẹo chọn KCN -->
+                        <div class="hb-card hb-card-small" style="background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);">
+                            <div style="font-size: 2rem; margin-bottom: 8px;">☀️</div>
+                            <h3 class="hb-card-title" style="font-size: 1.25rem;">Mẹo Chọn KCN</h3>
+                            <p class="hb-card-text" style="font-size: 0.9rem;">Ưu tiên SPF &gt; 30 và PA+++ trở lên. Bôi lại mỗi 2-4 tiếng nếu thường xuyên tiếp xúc ánh nắng mặt trời.</p>
+                        </div>
+
+                        <!-- Từ điển thành phần -->
+                        <div class="hb-card hb-card-wide">
+                            <div class="hb-card-tag">Từ Điển</div>
+                            <h2 class="hb-card-title">Từ Điển Thành Phần (Ingredients Dictionary)</h2>
+                            <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; margin-top: 16px;">
+                                <div style="flex: 1 1 340px;">
+                                    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;">
+                                        <span style="background: #fff; color: #333; border: 1px solid #ddd; padding: 8px 14px; border-radius: 12px; font-weight: 600; font-size: 0.9rem;">🌿 Niacinamide 10%</span>
+                                        <span style="background: #fff; color: #333; border: 1px solid #ddd; padding: 8px 14px; border-radius: 12px; font-weight: 600; font-size: 0.9rem;">⚛️ Retinol Bọc Liposome</span>
+                                        <span style="background: #fff; color: #333; border: 1px solid #ddd; padding: 8px 14px; border-radius: 12px; font-weight: 600; font-size: 0.9rem;">🍊 Vitamin C Tinh Khiết</span>
+                                        <span style="background: #fff; color: #333; border: 1px solid #ddd; padding: 8px 14px; border-radius: 12px; font-weight: 600; font-size: 0.9rem;">💧 Hyaluronic Acid Đa Tầng</span>
+                                        <span style="background: #fff; color: #333; border: 1px solid #ddd; padding: 8px 14px; border-radius: 12px; font-weight: 600; font-size: 0.9rem;">🛡️ Ceramide Complex</span>
+                                    </div>
+                                    <p style="color: #6c757d; line-height: 1.6; margin: 0;">Chi tiết công dụng, nồng độ an toàn và cách kết hợp các hoạt chất mà không gây xung đột có đầy đủ trong cuốn cẩm nang điện tử tải về miễn phí.</p>
+                                </div>
+                                <div style="flex: 0 0 280px; max-width: 100%;">
+                                    <img src="https://images.unsplash.com/photo-1629198688000-71f23e745b6e?auto=format&fit=crop&w=600&q=80" alt="Ingredients" style="height: 160px; object-fit: cover; width: 100%; border-radius: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.06);">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 4: SKINCARE EXPERT FAQS -->
+                <section class="hb-reveal my-5" style="margin-top: 50px; margin-bottom: 50px;">
+                    <div class="hb-section-header">
+                        <span class="hb-section-tag">💬 Hỏi đáp cùng chuyên gia</span>
+                        <h2 class="hb-section-title">Giải Đáp Thắc Mắc Skincare Thường Gặp</h2>
+                        <p class="hb-section-desc">
+                            Những thắc mắc phổ biến nhất của các tín đồ làm đẹp được giải đáp dưới góc nhìn khoa học và thực tế.
                         </p>
                     </div>
 
-                    <!-- FAQ 4 -->
-                    <div class="faq-card">
-                        <div class="faq-question">
-                            <span class="faq-q-icon">?</span>
-                            <span>Thứ tự sử dụng Serum và Dầu dưỡng (Facial Oil) thế nào?</span>
+                    <div class="faq-grid">
+                        <div class="faq-card">
+                            <div class="faq-question">
+                                <span class="faq-q-icon">?</span>
+                                <span>Người mới bắt đầu có nên dùng Retinol ngay không?</span>
+                            </div>
+                            <p class="faq-answer">
+                                Nên xây dựng routine cơ bản phục hồi vững chắc ít nhất 1-2 tháng trước khi bắt đầu. Khởi điểm với nồng độ thấp (0.1% - 0.3%) tần suất 1-2 lần/tuần kèm kỹ thuật "Sandwich" để tránh bong tróc kích ứng.
+                            </p>
                         </div>
-                        <p class="faq-answer">
-                            Nguyên tắc bất biến: Thoa từ kết cấu lỏng nhất đến đặc nhất. Serum gốc nước (HA, B5, Niacinamide) thoa trước, kế tiếp là kem dưỡng ẩm, và cuối cùng khóa màng ẩm bằng 2 giọt dầu dưỡng thực vật nguyên chất xoa ấm lòng bàn tay vỗ nhẹ lên mặt.
-                        </p>
+
+                        <div class="faq-card">
+                            <div class="faq-question">
+                                <span class="faq-q-icon">?</span>
+                                <span>Làm việc trong phòng máy lạnh có cần bôi kem chống nắng?</span>
+                            </div>
+                            <p class="faq-answer">
+                                Rất cần thiết! Tia UVA xuyên thấu qua cửa kính và ánh sáng xanh từ máy tính, điện thoại âm thầm phá hủy collagen, gây sạm nám và lão hóa nhanh chóng.
+                            </p>
+                        </div>
+
+                        <div class="faq-card">
+                            <div class="faq-question">
+                                <span class="faq-q-icon">?</span>
+                                <span>Phân biệt giữa Đẩy mụn (Purging) và Dị ứng nổi mụn (Breakout)?</span>
+                            </div>
+                            <p class="faq-answer">
+                                Purging xuất hiện tại đúng vị trí vốn có mụn ẩn từ trước, cồi mụn gom khô nhanh trong 2-4 tuần. Trong khi Breakout gây ngứa rát, nổi mụn mủ ở những vị trí da xưa nay chưa từng có mụn.
+                            </p>
+                        </div>
+
+                        <div class="faq-card">
+                            <div class="faq-question">
+                                <span class="faq-q-icon">?</span>
+                                <span>Thứ tự sử dụng Serum và Dầu dưỡng (Facial Oil) thế nào?</span>
+                            </div>
+                            <p class="faq-answer">
+                                Nguyên tắc bất biến: Thoa từ kết cấu lỏng nhất đến đặc nhất. Serum gốc nước thoa trước, kế tiếp là kem dưỡng ẩm, và cuối cùng khóa màng ẩm bằng 2 giọt dầu dưỡng thực vật xoa ấm lòng bàn tay.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </th:block>
+
+        <!-- ============================================================== -->
+        <!-- 2. TRƯỜNG HỢP: TRANG TIN TỨC CHUYÊN BIỆT (/tin-tuc)            -->
+        <!-- ============================================================== -->
+        <th:block th:unless="${isHandbook != null and isHandbook}">
+            <!-- HERO SECTION: TIN TỨC & XU HƯỚNG LÀM ĐẸP (HOÀN TOÀN ĐỘC LẬP VỚI CẨM NANG) -->
+            <section class="hb-hero position-relative">
+                <div class="hb-hero-overlay"></div>
+                <div class="container position-relative z-1" style="max-width: 1240px; margin: 0 auto; padding: 0 20px;">
+                    <!-- Breadcrumb -->
+                    <div class="hb-breadcrumb">
+                        <a th:href="@{/}">Trang chủ</a>
+                        <span class="hb-breadcrumb-sep">/</span>
+                        <span class="hb-breadcrumb-current">Tin tức &amp; Xu hướng Làm đẹp</span>
+                    </div>
+
+                    <div class="hb-hero-grid">
+                        <div class="hb-hero-content">
+                            <div class="hb-hero-badge">
+                                <span>📰</span> PinkyCloud Editorial Journal
+                            </div>
+                            <h1 class="hb-hero-title">
+                                Tin Tức &amp; Xu Hướng Làm Đẹp Mới Nhất
+                            </h1>
+                            <p class="hb-hero-desc">
+                                Không gian tin tức chuyên sâu về mỹ phẩm chính hãng, xu hướng trang điểm thời thượng và cập nhật phong cách làm đẹp được khuyên dùng bởi các chuyên gia.
+                            </p>
+                            
+                            <div class="hb-hero-actions">
+                                <a href="#news-grid-section" class="hb-btn-primary">
+                                    Đọc Các Bài Viết Mới Nhất
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+                                </a>
+                                <button type="button" class="hb-btn-secondary" onclick="scrollToSubscribe()">
+                                    💌 Nhận Bản Tin Làm Đẹp
+                                </button>
+                            </div>
+
+                            <div class="hb-hero-stats">
+                                <div class="hb-stat-item">
+                                    <div class="hb-stat-num" th:text="${totalArticles != null ? totalArticles : 5} + ' Bài'">5 Bài</div>
+                                    <div class="hb-stat-label">Bài viết tuyển chọn</div>
+                                </div>
+                                <div class="hb-stat-divider"></div>
+                                <div class="hb-stat-item">
+                                    <div class="hb-stat-num">100%</div>
+                                    <div class="hb-stat-label">Chính hãng khuyên dùng</div>
+                                </div>
+                                <div class="hb-stat-divider"></div>
+                                <div class="hb-stat-item">
+                                    <div class="hb-stat-num">Chuyên gia</div>
+                                    <div class="hb-stat-label">Ban biên tập làm đẹp</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column Visual for News -->
+                        <div class="hb-hero-visual">
+                            <div class="hb-visual-card-wrap">
+                                <div class="hb-visual-card-main">
+                                    <img src="/IMG/news01.png" alt="Tin tức làm đẹp PinkyCloud" class="hb-hero-img">
+                                    <div class="hb-hero-img-gradient"></div>
+                                    <div class="hb-img-badge-overlay">
+                                        <span class="hb-badge-dot"></span>
+                                        <span>Xu Hướng Làm Đẹp 2026 &bull; Hot Editorial</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
+        </th:block>
 
-            <!-- SECTION 5: BÀI VIẾT TIN TỨC NỔI BẬT NGUYÊN MẪU TỪ REACT -->
-            <section id="news-section" class="hb-reveal" style="margin-top: 60px; margin-bottom: 40px; scroll-margin-top: 100px;">
+        <!-- ============================================================== -->
+        <!-- 3. DANH SÁCH BÀI VIẾT TIN TỨC (DÀNH CHO CẢ 2 TRANG)            -->
+        <!-- ============================================================== -->
+        <div class="container pb-5" style="max-width: 1240px; margin: 0 auto; padding: 0 20px;">
+            <section id="news-grid-section" class="hb-reveal" style="margin-top: 50px; margin-bottom: 40px; scroll-margin-top: 100px;">
                 <div style="display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 28px;">
                     <div>
-                        <span class="hb-section-tag">📰 Bài viết chuyên đề</span>
-                        <h2 style="font-family: 'Playfair Display', serif; font-size: 2.2rem; font-weight: 800; color: #3d2330; margin: 0 0 8px 0;">
-                            Tin Tức &amp; Bài Viết Chuyên Sâu
+                        <span class="hb-section-tag" th:text="${isHandbook != null and isHandbook} ? '📚 Bài viết tham khảo' : '📰 Tạp chí làm đẹp'">📰 Tạp chí làm đẹp</span>
+                        <h2 style="font-family: 'Playfair Display', serif; font-size: 2.2rem; font-weight: 800; color: #3d2330; margin: 0 0 8px 0;"
+                            th:text="${isHandbook != null and isHandbook} ? 'Tin Tức &amp; Bài Viết Chuyên Sâu' : 'Danh Sách Bài Viết &amp; Tin Tức Mới Nhất'">
+                            Danh Sách Bài Viết &amp; Tin Tức Mới Nhất
                         </h2>
                         <div style="color: #6f5c65; font-size: 1.05rem;">
                             Cập nhật xu hướng làm đẹp hiện đại và mua sắm nhanh sản phẩm khuyên dùng trong từng bài viết.
@@ -491,14 +566,14 @@
 
                     <!-- Category filter links -->
                     <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-                        <a th:href="@{/cam-nang}"
+                        <a th:href="${isHandbook != null and isHandbook} ? @{/cam-nang} : @{/tin-tuc}"
                            class="btn btn-sm"
                            th:classappend="${selectedCategory == null or selectedCategory == '' or selectedCategory == 'all'} ? 'btn-pink' : 'btn-outline-pink'"
                            style="border-radius: 50px; font-weight: 700; padding: 6px 16px;">
                             Tất cả
                         </a>
                         <a th:each="cat : ${categories}"
-                           th:href="@{/cam-nang(category=${cat})}"
+                           th:href="${isHandbook != null and isHandbook} ? @{/cam-nang(category=${cat})} : @{/tin-tuc(category=${cat})}"
                            class="btn btn-sm"
                            th:classappend="${selectedCategory == cat} ? 'btn-pink' : 'btn-outline-pink'"
                            th:text="${cat}"
@@ -551,22 +626,24 @@
                             </div>
 
                             <a th:href="@{/tin-tuc/{slug}(slug=${news.slug})}" class="btn news-btn btn-pink w-100 rounded-pill py-2 fw-bold text-center" style="display: block; text-decoration: none;">
-                                Xem chi tiết
+                                Đọc bài viết
                             </a>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- SECTION 6: SUBSCRIBE SECTION NGUYÊN MẪU TỪ REACT -->
+            <!-- SECTION SUBSCRIBE BẢN TIN -->
             <section id="hb-subscribe" class="hb-subscribe-section text-center hb-reveal mt-5" style="scroll-margin-top: 120px;">
                 <div class="hb-subscribe-box mx-auto">
                     <div class="hb-mail-icon mb-3" style="font-size: 48px; line-height: 1;">
                         💌
                     </div>
-                    <h2 class="hb-sub-title">Đăng Ký Nhận Cẩm Nang &amp; Bản Tin Skincare</h2>
+                    <h2 class="hb-sub-title" th:text="${isHandbook != null and isHandbook} ? 'Đăng Ký Nhận Cẩm Nang &amp; Bản Tin Skincare' : 'Đăng Ký Nhận Bản Tin &amp; Xu Hướng Làm Đẹp'">
+                        Đăng Ký Nhận Bản Tin &amp; Xu Hướng Làm Đẹp
+                    </h2>
                     <p class="hb-sub-desc">
-                        Nhận trọn bộ E-Book Skincare chuẩn khoa học và mã giảm giá 10% cho đơn hàng đầu tiên của bạn tại PinkyCloud!
+                        Nhận bài viết mới nhất và mã giảm giá 10% cho đơn hàng đầu tiên của bạn tại PinkyCloud!
                     </p>
                     
                     <form class="hb-sub-form mt-4" id="hbForm" onsubmit="handleSubscribeSubmit(event)">
@@ -590,7 +667,6 @@
                     <div id="hbFeedback" class="mt-3 p-3 rounded-3 small fw-bold" style="display: none; max-width: 450px; margin-left: auto; margin-right: auto;"></div>
                 </div>
             </section>
-
         </div>
     </div>
 
@@ -610,7 +686,6 @@
         }
 
         document.addEventListener("DOMContentLoaded", function () {
-            // Scroll Reveal Observer nguyên mẫu React
             var observer = new IntersectionObserver(function (entries) {
                 entries.forEach(function (entry) {
                     if (entry.isIntersecting) {

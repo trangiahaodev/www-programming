@@ -23,8 +23,12 @@ public class NewsController {
     public String listNews(
             @RequestParam(name = "category", required = false, defaultValue = "all") String category,
             @RequestParam(name = "keyword", required = false) String keyword,
+            jakarta.servlet.http.HttpServletRequest request,
             Model model
     ) {
+        String uri = request != null ? request.getRequestURI() : "";
+        boolean isHandbook = uri != null && uri.contains("/cam-nang");
+
         List<NewsDTO> articles = newsService.getAllNews(category, keyword);
         List<String> categories = newsService.getNewsCategories();
         NewsDTO featuredArticle = newsService.getFeaturedArticle();
@@ -37,6 +41,7 @@ public class NewsController {
         model.addAttribute("keyword", keyword != null ? keyword : "");
         model.addAttribute("totalArticles", articles.size());
         model.addAttribute("activeMenu", "news");
+        model.addAttribute("isHandbook", isHandbook);
 
         return "customer/news-list";
     }
@@ -55,10 +60,12 @@ public class NewsController {
         }
 
         List<NewsDTO> relatedNews = newsService.getRelatedNews(article.getId(), article.getCategory(), 3);
+        List<NewsDTO> allNews = newsService.getAllNews(null, null);
 
         model.addAttribute("article", article);
         model.addAttribute("news", article);
         model.addAttribute("relatedNews", relatedNews);
+        model.addAttribute("allNews", allNews);
         model.addAttribute("activeMenu", "news");
 
         return "customer/news-detail";

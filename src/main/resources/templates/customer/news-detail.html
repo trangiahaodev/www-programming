@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html th:replace="~{layout/customer-layout :: layout(~{::content})}" xmlns:th="http://www.thymeleaf.org" lang="vi">
 <head>
-    <title th:text="${news.title} + ' - PinkyCloud'">Chi Tiết Tin Tức - PinkyCloud</title>
+    <title th:text="${news.title} + ' - Tin Tức Làm Đẹp PinkyCloud'">Chi Tiết Tin Tức - PinkyCloud</title>
 </head>
 <body>
 <div th:fragment="content">
@@ -10,12 +10,43 @@
         <!-- Thanh tiến trình đọc (Reading Progress Bar) nguyên mẫu React -->
         <div class="news-reading-progress" id="readingProgress"></div>
 
-        <!-- Nội dung chi tiết bài viết (Editorial Card) -->
+        <!-- Breadcrumb chuẩn tin tức (Không dính Cẩm nang) -->
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb mb-0" style="font-size: 0.9rem;">
+                <li class="breadcrumb-item"><a th:href="@{/}" style="color: #f76c85; text-decoration: none;">Trang chủ</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/tin-tuc}" style="color: #f76c85; text-decoration: none;">Tin tức</a></li>
+                <li class="breadcrumb-item active text-truncate" style="max-width: 380px; color: #6f5c65;" aria-current="page" th:text="${news.title}">Tiêu đề bài viết</li>
+            </ol>
+        </nav>
+
+        <!-- THANH CHUYỂN BÀI VIẾT NHANH (GIÚP ĐỌC CÁC TIN TỨC KHÁC NHAU) -->
+        <div class="news-switcher-strip p-3 rounded-4 bg-white shadow-sm border mb-4" th:if="${allNews != null and !allNews.isEmpty()}">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+                <span class="small fw-bold text-dark d-flex align-items-center gap-1">
+                    <span style="font-size: 1.1rem;">📰</span> Chọn bài viết khác để đọc:
+                </span>
+                <a th:href="@{/tin-tuc}" class="small text-pink fw-bold text-decoration-none">
+                    Xem tất cả bài viết &rarr;
+                </a>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+                <a th:each="item : ${allNews}"
+                   th:href="@{/tin-tuc/{slug}(slug=${item.slug})}"
+                   class="btn btn-sm rounded-pill px-3 py-1"
+                   th:classappend="${item.slug == news.slug} ? 'btn-pink fw-bold shadow-sm' : 'btn-outline-secondary'"
+                   style="font-size: 0.82rem; transition: all 0.2s;"
+                   th:text="${item.title}">
+                    Tiêu đề bài viết
+                </a>
+            </div>
+        </div>
+
+        <!-- NỘI DUNG CHI TIẾT BÀI VIẾT NGUYÊN MẪU TỪ REACT NEWSDETAILPAGE -->
         <article class="news-detail-card">
             <!-- Meta tags -->
             <div class="news-detail-meta">
-                <span class="me-3"><i class="bi bi-calendar-event"></i> [[${news.date}]]</span>
-                <span class="me-3"><i class="bi bi-tag"></i> [[${news.category}]]</span>
+                <span class="me-2"><i class="bi bi-calendar-event"></i> [[${news.date}]]</span>
+                <span class="me-2"><i class="bi bi-tag"></i> [[${news.category}]]</span>
                 <span><i class="bi bi-clock"></i> [[${news.readTime}]]</span>
             </div>
 
@@ -23,8 +54,8 @@
             <h1 class="news-detail-title font-display" th:text="${news.title}">Tiêu đề bài viết</h1>
 
             <!-- Nút chia sẻ mạng xã hội & Copy Link nguyên mẫu React -->
-            <div class="news-share-buttons">
-                <span class="text-muted small me-2" style="color: #6c757d; font-size: 0.85rem;">Chia sẻ bài viết:</span>
+            <div class="news-share-buttons d-flex align-items-center gap-2 mb-4 flex-wrap">
+                <span class="text-muted small me-2" style="font-size: 0.85rem;">Chia sẻ bài viết:</span>
                 <button type="button" class="btn btn-sm btn-share share-facebook rounded-pill" onclick="window.open('https://facebook.com', '_blank')">
                     <span class="share-icon">📘</span> Facebook
                 </button>
@@ -41,7 +72,7 @@
 
             <!-- Ảnh chính của bài viết -->
             <div class="news-detail-image-wrap">
-                <img th:src="@{${news.image}}" th:alt="${news.title}" class="news-detail-image">
+                <img th:src="@{${news.image}}" th:alt="${news.title}" class="news-detail-image" loading="lazy">
             </div>
 
             <!-- Highlights Box: Điểm nhấn chính (Key Takeaways) nguyên mẫu React -->
@@ -54,55 +85,55 @@
                 </ul>
             </div>
 
-            <!-- Nội dung các đoạn văn bản (Paragraphs với Drop-cap) -->
+            <!-- Nội dung các đoạn văn bản (Paragraphs) -->
             <div class="news-detail-content">
                 <p th:each="paragraph : ${news.paragraphs}" th:text="${paragraph}">Đoạn văn chi tiết...</p>
             </div>
 
             <!-- MUA SẮM SẢN PHẨM KHUYÊN DÙNG TRONG BÀI (EDITORIAL SHOP SECTION NGUYÊN MẪU REACT) -->
-            <div class="news-detail-shop-section" th:if="${news.linkedProducts != null and !news.linkedProducts.isEmpty()}">
-                <h3 class="news-detail-shop-title mb-4 font-display">
+            <div class="news-detail-shop-section mt-5 border-top pt-4" th:if="${news.linkedProducts != null and !news.linkedProducts.isEmpty()}">
+                <h3 class="news-detail-shop-title mb-4 font-display" style="color: #3d2330; font-weight: 800;">
                     🛍️ Mua sản phẩm khuyên dùng trong bài viết:
                 </h3>
                 <div class="d-flex flex-column gap-4 text-start">
-                    <div th:each="prod : ${news.linkedProducts}" class="editorial-recommend-card">
+                    <div th:each="prod : ${news.linkedProducts}" class="editorial-recommend-card p-4 rounded-4 d-flex flex-column flex-md-row gap-4 align-items-center">
                         <!-- Ảnh sản phẩm và badge giảm giá -->
-                        <a th:href="@{/san-pham/{id}(id=${prod.id})}" class="editorial-img-box">
-                            <span th:if="${prod.discount != null and prod.discount > 0}" class="editorial-badge" th:text="'-' + ${prod.discount} + '%'">
+                        <a th:href="@{/san-pham/{id}(id=${prod.id})}" class="editorial-img-box flex-shrink-0 bg-white rounded-3 p-3 position-relative text-decoration-none">
+                            <span th:if="${prod.discount != null and prod.discount > 0}" class="editorial-badge rounded-pill" th:text="'-' + ${prod.discount} + '%'">
                                 -15%
                             </span>
                             <img th:src="@{${prod.image}}" th:alt="${prod.name}" class="editorial-img">
                         </a>
 
                         <!-- Thông tin sản phẩm & Lời khuyên chuyên gia -->
-                        <div class="editorial-info">
-                            <span class="editorial-choice-tag">
+                        <div class="editorial-info flex-grow-1">
+                            <span class="editorial-choice-tag px-3 py-1 rounded-pill mb-2 d-inline-block">
                                 ⭐ Editor's Choice
                             </span>
-                            <span class="editorial-brand" th:text="${prod.brand}">Thương hiệu</span>
-                            <h4 class="editorial-name">
-                                <a th:href="@{/san-pham/{id}(id=${prod.id})}" th:text="${prod.name}">Tên sản phẩm</a>
+                            <span class="editorial-brand text-pink small fw-bold d-block mb-1" th:text="${prod.brand}">Thương hiệu</span>
+                            <h4 class="editorial-name font-display fw-bold mb-2">
+                                <a th:href="@{/san-pham/{id}(id=${prod.id})}" th:text="${prod.name}" style="color: inherit; text-decoration: none;">Tên sản phẩm</a>
                             </h4>
 
-                            <div class="editorial-rating">
-                                ✨ Đánh giá: <strong>4.9/5</strong> | Phù hợp mọi loại da
+                            <div class="editorial-rating mb-2 small text-muted">
+                                Đánh giá: <strong>4.9/5</strong> | Phù hợp mọi loại da
                             </div>
 
-                            <p class="editorial-reason" th:if="${news.recommendationReasons != null and news.recommendationReasons[prod.id] != null}">
+                            <p class="editorial-reason text-secondary mb-3 small" th:if="${news.recommendationReasons != null and news.recommendationReasons[prod.id] != null}">
                                 <strong>💡 Lý do khuyên dùng:</strong> <span th:text="${news.recommendationReasons[prod.id]}">Lý do khuyến nghị theo cẩm nang khoa học.</span>
                             </p>
 
-                            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-top: 14px;">
-                                <div class="editorial-price-wrap">
-                                    <span class="sale-price" th:text="${prod.formattedPrice}">350.000₫</span>
-                                    <span class="old-price" th:if="${prod.formattedOriginalPrice != null}" th:text="${prod.formattedOriginalPrice}">450.000₫</span>
+                            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                                <div class="editorial-price-wrap d-flex align-items-baseline gap-2">
+                                    <span class="sale-price fs-5 fw-bold text-pink" th:text="${prod.formattedPrice}">350.000₫</span>
+                                    <span class="old-price text-muted text-decoration-line-through small" th:if="${prod.formattedOriginalPrice != null}" th:text="${prod.formattedOriginalPrice}">450.000₫</span>
                                 </div>
 
-                                <div class="editorial-actions" style="display: flex; gap: 10px;">
-                                    <a th:href="@{/san-pham/{id}(id=${prod.id})}" class="btn btn-outline-pink">
+                                <div class="d-flex gap-2">
+                                    <a th:href="@{/san-pham/{id}(id=${prod.id})}" class="btn btn-outline-pink rounded-pill px-3 py-2 small fw-bold">
                                         Xem chi tiết
                                     </a>
-                                    <a th:href="@{/san-pham/{id}(id=${prod.id})}" class="btn btn-pink" style="display: inline-flex; align-items: center; gap: 6px;">
+                                    <a th:href="@{/san-pham/{id}(id=${prod.id})}" class="btn btn-pink rounded-pill px-4 py-2 small fw-bold d-flex align-items-center gap-2">
                                         🛒 Mua ngay
                                     </a>
                                 </div>
@@ -112,44 +143,49 @@
                 </div>
             </div>
 
-            <!-- NEWSLETTER SUBSCRIPTION CARD NGUYÊN MẪU REACT -->
-            <div class="newsletter-card">
-                <div class="newsletter-icon">💌</div>
-                <h4 class="newsletter-title">Đăng ký nhận cẩm nang Skincare từ PinkyCloud</h4>
-                <p class="newsletter-subtitle">Nhận bài viết mới nhất và mã giảm giá 10% cho đơn hàng đầu tiên của bạn!</p>
-                <form class="newsletter-form" onsubmit="handleNewsletterSubmit(event)">
-                    <input type="email" id="newsletterEmailInput" class="newsletter-input" placeholder="Địa chỉ email của bạn..." required>
-                    <button type="submit" id="newsletterBtn" class="btn btn-pink">Đăng ký ngay</button>
+            <!-- NEWSLETTER SUBSCRIPTION CARD NGUYÊN MẪU REACT (BẢN TIN LÀM ĐẸP) -->
+            <div class="newsletter-card text-center p-4 rounded-4 mt-5">
+                <div class="newsletter-icon mb-2" style="font-size: 40px;">💌</div>
+                <h4 class="newsletter-title font-display fw-bold">Đăng ký nhận tin tức &amp; xu hướng làm đẹp từ PinkyCloud</h4>
+                <p class="newsletter-subtitle text-muted small">Nhận bài viết mới nhất và mã giảm giá 10% cho đơn hàng đầu tiên của bạn!</p>
+                <form class="newsletter-form d-flex gap-2 justify-content-center mt-3 flex-wrap" onsubmit="handleNewsletterSubmit(event)">
+                    <input type="email" id="newsletterEmailInput" class="form-control rounded-pill px-4 newsletter-input" placeholder="Địa chỉ email của bạn..." required style="max-width: 320px;">
+                    <button type="submit" id="newsletterBtn" class="btn btn-pink rounded-pill px-4 fw-bold">Đăng ký ngay</button>
                 </form>
                 <div id="newsletterMsg" class="mt-3 small fw-bold" style="display: none;"></div>
             </div>
 
-            <!-- Nút quay lại cẩm nang -->
-            <div class="news-detail-actions text-center">
-                <a th:href="@{/cam-nang}" class="btn news-back-btn">
-                    <i class="bi bi-arrow-left"></i> Quay lại Cẩm nang
+            <!-- Nút điều hướng quay lại trang chủ và xem thêm tin tức -->
+            <div class="news-detail-actions text-center mt-5 d-flex justify-content-center gap-2 flex-wrap">
+                <a th:href="@{/}" class="btn news-back-btn btn-outline-pink">
+                    <i class="bi bi-arrow-left"></i> Quay lại Trang chủ
+                </a>
+                <a th:href="@{/tin-tuc}" class="btn news-back-btn btn-pink">
+                    <i class="bi bi-grid"></i> Xem tất cả tin tức
                 </a>
             </div>
         </article>
 
-        <!-- BÀI VIẾT LIÊN QUAN (RELATED ARTICLES NGUYÊN MẪU REACT) -->
-        <aside class="news-related-section" th:if="${relatedNews != null and !relatedNews.isEmpty()}">
-            <h2 class="news-related-title">Tin tức liên quan</h2>
-            <div class="news-related-grid">
-                <div th:each="item : ${relatedNews}" class="news-related-card">
-                    <a th:href="@{/tin-tuc/{slug}(slug=${item.slug})}" class="news-related-image-wrap">
-                        <img th:src="@{${item.image}}" th:alt="${item.title}" class="news-related-image" loading="lazy">
-                    </a>
+        <!-- BÀI VIẾT LIÊN QUAN (RELATED ARTICLES NGUYÊN MẪU REACT) ĐỂ ĐỌC CÁC BÀI KHÁC NHAU -->
+        <aside class="news-related-section mt-5" th:if="${relatedNews != null and !relatedNews.isEmpty()}">
+            <h2 class="news-related-title mb-4 font-display">Tin tức liên quan</h2>
+            <div class="row g-4">
+                <div th:each="item : ${relatedNews}" class="col-12 col-md-4">
+                    <div class="card h-100 news-related-card border-0 shadow-sm">
+                        <a th:href="@{/tin-tuc/{slug}(slug=${item.slug})}" class="news-related-image-wrap">
+                            <img th:src="@{${item.image}}" th:alt="${item.title}" class="news-related-image" loading="lazy">
+                        </a>
 
-                    <div class="news-card-body">
-                        <div class="news-date" th:text="${item.date}">12/04/2026</div>
-                        <a th:href="@{/tin-tuc/{slug}(slug=${item.slug})}" style="text-decoration: none; color: inherit;">
-                            <h3 class="news-related-item-title" th:text="${item.title}">Tiêu đề bài viết</h3>
-                        </a>
-                        <p class="news-excerpt" th:text="${item.excerpt}">Trích đoạn nội dung tóm tắt...</p>
-                        <a th:href="@{/tin-tuc/{slug}(slug=${item.slug})}" class="btn btn-pink w-100 mt-2">
-                            Xem chi tiết
-                        </a>
+                        <div class="news-card-body p-3 d-flex flex-column">
+                            <div class="news-date text-muted small mb-2" th:text="${item.date}">12/04/2026</div>
+                            <a th:href="@{/tin-tuc/{slug}(slug=${item.slug})}" style="text-decoration: none; color: inherit;">
+                                <h3 class="news-related-item-title h6 fw-bold" th:text="${item.title}">Tiêu đề bài viết</h3>
+                            </a>
+                            <p class="news-excerpt text-secondary small line-clamp-2 mt-1 mb-3" th:text="${item.excerpt}">Trích đoạn nội dung tóm tắt...</p>
+                            <a th:href="@{/tin-tuc/{slug}(slug=${item.slug})}" class="btn btn-sm btn-pink w-100 mt-auto rounded-pill py-2 fw-bold">
+                                Đọc bài viết
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
