@@ -12,6 +12,7 @@ import iuh.wwwprogramming.repository.CategoryRepository;
 import iuh.wwwprogramming.repository.ProductRepository;
 import iuh.wwwprogramming.service.ProductService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -168,7 +170,6 @@ public class ProductServiceImpl implements ProductService {
 
         Pageable sortedPageable = PageRequest.of(pageNumber, pageSize, sort);
 
-        // ĐÃ SỬA: Gọi đúng hàm của Customer
         Page<Product> productPage = productRepository.searchCustomerProducts(cleanKeyword, cleanCategory, sortedPageable);
         return productPage.map(this::convertToCardDTO);
     }
@@ -179,7 +180,6 @@ public class ProductServiceImpl implements ProductService {
             throw new IllegalArgumentException("Mã hoặc định danh sản phẩm không hợp lệ!");
         }
 
-        // ĐÃ SỬA: Gọi đúng hàm findActiveById của Customer
         Product product = productRepository.findActiveByIdWithCategory(idOrCode.trim())
                 .or(() -> productRepository.findByProductCodeWithCategory(idOrCode.trim()))
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sản phẩm yêu cầu: " + idOrCode));
@@ -254,9 +254,20 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.findDistinctBrands();
     }
 
+    // =========================================================================
+    // 3. NHÓM HÀM CHO CHECKOUT & CART (Bổ sung từ nhánh V2)
+    // =========================================================================
+
+    @Override
+    public ProductResponseDTO getProductById(String id) {
+        Product product = productRepository.findByIdAndActiveTrue(id)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sản phẩm hoặc sản phẩm đã ngừng kinh doanh!"));
+        return convertToResponseDTO(product);
+    }
+
 
     // =========================================================================
-    // 3. NHÓM HÀM TIỆN ÍCH (MAPPING & HELPERS)
+    // 4. NHÓM HÀM TIỆN ÍCH (MAPPING & HELPERS)
     // =========================================================================
 
     private ProductResponseDTO convertToResponseDTO(Product product) {
@@ -267,7 +278,7 @@ public class ProductServiceImpl implements ProductService {
                 .price(product.getPrice())
                 .stockQuantity(product.getStockQuantity())
                 .description(product.getDescription())
-                .imageUrl(product.getImage()) // Hỗ trợ trường imageUrl của form Admin
+                .imageUrl(product.getImage()) // Ánh xạ an toàn sang trường imageUrl của DTO
                 .active(product.getActive())
                 .categoryId(product.getCategory() != null ? product.getCategory().getId() : null)
                 .categoryName(product.getCategory() != null ? product.getCategory().getName() : null)
@@ -290,8 +301,6 @@ public class ProductServiceImpl implements ProductService {
 
     private ProductCardDTO convertToCardDTO(Product product) {
         int discount = product.getDiscount() != null ? product.getDiscount() : 0;
-
-        // ĐÃ FIX: Chuyển BigDecimal của Entity sang Double cho Customer DTO
         double price = product.getPrice() != null ? product.getPrice().doubleValue() : 0.0;
 
         Double originalPrice = null;
@@ -324,8 +333,6 @@ public class ProductServiceImpl implements ProductService {
 
     private ProductDetailDTO convertToDetailDTO(Product product) {
         int discount = product.getDiscount() != null ? product.getDiscount() : 0;
-
-        // ĐÃ FIX: Chuyển BigDecimal của Entity sang Double cho Customer DTO
         double price = product.getPrice() != null ? product.getPrice().doubleValue() : 0.0;
 
         Double originalPrice = null;
@@ -343,7 +350,7 @@ public class ProductServiceImpl implements ProductService {
                 .categoryId(product.getCategory() != null ? product.getCategory().getId() : null)
                 .categoryName(product.getCategory() != null ? product.getCategory().getName() : "")
                 .image(product.getImage())
-                .price(price) // Nhận kiểu Double
+                .price(price)
                 .discount(discount)
                 .originalPrice(originalPrice)
                 .currency(product.getCurrency() != null ? product.getCurrency() : "VND")
@@ -391,7 +398,6 @@ public class ProductServiceImpl implements ProductService {
                     .stock(baseStock)
                     .isDefault(true)
                     .build());
-            // ... (các biến thể khác được giữ nguyên cấu trúc)
             variants.add(ProductVariantDTO.builder()
                     .id("box-5")
                     .name("Hộp 5 miếng")

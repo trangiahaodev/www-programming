@@ -1,21 +1,22 @@
 package iuh.wwwprogramming.service.impl;
 
-import iuh.wwwprogramming.dto.OrderDetailResponseDTO;
-import iuh.wwwprogramming.dto.OrderFilterDTO;
-import iuh.wwwprogramming.dto.OrderItemQuantityUpdateDTO;
-import iuh.wwwprogramming.dto.OrderItemResponseDTO;
-import iuh.wwwprogramming.dto.OrderQuantityUpdateRequestDTO;
-import iuh.wwwprogramming.dto.OrderResponseDTO;
+import iuh.wwwprogramming.dto.*;
 import iuh.wwwprogramming.entity.Order;
 import iuh.wwwprogramming.entity.OrderItem;
 import iuh.wwwprogramming.entity.OrderStatus;
+import iuh.wwwprogramming.entity.Product;
+import iuh.wwwprogramming.entity.User;
 import iuh.wwwprogramming.exception.InvalidOrderItemException;
 import iuh.wwwprogramming.exception.InvalidOrderStatusException;
 import iuh.wwwprogramming.exception.OrderItemNotFoundException;
 import iuh.wwwprogramming.exception.OrderNotFoundException;
 import iuh.wwwprogramming.repository.OrderItemRepository;
 import iuh.wwwprogramming.repository.OrderRepository;
+import iuh.wwwprogramming.repository.ProductRepository;
+import iuh.wwwprogramming.repository.UserRepository;
+import iuh.wwwprogramming.service.CartService;
 import iuh.wwwprogramming.service.OrderService;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -28,11 +29,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.time.Year;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -46,8 +44,16 @@ public class OrderServiceImpl implements OrderService {
             Sort.Order.desc("id")
     );
 
+    // Gộp toàn bộ Dependency của 2 nhánh
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
+    private final ProductRepository productRepository;
+    private final UserRepository userRepository;
+    private final CartService cartService;
+
+    // =========================================================================
+    // 1. NHÓM HÀM CHO ADMIN (Quản lý đơn hàng)
+    // =========================================================================
 
     @Override
     public Page<OrderResponseDTO> getOrders(OrderFilterDTO filterDTO, Pageable pageable) {
@@ -74,10 +80,10 @@ public class OrderServiceImpl implements OrderService {
         Pageable sortedPageable = (pageable != null && pageable.getSort().isSorted())
                 ? pageable
                 : PageRequest.of(
-                        pageable != null ? pageable.getPageNumber() : 0,
-                        pageable != null ? pageable.getPageSize() : 10,
-                        DEFAULT_SORT
-                );
+                pageable != null ? pageable.getPageNumber() : 0,
+                pageable != null ? pageable.getPageSize() : 10,
+                DEFAULT_SORT
+        );
 
         Page<Order> orderPage = orderRepository.searchOrders(
                 keyword,
@@ -177,23 +183,108 @@ public class OrderServiceImpl implements OrderService {
         return convertToOrderDetailResponseDTO(order);
     }
 
-    private OrderDetailResponseDTO convertToOrderDetailResponseDTO(Order order) {
-        List<OrderItemResponseDTO> itemDTOs = (order.getItems() != null)
-                ? order.getItems().stream()
-                        .map(item -> OrderItemResponseDTO.builder()
-                                .id(item.getId())
-                                .productCode(item.getProductCode())
-                                .productName(item.getProductName())
-                                .unitPrice(item.getUnitPrice())
-                                .quantity(item.getQuantity())
-                                .subtotal(item.getSubtotal())
-                                .build())
-                        .toList()
-                : Collections.emptyList();
+    // =========================================================================
+    // 2. NHÓM HÀM CHO CUSTOMER (Tiến hành Checkout và tra cứu đơn)
+    // =========================================================================
 
-        int totalItems = itemDTOs.stream()
-                .mapToInt(item -> item.getQuantity() != null ? item.getQuantity() : 0)
-                .sum();
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public OrderResponseDTO placeOrder(HttpSession session, String userEmail, CheckoutRequestDTO request) {
+        CartDTO cart = cartService.getCart(session);
+        if (cart == null || cart.isEmpty()) {
+            throw new IllegalStateException("Giỏ hàng của bạn đang trống! Vui lòng chọn sản phẩm trước khi đặt hàng.");
+        }
+
+        // Hỗ trợ cả khách có tài khoản và khách vãng lai
+        User user = null;
+        if (userEmail != null && !userEmail.trim().isEmpty()) {
+            user = userRepository.findByEmail(userEmail).orElse(null);
+        }
+
+        List<OrderItem> orderItems = new ArrayList<>();
+        BigDecimal computedTotal = BigDecimal.ZERO;
+
+        for (CartItemDTO item : cart.getItems().values()) {
+            Product product = productRepository.findByIdAndActiveTrue(item.getProductId())
+                    .orElseThrow(() -> new IllegalArgumentException("Sản phẩm '" + item.getProductName() + "' không còn khả dụng!"));
+
+            if (item.getQuantity() > product.getStockQuantity()) {
+                throw new IllegalArgumentException(
+                        "Sản phẩm '" + product.getName() + "' không đủ số lượng trong kho (chỉ còn lại " + product.getStockQuantity() + " sản phẩm)!"
+                );
+            }
+
+            // Trừ tồn kho sản phẩm
+            product.setStockQuantity(product.getStockQuantity() - item.getQuantity());
+            productRepository.save(product);
+
+            BigDecimal lineSubtotal = product.getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
+            computedTotal = computedTotal.add(lineSubtotal);
+
+            // ĐÃ FIX: Chuyển OrderDetail thành OrderItem chuẩn
+            OrderItem detail = OrderItem.builder()
+                    .productName(product.getName())
+                    .productCode(product.getProductCode())
+                    .unitPrice(product.getPrice())
+                    .quantity(item.getQuantity())
+                    .subtotal(lineSubtotal)
+                    .build();
+
+            orderItems.add(detail);
+        }
+
+        String orderCode = generateUniqueOrderCode();
+
+        // ĐÃ FIX: Chuyển các thuộc tính về chuẩn Entity của V1
+        Order order = Order.builder()
+                .orderCode(orderCode)
+                .user(user)
+                .customerName(request.getRecipientName().trim())
+                .customerPhone(request.getRecipientPhone().trim())
+                .shippingAddress(request.getShippingAddress().trim())
+                .note(request.getNote() != null ? request.getNote().trim() : null)
+                .paymentMethod(request.getPaymentMethod())
+                .paymentStatus("UNPAID")
+                .totalAmount(computedTotal)
+                .status(OrderStatus.PENDING) // Ép kiểu Enum
+                .build();
+
+        for (OrderItem detail : orderItems) {
+            detail.setOrder(order);
+        }
+        order.setItems(orderItems);
+
+        Order savedOrder = orderRepository.save(order);
+        cartService.clearCart(session);
+
+        return convertToResponseDTO(savedOrder);
+    }
+
+    @Override
+    public OrderResponseDTO getOrderByCode(String orderCode) {
+        Order order = orderRepository.findWithDetailsByOrderCode(orderCode)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy đơn hàng với mã: " + orderCode));
+        return convertToResponseDTO(order);
+    }
+
+    private String generateUniqueOrderCode() {
+        int currentYear = Year.now().getValue() % 100;
+        Random random = new Random();
+        String candidateCode;
+        do {
+            int seq = 100000 + random.nextInt(900000);
+            candidateCode = String.format("ORD%02d%d", currentYear, seq); // Thống nhất tiền tố ORD
+        } while (orderRepository.existsByOrderCode(candidateCode));
+        return candidateCode;
+    }
+
+    // =========================================================================
+    // 3. CÁC HÀM MAPPING DỮ LIỆU
+    // =========================================================================
+
+    private OrderDetailResponseDTO convertToOrderDetailResponseDTO(Order order) {
+        List<OrderItemResponseDTO> itemDTOs = mapItems(order.getItems());
+        int totalItems = itemDTOs.stream().mapToInt(item -> item.getQuantity() != null ? item.getQuantity() : 0).sum();
 
         return OrderDetailResponseDTO.builder()
                 .id(order.getId())
@@ -215,12 +306,8 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private OrderResponseDTO convertToResponseDTO(Order order) {
-        int totalItems = 0;
-        if (order.getItems() != null) {
-            totalItems = order.getItems().stream()
-                    .mapToInt(item -> item.getQuantity() != null ? item.getQuantity() : 0)
-                    .sum();
-        }
+        List<OrderItemResponseDTO> itemDTOs = mapItems(order.getItems());
+        int totalItems = itemDTOs.stream().mapToInt(item -> item.getQuantity() != null ? item.getQuantity() : 0).sum();
 
         return OrderResponseDTO.builder()
                 .id(order.getId())
@@ -228,13 +315,30 @@ public class OrderServiceImpl implements OrderService {
                 .customerName(order.getCustomerName())
                 .customerPhone(order.getCustomerPhone())
                 .shippingAddress(order.getShippingAddress())
-                .orderDate(order.getCreatedAt())
+                .note(order.getNote())
+                .createdAt(order.getCreatedAt())
                 .status(order.getStatus())
                 .statusDisplay(order.getStatus() != null ? order.getStatus().getDisplayName() : "")
                 .totalItems(totalItems)
                 .totalAmount(order.getTotalAmount())
                 .paymentMethod(order.getPaymentMethod())
                 .paymentStatus(order.getPaymentStatus())
+                .items(itemDTOs)
                 .build();
+    }
+
+    private List<OrderItemResponseDTO> mapItems(List<OrderItem> items) {
+        if (items == null) return Collections.emptyList();
+
+        return items.stream()
+                .map(item -> OrderItemResponseDTO.builder()
+                        .id(item.getId())
+                        .productCode(item.getProductCode())
+                        .productName(item.getProductName())
+                        .unitPrice(item.getUnitPrice())
+                        .quantity(item.getQuantity())
+                        .subtotal(item.getSubtotal())
+                        .build())
+                .collect(Collectors.toList());
     }
 }

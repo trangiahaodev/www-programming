@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html th:fragment="layout(content)" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PinkyCloud - Cửa Hàng Mỹ Phẩm Cao Cấp</title>
+
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- CSS Design Tokens & Stylesheets -->
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <link rel="stylesheet" th:href="@{/css/store.css}">
+</head>
+<body style="background-color: var(--slate-50); min-height: 100vh; display: flex; flex-direction: column;">
+
+    <!-- Store Navigation Bar -->
+    <header class="store-navbar">
+        <div class="store-nav-inner">
+            <a th:href="@{/products}" class="store-brand">
+                <div class="brand-logo">P</div>
+                <div>Pinky<span>Cloud</span></div>
+            </a>
+
+            <nav class="store-nav-links" aria-label="Store Navigation">
+                <a th:href="@{/products}" class="store-nav-link">Sản Phẩm</a>
+                <a th:href="@{/cart}" class="store-nav-link">Giỏ Hàng</a>
+            </nav>
+
+            <div class="store-nav-actions">
+                <!-- Shopping Cart Icon with Quantity Badge -->
+                <a th:href="@{/cart}" class="cart-icon-btn" aria-label="Xem giỏ hàng">
+                    <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span class="cart-badge" th:text="${session.SESSION_CART != null ? session.SESSION_CART.totalQuantity : 0}">0</span>
+                </a>
+
+                <!-- User Account Status -->
+                <div sec:authorize="isAuthenticated()" class="user-status">
+                    <span class="user-badge" sec:authentication="name">User</span>
+                    <form th:action="@{/logout}" method="post" style="display: inline; margin: 0;">
+                        <button type="submit" class="btn-secondary-link" style="border: none; background: none; cursor: pointer; padding: 0;">
+                            Đăng xuất
+                        </button>
+                    </form>
+                </div>
+                <div sec:authorize="isAnonymous()">
+                    <a th:href="@{/login}" class="btn-secondary-link" style="font-weight: 700; color: var(--primary);">
+                        Đăng nhập
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Page Content Injection -->
+    <main class="store-container" style="flex: 1;">
+        <th:block th:replace="${content}"></th:block>
+    </main>
+
+    <!-- Store Footer -->
+    <footer style="background-color: #ffffff; border-top: 1px solid var(--slate-200); padding: 24px 0; text-align: center; color: var(--slate-500); font-size: 13px;">
+        <div class="store-container" style="padding: 0 16px;">
+            <p style="margin: 0 0 6px 0;"><strong>PinkyCloud Cosmetic Shop</strong> — Hệ thống phân phối mỹ phẩm chính hãng.</p>
+            <p style="margin: 0;">Phục vụ đồ án học phần Lập trình Web Phân tán (WWW Java) - Đại học Công nghiệp TP.HCM (IUH)</p>
+        </div>
+    </footer>
+
+</body>
+</html>

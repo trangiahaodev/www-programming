@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface ProductService {
+
     // =========================================================================
     // 1. NHÓM HÀM CHO ADMIN (Quản lý CRUD sản phẩm)
     // =========================================================================
@@ -41,6 +42,9 @@ public interface ProductService {
     List<String> getTopBrands();
 
 
+    // =========================================================================
+    // 3. NHÓM HÀM CHO CHECKOUT & CART (Bổ sung từ nhánh V2)
+    // =========================================================================
 
-
+    ProductResponseDTO getProductById(String id);
 }

@@ -8,13 +8,15 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class OrderItemResponseDTO {
     private String id;
+    private String productId;
     private String productCode;
     private String productName;
+    private String productImageUrl;
     private BigDecimal unitPrice;
     private Integer quantity;
     private BigDecimal subtotal;

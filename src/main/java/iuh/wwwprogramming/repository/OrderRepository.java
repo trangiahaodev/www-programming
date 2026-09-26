@@ -9,12 +9,17 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 public interface OrderRepository extends JpaRepository<Order, String> {
 
+    // =========================================================================
+    // 1. NHÓM HÀM CHO ADMIN
+    // =========================================================================
+
     @Query(
-        value = """
+            value = """
             SELECT o FROM Order o
             WHERE (:keyword IS NULL OR :keyword = ''
                    OR LOWER(o.orderCode) LIKE LOWER(CONCAT('%', :keyword, '%'))
@@ -24,7 +29,7 @@ public interface OrderRepository extends JpaRepository<Order, String> {
               AND (:startDateTime IS NULL OR o.createdAt >= :startDateTime)
               AND (:endDateTime IS NULL OR o.createdAt <= :endDateTime)
         """,
-        countQuery = """
+            countQuery = """
             SELECT COUNT(o) FROM Order o
             WHERE (:keyword IS NULL OR :keyword = ''
                    OR LOWER(o.orderCode) LIKE LOWER(CONCAT('%', :keyword, '%'))
@@ -46,7 +51,27 @@ public interface OrderRepository extends JpaRepository<Order, String> {
     @Query("SELECT o FROM Order o LEFT JOIN FETCH o.items WHERE o.id = :id")
     Optional<Order> findByIdWithItems(@Param("id") String id);
 
+
+    // =========================================================================
+    // 2. NHÓM HÀM DÙNG CHUNG
+    // =========================================================================
+
     Optional<Order> findByOrderCode(String orderCode);
 
     boolean existsByOrderCode(String orderCode);
+
+
+    // =========================================================================
+    // 3. NHÓM HÀM CHO CUSTOMER / CHECKOUT
+    // =========================================================================
+
+    // ĐÃ FIX: Chuyển o.orderDetails thành o.items để khớp với Entity Order
+    // ĐÃ FIX: Chuyển JOIN FETCH o.user thành LEFT JOIN FETCH để không làm mất đơn hàng của khách vãng lai (không có user)
+    @Query("SELECT DISTINCT o FROM Order o " +
+            "LEFT JOIN FETCH o.user u " +
+            "LEFT JOIN FETCH o.items i " +
+            "WHERE o.orderCode = :orderCode")
+    Optional<Order> findWithDetailsByOrderCode(@Param("orderCode") String orderCode);
+
+    List<Order> findByUserEmailOrderByCreatedAtDesc(String email);
 }

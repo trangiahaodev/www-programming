@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html th:replace="~{layout/store-layout :: layout(~{::main})}" xmlns:th="http://www.thymeleaf.org">
+<main>
+
+    <div style="max-width: 720px; margin: 0 auto;">
+
+        <!-- Success Header Banner -->
+        <div class="store-card success-banner">
+            <div class="success-icon-circle">
+                <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                </svg>
+            </div>
+
+            <h1 style="font-size: 24px; font-weight: 800; color: var(--slate-900); margin: 0 0 8px 0;">
+                ĐẶT HÀNG THÀNH CÔNG!
+            </h1>
+            <p style="color: var(--slate-600); font-size: 15px; margin: 0 0 12px 0;">
+                Cảm ơn quý khách đã tin tưởng và mua sắm tại <strong>PinkyCloud</strong>.
+            </p>
+
+            <div>
+                <span style="font-size: 13px; color: var(--slate-500); display: block;">MÃ ĐƠN HÀNG CỦA BẠN:</span>
+                <span class="order-code-badge" th:text="${order != null ? order.orderCode : (orderCode != null ? orderCode : 'DH26000000')}">DH26000001</span>
+            </div>
+        </div>
+
+        <!-- Order Information Details Card -->
+        <div th:if="${order != null}" class="store-card" style="margin-bottom: 24px;">
+            <h2 class="card-title">
+                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                </svg>
+                Thông Tin Giao Nhận & Đơn Hàng
+            </h2>
+
+            <div class="summary-row">
+                <span>Người nhận hàng:</span>
+                <strong th:text="${order.recipientName}">Nguyễn Thu Hà</strong>
+            </div>
+
+            <div class="summary-row">
+                <span>Số điện thoại:</span>
+                <strong th:text="${order.recipientPhone}">0912345678</strong>
+            </div>
+
+            <div class="summary-row">
+                <span>Địa chỉ giao hàng:</span>
+                <span style="text-align: right; max-width: 60%;" th:text="${order.shippingAddress}">Địa chỉ</span>
+            </div>
+
+            <div class="summary-row">
+                <span>Phương thức thanh toán:</span>
+                <strong th:text="${order.paymentMethod == 'COD' ? 'Thanh toán khi nhận hàng (COD)' : 'Chuyển khoản Ngân hàng (QR)'}">COD</strong>
+            </div>
+
+            <div class="summary-row">
+                <span>Trạng thái đơn hàng:</span>
+                <span class="user-badge" style="background-color: var(--warning-light); color: var(--warning);" th:text="${order.status}">PENDING</span>
+            </div>
+
+            <div th:if="${order.note != null && !order.note.isBlank()}" class="summary-row">
+                <span>Ghi chú:</span>
+                <span th:text="${order.note}">Ghi chú</span>
+            </div>
+
+            <!-- Items Purchased Table -->
+            <div style="margin-top: 24px;">
+                <h3 style="font-size: 15px; font-weight: 700; color: var(--slate-800); margin-bottom: 12px;">Sản phẩm đã đặt:</h3>
+                <div th:each="item : ${order.items}" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--slate-100); font-size: 14px;">
+                    <div>
+                        <strong th:text="${item.productName}">Serum</strong>
+                        <span style="color: var(--slate-500); font-size: 13px;" th:text="' x ' + ${item.quantity}"> x 1</span>
+                    </div>
+                    <strong class="price-accent" th:text="${#numbers.formatDecimal(item.subtotal, 0, 'POINT', 0, 'COMMA')} + ' đ'">0 đ</strong>
+                </div>
+            </div>
+
+            <div class="summary-total" style="margin-top: 16px;">
+                <span>Tổng tiền thanh toán:</span>
+                <span class="price-accent" th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'POINT', 0, 'COMMA')} + ' đ'">0 đ</span>
+            </div>
+        </div>
+
+        <!-- Back to Shopping CTA -->
+        <div style="text-align: center;">
+            <a th:href="@{/products}" class="btn-primary-block" style="display: inline-flex; width: auto; padding: 14px 36px;">
+                Tiếp Tục Mua Sắm
+            </a>
+        </div>
+
+    </div>
+
+</main>
+</html>

@@ -10,13 +10,13 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(
-    name = "products",
-    indexes = {
-        @Index(name = "idx_products_code", columnList = "product_code"),
-        @Index(name = "idx_products_name", columnList = "name"),
-        @Index(name = "idx_products_brand", columnList = "brand"),
-        @Index(name = "idx_products_category", columnList = "category_id")
-    }
+        name = "products",
+        indexes = {
+                @Index(name = "idx_products_code", columnList = "product_code"),
+                @Index(name = "idx_products_name", columnList = "name"),
+                @Index(name = "idx_products_brand", columnList = "brand"),
+                @Index(name = "idx_products_category", columnList = "category_id")
+        }
 )
 @NoArgsConstructor
 @AllArgsConstructor
@@ -35,6 +35,7 @@ public class Product {
     @Column(name = "product_code", unique = true, updatable = false, length = 30, nullable = false)
     private String productCode;
 
+    // GIỮ V1: Hỗ trợ Tiếng Việt (NVARCHAR)
     @org.hibernate.annotations.Nationalized
     @Column(nullable = false, length = 255, columnDefinition = "NVARCHAR(255)")
     private String name;
@@ -53,8 +54,10 @@ public class Product {
     @Column(name="image_url", length = 255)
     private String image;
 
+    // LẤY TỪ V2: Thiết lập mặc định = 0 để tránh lỗi NullPointerException khi đặt hàng
+    @Builder.Default
     @Column(name = "stock_quantity", nullable = false)
-    private Integer stockQuantity;
+    private Integer stockQuantity = 0;
 
     @Builder.Default
     @Column(length = 10)

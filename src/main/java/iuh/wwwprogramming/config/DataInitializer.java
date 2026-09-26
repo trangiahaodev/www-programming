@@ -7,13 +7,16 @@ import iuh.wwwprogramming.entity.Order;
 import iuh.wwwprogramming.entity.OrderItem;
 import iuh.wwwprogramming.entity.OrderStatus;
 import iuh.wwwprogramming.entity.Product;
+import iuh.wwwprogramming.entity.User;
 import iuh.wwwprogramming.repository.CategoryRepository;
 import iuh.wwwprogramming.repository.OrderRepository;
 import iuh.wwwprogramming.repository.ProductRepository;
+import iuh.wwwprogramming.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,22 +32,60 @@ import java.util.Map;
 @Slf4j
 public class DataInitializer implements CommandLineRunner {
 
-    // 1. Khai báo gộp tất cả các Repository của cả 2 nhánh
+    // Khai báo gộp tất cả các Repository và Bean từ cả 3 nhánh
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     @Transactional
     public void run(String... args) {
-        // Gọi tuần tự các hàm nạp dữ liệu mồi
+        // Khởi tạo theo đúng thứ tự: User -> Danh mục & Sản phẩm -> Đơn hàng
+        seedUsers();
         seedProductsAndCategories();
         seedOrders();
     }
 
     // =========================================================================
-    // LOGIC CỦA NHÁNH CORE: Nạp Danh Mục và Sản Phẩm (từ JSON)
+    // 1. NHÁNH CHECKOUT: Nạp Tài khoản Người dùng (Admin & Customer)
+    // =========================================================================
+    private void seedUsers() {
+        if (!userRepository.existsByEmail("khachhang@pinkycloud.com")) {
+            User customer = User.builder()
+                    .userCode("KH26000001")
+                    .email("khachhang@pinkycloud.com")
+                    .password(passwordEncoder.encode("123456"))
+                    .fullName("Nguyễn Thu Hà")
+                    .phone("0912345678")
+                    .address("12 Nguyễn Văn Bảo, Phường 4, Quận Gò Vấp, TP. Hồ Chí Minh")
+                    .role("ROLE_CUSTOMER")
+                    .active(true)
+                    .build();
+            userRepository.save(customer);
+            log.info("Đã khởi tạo tài khoản Customer mẫu.");
+        }
+
+        if (!userRepository.existsByEmail("admin@pinkycloud.com")) {
+            User admin = User.builder()
+                    .userCode("AD26000001")
+                    .email("admin@pinkycloud.com")
+                    .password(passwordEncoder.encode("admin123"))
+                    .fullName("Quản Trị Viên Pinky")
+                    .phone("0988888888")
+                    .address("Hệ Thống Pinky Cloud")
+                    .role("ROLE_ADMIN")
+                    .active(true)
+                    .build();
+            userRepository.save(admin);
+            log.info("Đã khởi tạo tài khoản Admin mẫu.");
+        }
+    }
+
+    // =========================================================================
+    // 2. NHÁNH CORE: Nạp Danh Mục và Sản Phẩm (từ JSON)
     // =========================================================================
     private void seedProductsAndCategories() {
         try {
@@ -110,7 +151,7 @@ public class DataInitializer implements CommandLineRunner {
                             .productCode(productCode)
                             .name(name)
                             .brand(brand)
-                            .price(BigDecimal.valueOf(price)) // Đã giữ bản fix an toàn BigDecimal
+                            .price(BigDecimal.valueOf(price))
                             .discount(discount)
                             .image(image)
                             .origin(origin)
@@ -139,7 +180,7 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     // =========================================================================
-    // LOGIC CỦA NHÁNH ORDER: Nạp Đơn hàng và Chi tiết đơn hàng mẫu
+    // 3. NHÁNH ORDER: Nạp Đơn hàng và Chi tiết đơn hàng mẫu
     // =========================================================================
     private void seedOrders() {
         if (orderRepository.count() == 0) {

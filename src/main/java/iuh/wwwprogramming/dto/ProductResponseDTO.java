@@ -17,8 +17,13 @@ public class ProductResponseDTO {
     private BigDecimal price;
     private Integer stockQuantity;
     private String description;
+
+    // Thuộc tính này V2 gọi là imageUrl, đã trùng khớp với V1
     private String imageUrl;
+
     private Boolean active;
+
+    // Hai trường mở rộng phục vụ cho UI của nhánh Core/Admin
     private String categoryId;
     private String categoryName;
     private LocalDateTime createdAt;

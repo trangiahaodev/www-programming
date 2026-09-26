@@ -13,7 +13,8 @@ import java.util.Optional;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, String> {
-// =========================================================================
+
+    // =========================================================================
     // 1. NHÓM HÀM CHO ADMIN (Bao gồm tất cả trạng thái, dùng cho CRUD)
     // =========================================================================
 
@@ -56,7 +57,7 @@ public interface ProductRepository extends JpaRepository<Product, String> {
     // 2. NHÓM HÀM CHO CUSTOMER (Bắt buộc kiểm tra active = true)
     // =========================================================================
 
-    // ĐÃ ĐỔI TÊN: Tránh conflict với hàm search của Admin
+    // Tránh conflict với hàm search của Admin
     @Query(
             value = """
             SELECT p FROM Product p
@@ -87,7 +88,7 @@ public interface ProductRepository extends JpaRepository<Product, String> {
             Pageable pageable
     );
 
-    // ĐÃ ĐỔI TÊN: Tránh conflict với hàm findById của Admin
+    // Tránh conflict với hàm findById của Admin
     @Query("SELECT p FROM Product p JOIN FETCH p.category WHERE p.id = :id AND p.active = true")
     Optional<Product> findActiveByIdWithCategory(@Param("id") String id);
 
@@ -139,4 +140,14 @@ public interface ProductRepository extends JpaRepository<Product, String> {
 
     @Query("SELECT DISTINCT p.brand FROM Product p WHERE p.active = true ORDER BY p.brand ASC")
     List<String> findDistinctBrands();
+
+
+    // =========================================================================
+    // 3. NHÓM HÀM CHO CHECKOUT & CART (Bổ sung từ nhánh V2)
+    // =========================================================================
+
+    // Tích hợp từ V2: Hàm này cực kỳ quan trọng để OrderServiceImpl trừ số lượng tồn kho khi chốt đơn
+    Optional<Product> findByIdAndActiveTrue(String id);
+
+    Optional<Product> findByProductCode(String productCode);
 }
