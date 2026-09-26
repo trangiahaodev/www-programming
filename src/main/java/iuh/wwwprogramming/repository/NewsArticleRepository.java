@@ -14,6 +14,8 @@ public interface NewsArticleRepository extends JpaRepository<NewsArticle, Long> 
 
     Optional<NewsArticle> findBySlugAndActiveTrue(String slug);
 
+    boolean existsBySlug(String slug);
+
     List<NewsArticle> findAllByActiveTrueOrderByPublishedDateDesc();
 
     List<NewsArticle> findByCategoryIgnoreCaseAndActiveTrue(String category);

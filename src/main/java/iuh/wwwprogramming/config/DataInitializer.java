@@ -271,11 +271,6 @@ public class DataInitializer implements CommandLineRunner {
     // Nạp Bài Viết Tin Tức & Cẩm Nang vào Database Thật
     // =========================================================================
     private void seedNewsArticles() {
-        if (newsArticleRepository.count() > 0) {
-            log.info("Dữ liệu bài viết tin tức đã tồn tại ({}), bỏ qua seed.", newsArticleRepository.count());
-            return;
-        }
-
         List<NewsArticle> articles = new ArrayList<>();
 
         articles.add(NewsArticle.builder()
@@ -368,19 +363,96 @@ public class DataInitializer implements CommandLineRunner {
                 .linkedProductIds("pc-049,pc-052")
                 .build());
 
-        newsArticleRepository.saveAll(articles);
-        log.info("Initialized {} sample news articles into SQL Server successfully.", articles.size());
+        // Bài viết 6: Sử dụng news06.png
+        articles.add(NewsArticle.builder()
+                .slug("nghe-thuat-trang-diem-ca-nhan-bo-co-va-bang-mau")
+                .title("Nghệ thuật trang điểm cá nhân: Bộ cọ & Bảng màu dành cho người mới bắt đầu")
+                .excerpt("Hướng dẫn chọn bộ cọ chuyên nghiệp và phối màu mắt, má hồng tự nhiên giúp người mới bắt đầu tự tin biến hóa phong cách trang điểm hàng ngày.")
+                .content("Trang điểm cá nhân không chỉ là cách để tôn lên những nét đẹp tự nhiên trên khuôn mặt mà còn là một nghệ thuật giúp bạn tự tin hơn mỗi ngày. Tuy nhiên, đối với người mới bắt đầu, việc đối mặt với hàng chục loại cọ khác nhau và vô số bảng màu mắt, phấn má thường mang lại cảm giác bối rối.\n\nĐể bắt đầu một cách hiệu quả, bạn không cần phải sở hữu trọn bộ cọ chuyên nghiệp 24 cây. Một bộ cọ cơ bản gồm 5 cây thiết yếu là đã đủ: cọ tán kem nền hoặc mút trang điểm hình giọt nước, cọ phấn phủ đầu tròn to xốp, cọ vát xéo dành cho má hồng và tạo khối, cọ tán màu mắt bản dẹt và một cây cọ blending đầu tròn để làm mềm các đường ranh giới phấn mắt. Vệ sinh cọ định kỳ mỗi tuần cũng là nguyên tắc vàng để ngăn ngừa mụn và giữ sợi lông cọ luôn mềm mại.\n\nVề bảng màu trang điểm, người mới nên bắt đầu với các tone màu trung tính ấm (Warm Neutral) như cam đất, hồng đào nude, nâu ấm hoặc be san hô. Những gam màu này có ưu điểm lớn là rất tôn da phụ nữ Á Đông, dễ phối hợp với mọi trang phục công sở hay dạo phố, và hạn chế tối đa nguy cơ bị lỗi trang điểm quá đậm hay lệch tone.\n\nBên cạnh cọ và phấn màu, một lớp nền mỏng mịn tệp màu da và một thỏi son lì chuẩn sắc chính là điểm tựa hoàn hảo. Hãy nhớ quy tắc cân bằng: nếu bạn chọn nhấn vào đôi mắt sâu cuốn hút, hãy tiết chế màu son môi bằng các tone nude dịu dàng; ngược lại, một đôi môi đỏ quyến rũ sẽ đẹp nhất khi đi kèm bầu mắt trong trẻo nhẹ nhàng.")
+                .publishedDate("18/04/2026")
+                .category("Trang điểm")
+                .author("Minh Thư")
+                .authorRole("Makeup Artist")
+                .readTime("5 phút đọc")
+                .image("/IMG/news06.png")
+                .tags("Trang Điểm,Cọ Trang Điểm,Bảng Màu,Makeup Cơ Bản")
+                .viewsCount(3250L)
+                .isFeatured(false)
+                .active(true)
+                .linkedProductIds("pc-028,pc-032")
+                .build());
+
+        // Bài viết 7: Sử dụng news07.png
+        articles.add(NewsArticle.builder()
+                .slug("xu-huong-son-moi-tone-hoa-anh-dao-va-phan-ma-bat-sang")
+                .title("Xu hướng son môi Tone Hoa Anh Đào & Phấn má bắt sáng Mùa Xuân")
+                .excerpt("Khám phá vẻ đẹp ngọt ngào của sắc son cánh hoa anh đào kết hợp phấn má bắt sáng căng mọng, định hình diện mạo tươi mới và trẻ trung.")
+                .content("Mùa xuân và đầu hè luôn là thời điểm lên ngôi của phong cách trang điểm ngọt ngào, rạng rỡ lấy cảm hứng từ những cánh hoa anh đào (Sakura Blossom) mong manh và trong trẻo. Xu hướng này hướng đến sự tươi mới, tràn đầy sức sống của làn da với hai điểm nhấn chủ đạo: màu son cánh hoa và đôi gò má ửng hồng phủ ánh ngọc trai.\n\nSắc son hoa anh đào là sự hòa quyện tinh tế giữa sắc hồng baby dịu mát và ánh san hô ấm áp, mang lại hiệu ứng đôi môi căng mọng như được ngậm nước. Các công thức son tint bóng nhẹ (Juicy Dewy Lip) hoặc son thỏi lì hiệu ứng nhung mờ (Velvet Blurred) đang là hai kết cấu được săn đón nhiều nhất, giúp làm đầy rãnh môi và tạo cảm giác đôi môi tròn đầy tự nhiên.\n\nĐể kết hợp hoàn hảo cùng son môi Sakura, kỹ thuật đánh phấn má bắt sáng (Highlighter & Blush Drape) là chìa khóa không thể thiếu. Thay vì chỉ đánh tròn trên gò má, chuyên gia khuyên bạn nên tán phấn má theo hình chữ C nối liền từ xương gò má lên thái dương, sau đó chấm một chút phấn bắt sáng dạng lỏng lên sống mũi và nhân trung để bắt trọn ánh sáng tự nhiên.\n\nĐừng quên dưỡng ẩm môi thật kỹ vào ban đêm với mặt nạ ủ môi giàu dưỡng chất từ quả mọng để đôi môi luôn mềm mịn, sẵn sàng khoác lên sắc son mùa xuân rực rỡ nhất mà không lo lộ vân môi hay bong tróc.")
+                .publishedDate("22/04/2026")
+                .category("Xu hướng làm đẹp")
+                .author("PinkyCloud Editorial")
+                .authorRole("Ban Biên Tập Chuyên Môn")
+                .readTime("4 phút đọc")
+                .image("/IMG/news07.png")
+                .tags("Son Môi,Sakura,Tone Hồng,Makeup Mùa Xuân,Phấn Má")
+                .viewsCount(2890L)
+                .isFeatured(false)
+                .active(true)
+                .linkedProductIds("pc-040,pc-028")
+                .build());
+
+        // Bài viết 8: Sử dụng news08.png
+        articles.add(NewsArticle.builder()
+                .slug("quy-trinh-duong-da-buoi-sang-3-buoc-toi-gian")
+                .title("Quy trình dưỡng da buổi sáng (Morning Routine) 3 bước tối giản")
+                .excerpt("Khởi đầu ngày mới với chu trình skincare 3 bước nhanh gọn nhưng đầy đủ bảo vệ, giúp bạn tiết kiệm thời gian mà da vẫn căng mướt suốt ngày dài.")
+                .content("Trong nhịp sống bận rộn hiện đại, việc duy trì một chu trình dưỡng da buổi sáng gồm 7 đến 10 bước phức tạp thường khiến nhiều người cảm thấy quá tải và khó kiên trì. May mắn thay, các bác sĩ da liễu đều đồng thuận rằng: Buổi sáng là thời điểm bảo vệ (Protect), khác với ban đêm là thời điểm phục hồi (Repair). Vì vậy, một chu trình Morning Routine 3 bước chuẩn y khoa là hoàn toàn đủ để làn da tỏa sáng và an toàn trước các tác nhân môi trường.\n\nBước 1: Làm sạch nhẹ nhàng (Gentle Cleansing). Sau một đêm dài ngủ trong phòng máy lạnh, da chỉ tích tụ một lớp dầu tự nhiên và bụi từ chăn gối. Hãy ưu tiên các dòng sữa rửa mặt dịu nhẹ có độ pH chuẩn 5.0 - 5.5, không chứa xà phòng tạo bọt quá mạnh. Việc làm sạch nhẹ nhàng giúp thông thoáng lỗ chân lông mà không làm tổn hại đến màng acid sinh học bảo vệ da.\n\nBước 2: Cấp ẩm và chống oxy hóa (Hydrate & Antioxidant). Serum chứa Hyaluronic Acid đa phân tử hoặc Niacinamide nồng độ vừa phải sẽ nhanh chóng bù đắp lượng nước thiếu hụt, giúp da căng mướt và đàn hồi ngay tức thì. Hoạt chất này cũng tạo lớp màng ẩm vững chắc giúp các bước trang điểm tiếp theo tệp đều và không bị mốc phấn.\n\nBước 3: Chống nắng toàn diện (Sun Protection). Đây là bước quan trọng nhất quyết định đến 90% thành công của chu trình chăm sóc da. Một loại kem chống nắng phổ rộng SPF50+ PA++++ với kết cấu mỏng nhẹ, thoáng mịn không bết rít sẽ tạo thành tấm khiên kiên cố bảo vệ tế bào da khỏi tia UVA, UVB, ánh sáng xanh và bụi mịn PM2.5. Thoa đủ 2 lóng ngón tay kem chống nắng trước khi ra ngoài 20 phút để da được bảo vệ tối ưu.")
+                .publishedDate("25/04/2026")
+                .category("Hướng dẫn sử dụng")
+                .author("Dr. Hoàng Lan")
+                .authorRole("Cố Vấn Da Liễu PinkyCloud")
+                .readTime("5 phút đọc")
+                .image("/IMG/news08.png")
+                .tags("Morning Routine,Chống Nắng,Dưỡng Ẩm,Tối Giản,Skincare Buổi Sáng")
+                .viewsCount(3760L)
+                .isFeatured(false)
+                .active(true)
+                .linkedProductIds("pc-001,pc-013,pc-011")
+                .build());
+
+        // Bài viết 9: Sử dụng news09.png
+        articles.add(NewsArticle.builder()
+                .slug("chiet-xuat-tra-xanh-va-thao-moc-tu-nhien-cho-da-dau-mun")
+                .title("Chiết xuất Trà xanh & Thảo mộc tự nhiên: Khắc tinh của làn da dầu mụn")
+                .excerpt("Sức mạnh kháng viêm và chống oxy hóa vượt trội từ lá trà xanh và các loài thảo mộc phương Đông trong việc thanh lọc và làm dịu làn da dầu mụn.")
+                .content("Đối với những ai sở hữu làn da dầu nhờn và dễ nổi mụn, việc tìm kiếm một giải pháp kiểm soát dầu thừa mà không làm khô căng hay kích ứng da luôn là bài toán nan giải. Trong số các thành phần thiên nhiên được khoa học hiện đại kiểm chứng, chiết xuất lá trà xanh (Camellia Sinensis) cùng các loại thảo mộc hữu cơ đang nổi lên như một cứu tinh toàn diện cho làn da nhiệt đới.\n\nLá trà xanh chứa nồng độ EGCG (Epigallocatechin Gallate) vô cùng đậm đặc - một hợp chất chống oxy hóa tự nhiên mạnh mẽ gấp 100 lần Vitamin C và 25 lần Vitamin E. EGCG có khả năng ức chế enzym sản sinh bã nhờn quá mức, làm dịu tức thì các ổ viêm sưng đỏ của mụn và ngăn ngừa vi khuẩn P.acnes sinh sôi phát triển trên bề mặt da.\n\nBên cạnh trà xanh, sự kết hợp với tinh dầu tràm trà (Tea Tree) và rau má (Centella Asiatica) tạo nên bộ ba thảo mộc hoàn hảo. Tràm trà đóng vai trò kháng khuẩn tự nhiên làm se cồi mụn nhanh chóng, trong khi Madecassoside từ rau má tăng tốc quá trình tái tạo mô liên kết, ngăn ngừa sẹo thâm và sẹo lõm hình thành sau mụn.\n\nKhi tích hợp các sản phẩm chiết xuất trà xanh và thảo mộc vào chu trình chăm sóc da hàng ngày - từ gel rửa mặt cân bằng pH, toner thanh lọc đến serum phục hồi - bạn sẽ cảm nhận được sự dịu mát, nền da thông thoáng nhẹ tênh và tình trạng bóng dầu giảm rõ rệt chỉ sau 2 đến 3 tuần sử dụng đều đặn.")
+                .publishedDate("27/04/2026")
+                .category("Kiến thức làm đẹp")
+                .author("Ngọc Trâm")
+                .authorRole("Beauty Specialist")
+                .readTime("6 phút đọc")
+                .image("/IMG/news09.png")
+                .tags("Trà Xanh,Thảo Mộc,Da Dầu Mụn,Thanh Lọc Da,EGCG,Tràm Trà")
+                .viewsCount(4120L)
+                .isFeatured(false)
+                .active(true)
+                .linkedProductIds("pc-009,pc-016,pc-046")
+                .build());
+
+        int seededCount = 0;
+        for (NewsArticle article : articles) {
+            if (!newsArticleRepository.existsBySlug(article.getSlug())) {
+                newsArticleRepository.save(article);
+                seededCount++;
+            }
+        }
+        log.info("Initialized {} new news articles into SQL Server (total available: {}).", seededCount, articles.size());
     }
 
     // =========================================================================
     // Nạp Mã Giảm Giá (Vouchers) vào Database Thật
     // =========================================================================
     private void seedVouchers() {
-        if (voucherRepository.count() > 0) {
-            log.info("Dữ liệu voucher đã tồn tại ({}), bỏ qua seed.", voucherRepository.count());
-            return;
-        }
-
         List<Voucher> vouchers = List.of(
                 Voucher.builder()
                         .code("PINKY15")
@@ -421,10 +493,56 @@ public class DataInitializer implements CommandLineRunner {
                         .discountPercent(10)
                         .minOrderAmount(new BigDecimal("200000.00"))
                         .active(true)
+                        .build(),
+                Voucher.builder()
+                        .code("PINKYNEW")
+                        .title("Chào bạn mới: Giảm 20.000₫")
+                        .detail("Áp dụng cho đơn hàng đầu tiên từ 199.000₫")
+                        .status("active")
+                        .accent("linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%)")
+                        .discountAmount(new BigDecimal("20000.00"))
+                        .minOrderAmount(new BigDecimal("199000.00"))
+                        .active(true)
+                        .build(),
+                Voucher.builder()
+                        .code("WEEKEND")
+                        .title("Flash Voucher Cuối Tuần 70.000₫")
+                        .detail("Dành riêng cho đơn hàng cuối tuần từ 599.000₫")
+                        .status("active")
+                        .accent("linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%)")
+                        .discountAmount(new BigDecimal("70000.00"))
+                        .minOrderAmount(new BigDecimal("599000.00"))
+                        .active(true)
+                        .build(),
+                Voucher.builder()
+                        .code("COMBO3")
+                        .title("Combo Tiết Kiệm: Giảm 100.000₫")
+                        .detail("Áp dụng cho đơn hàng mỹ phẩm từ 899.000₫")
+                        .status("active")
+                        .accent("linear-gradient(135deg, #ede7f6 0%, #d1c4e9 100%)")
+                        .discountAmount(new BigDecimal("100000.00"))
+                        .minOrderAmount(new BigDecimal("899000.00"))
+                        .active(true)
+                        .build(),
+                Voucher.builder()
+                        .code("VIPBEAUTY")
+                        .title("Đặc quyền VIP Pinky: Giảm 20%")
+                        .detail("Tối đa 200.000₫ cho đơn từ 1.200.000₫")
+                        .status("active")
+                        .accent("linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%)")
+                        .discountPercent(20)
+                        .minOrderAmount(new BigDecimal("1200000.00"))
+                        .active(true)
                         .build()
         );
 
-        voucherRepository.saveAll(vouchers);
-        log.info("Initialized {} sample vouchers into SQL Server successfully.", vouchers.size());
+        int seededVoucherCount = 0;
+        for (Voucher voucher : vouchers) {
+            if (!voucherRepository.existsByCode(voucher.getCode())) {
+                voucherRepository.save(voucher);
+                seededVoucherCount++;
+            }
+        }
+        log.info("Initialized {} new vouchers into SQL Server (total available: {}).", seededVoucherCount, vouchers.size());
     }
-}
+}

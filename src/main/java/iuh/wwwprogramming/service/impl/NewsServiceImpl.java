@@ -20,17 +20,20 @@ public class NewsServiceImpl implements NewsService {
     private final ProductRepository productRepository;
     private final iuh.wwwprogramming.repository.NewsArticleRepository newsArticleRepository;
 
-    private static final Map<String, String> RECOMMENDATION_REASONS = Map.of(
-            "pc-016", "Chứa 100% chiết xuất rau má vùng Madagascar giúp làm dịu nhanh da kích ứng, kháng viêm và đẩy nhanh quá trình phục hồi các tổn thương sau mụn.",
-            "pc-009", "Độ pH lý tưởng 5.5 nhẹ dịu cùng tinh dầu tràm trà tự nhiên giúp kiểm soát bã nhờn hiệu quả, kháng khuẩn và bảo vệ hàng rào ẩm tự nhiên.",
-            "pc-001", "Công nghệ chống nắng tối tân bảo vệ da nhạy cảm toàn diện trước tia UV với kết cấu dạng sữa lỏng thoáng mịn, không để lại màng trắng hay bết rít.",
-            "pc-012", "Sữa rửa mặt dịu lành không chứa xà phòng, giúp làm sạch sâu bụi mịn mà vẫn duy trì độ ẩm tự nhiên, được các chuyên gia khuyên dùng hàng đầu.",
-            "pc-013", "Cấp nước sâu vào các tầng da với 5 loại phân tử Hyaluronic Acid, giảm căng thẳng cho biểu bì và mang lại làn da căng mướt ngậm nước tức thì.",
-            "pc-050", "Sự kết hợp giữa Hyaluronic Acid 2% và Vitamin B5 giúp liên kết phân tử nước giữ ẩm cho tế bào da, thúc đẩy quá trình phục hồi biểu bì bị tổn thương.",
-            "pc-040", "Mặt nạ ngủ môi giàu Vitamin C và chất chống oxy hóa từ quả mọng, giúp loại bỏ tế bào chết môi ẩm mượt và hồng hào rạng rỡ sau mỗi giấc ngủ.",
-            "pc-046", "Kem dưỡng phục hồi da mụn với phức hợp AHA-BHA-PHA và 70% chiết xuất rau má, củng cố hàng rào bảo vệ da khỏe mạnh rõ rệt chỉ sau 14 ngày.",
-            "pc-049", "Niacinamide nồng độ 10% giúp cải thiện rõ rệt tình trạng lỗ chân lông to, làm mờ thâm sạm và khôi phục bề mặt da mịn màng, sáng khỏe.",
-            "pc-052", "Vitamin C tươi nguyên chất giúp dưỡng sáng da, mờ vết thâm hiệu quả mà vẫn cực kỳ dịu nhẹ, phù hợp cho mọi làn da sử dụng hàng ngày."
+    private static final Map<String, String> RECOMMENDATION_REASONS = Map.ofEntries(
+            Map.entry("pc-016", "Chứa 100% chiết xuất rau má vùng Madagascar giúp làm dịu nhanh da kích ứng, kháng viêm và đẩy nhanh quá trình phục hồi các tổn thương sau mụn."),
+            Map.entry("pc-009", "Độ pH lý tưởng 5.5 nhẹ dịu cùng tinh dầu tràm trà tự nhiên giúp kiểm soát bã nhờn hiệu quả, kháng khuẩn và bảo vệ hàng rào ẩm tự nhiên."),
+            Map.entry("pc-001", "Công nghệ chống nắng tối tân bảo vệ da nhạy cảm toàn diện trước tia UV với kết cấu dạng sữa lỏng thoáng mịn, không để lại màng trắng hay bết rít."),
+            Map.entry("pc-012", "Sữa rửa mặt dịu lành không chứa xà phòng, giúp làm sạch sâu bụi mịn mà vẫn duy trì độ ẩm tự nhiên, được các chuyên gia khuyên dùng hàng đầu."),
+            Map.entry("pc-013", "Cấp nước sâu vào các tầng da với 5 loại phân tử Hyaluronic Acid, giảm căng thẳng cho biểu bì và mang lại làn da căng mướt ngậm nước tức thì."),
+            Map.entry("pc-050", "Sự kết hợp giữa Hyaluronic Acid 2% và Vitamin B5 giúp liên kết phân tử nước giữ ẩm cho tế bào da, thúc đẩy quá trình phục hồi biểu bì bị tổn thương."),
+            Map.entry("pc-040", "Mặt nạ ngủ môi giàu Vitamin C và chất chống oxy hóa từ quả mọng, giúp loại bỏ tế bào chết môi ẩm mượt và hồng hào rạng rỡ sau mỗi giấc ngủ."),
+            Map.entry("pc-046", "Kem dưỡng phục hồi da mụn với phức hợp AHA-BHA-PHA và 70% chiết xuất rau má, củng cố hàng rào bảo vệ da khỏe mạnh rõ rệt chỉ sau 14 ngày."),
+            Map.entry("pc-049", "Niacinamide nồng độ 10% giúp cải thiện rõ rệt tình trạng lỗ chân lông to, làm mờ thâm sạm và khôi phục bề mặt da mịn màng, sáng khỏe."),
+            Map.entry("pc-052", "Vitamin C tươi nguyên chất giúp dưỡng sáng da, mờ vết thâm hiệu quả mà vẫn cực kỳ dịu nhẹ, phù hợp cho mọi làn da sử dụng hàng ngày."),
+            Map.entry("pc-028", "Chất son mịn lì như nhung, màu đỏ đất chuẩn tone tôn da và không gây khô môi, là thỏi son 'quốc dân' hoàn hảo cho mọi phong cách trang điểm."),
+            Map.entry("pc-032", "Lớp nền kiềm dầu mỏng nhẹ tự nhiên, che phủ khuyết điểm và lỗ chân lông hiệu quả suốt 12 giờ, là item không thể thiếu cho người mới makeup."),
+            Map.entry("pc-011", "Công thức dịu nhẹ lành tính không chứa xà phòng hay cồn khô, làm sạch bụi bẩn và dầu thừa nhẹ nhàng mà không làm căng rát da.")
     );
 
     @Override
@@ -167,6 +170,16 @@ public class NewsServiceImpl implements NewsService {
                     .collect(Collectors.toList());
         }
 
+        Map<String, String> recMap = new HashMap<>(RECOMMENDATION_REASONS);
+        for (ProductCardDTO p : products) {
+            if (p.getProductCode() != null) {
+                String codeLower = p.getProductCode().toLowerCase();
+                if (RECOMMENDATION_REASONS.containsKey(codeLower)) {
+                    recMap.put(p.getId(), RECOMMENDATION_REASONS.get(codeLower));
+                }
+            }
+        }
+
         return NewsDTO.builder()
                 .id(entity.getId().intValue())
                 .slug(entity.getSlug())
@@ -183,7 +196,7 @@ public class NewsServiceImpl implements NewsService {
                 .tags(tags)
                 .viewsCount(entity.getViewsCount())
                 .linkedProducts(products)
-                .recommendationReasons(RECOMMENDATION_REASONS)
+                .recommendationReasons(recMap)
                 .build();
     }
 
@@ -242,7 +255,11 @@ public class NewsServiceImpl implements NewsService {
                 2, List.of("pc-001", "pc-012"),
                 3, List.of("pc-013", "pc-050"),
                 4, List.of("pc-040", "pc-046"),
-                5, List.of("pc-049", "pc-052")
+                5, List.of("pc-049", "pc-052"),
+                6, List.of("pc-028", "pc-032"),
+                7, List.of("pc-040", "pc-028"),
+                8, List.of("pc-001", "pc-013", "pc-011"),
+                9, List.of("pc-009", "pc-016", "pc-046")
         );
 
         List<NewsDTO> list = new ArrayList<>();
@@ -368,6 +385,98 @@ public class NewsServiceImpl implements NewsService {
                 newsProductMap.get(5)
         ));
 
+        // Article 6
+        list.add(createArticle(
+                6,
+                "nghe-thuat-trang-diem-ca-nhan-bo-co-va-bang-mau",
+                "Nghệ thuật trang điểm cá nhân: Bộ cọ & Bảng màu dành cho người mới bắt đầu",
+                "Hướng dẫn chọn bộ cọ chuyên nghiệp và phối màu mắt, má hồng tự nhiên giúp người mới bắt đầu tự tin biến hóa phong cách trang điểm hàng ngày.",
+                List.of(
+                        "Trang điểm cá nhân không chỉ là cách để tôn lên những nét đẹp tự nhiên trên khuôn mặt mà còn là một nghệ thuật giúp bạn tự tin hơn mỗi ngày. Tuy nhiên, đối với người mới bắt đầu, việc đối mặt với hàng chục loại cọ khác nhau và vô số bảng màu mắt, phấn má thường mang lại cảm giác bối rối.",
+                        "Để bắt đầu một cách hiệu quả, bạn không cần phải sở hữu trọn bộ cọ chuyên nghiệp 24 cây. Một bộ cọ cơ bản gồm 5 cây thiết yếu là đã đủ: cọ tán kem nền hoặc mút trang điểm hình giọt nước, cọ phấn phủ đầu tròn to xốp, cọ vát xéo dành cho má hồng và tạo khối, cọ tán màu mắt bản dẹt và một cây cọ blending đầu tròn để làm mềm các đường ranh giới phấn mắt. Vệ sinh cọ định kỳ mỗi tuần cũng là nguyên tắc vàng để ngăn ngừa mụn và giữ sợi lông cọ luôn mềm mại.",
+                        "Về bảng màu trang điểm, người mới nên bắt đầu với các tone màu trung tính ấm (Warm Neutral) như cam đất, hồng đào nude, nâu ấm hoặc be san hô. Những gam màu này có ưu điểm lớn là rất tôn da phụ nữ Á Đông, dễ phối hợp với mọi trang phục công sở hay dạo phố, và hạn chế tối đa nguy cơ bị lỗi trang điểm quá đậm hay lệch tone.",
+                        "Bên cạnh cọ và phấn màu, một lớp nền mỏng mịn tệp màu da và một thỏi son lì chuẩn sắc chính là điểm tựa hoàn hảo. Hãy nhớ quy tắc cân bằng: nếu bạn chọn nhấn vào đôi mắt sâu cuốn hút, hãy tiết chế màu son môi bằng các tone nude dịu dàng; ngược lại, một đôi môi đỏ quyến rũ sẽ đẹp nhất khi đi kèm bầu mắt trong trẻo nhẹ nhàng."
+                ),
+                "18/04/2026",
+                "Trang điểm",
+                "Minh Thư",
+                "Makeup Artist",
+                "5 phút đọc",
+                "/IMG/news06.png",
+                List.of("Trang Điểm", "Cọ Trang Điểm", "Bảng Màu", "Makeup Cơ Bản"),
+                3250L,
+                newsProductMap.get(6)
+        ));
+
+        // Article 7
+        list.add(createArticle(
+                7,
+                "xu-huong-son-moi-tone-hoa-anh-dao-va-phan-ma-bat-sang",
+                "Xu hướng son môi Tone Hoa Anh Đào & Phấn má bắt sáng Mùa Xuân",
+                "Khám phá vẻ đẹp ngọt ngào của sắc son cánh hoa anh đào kết hợp phấn má bắt sáng căng mọng, định hình diện mạo tươi mới và trẻ trung.",
+                List.of(
+                        "Mùa xuân và đầu hè luôn là thời điểm lên ngôi của phong cách trang điểm ngọt ngào, rạng rỡ lấy cảm hứng từ những cánh hoa anh đào (Sakura Blossom) mong manh và trong trẻo. Xu hướng này hướng đến sự tươi mới, tràn đầy sức sống của làn da với hai điểm nhấn chủ đạo: màu son cánh hoa và đôi gò má ửng hồng phủ ánh ngọc trai.",
+                        "Sắc son hoa anh đào là sự hòa quyện tinh tế giữa sắc hồng baby dịu mát và ánh san hô ấm áp, mang lại hiệu ứng đôi môi căng mọng như được ngậm nước. Các công thức son tint bóng nhẹ (Juicy Dewy Lip) hoặc son thỏi lì hiệu ứng nhung mờ (Velvet Blurred) đang là hai kết cấu được săn đón nhiều nhất, giúp làm đầy rãnh môi và tạo cảm giác đôi môi tròn đầy tự nhiên.",
+                        "Để kết hợp hoàn hảo cùng son môi Sakura, kỹ thuật đánh phấn má bắt sáng (Highlighter & Blush Drape) là chìa khóa không thể thiếu. Thay vì chỉ đánh tròn trên gò má, chuyên gia khuyên bạn nên tán phấn má theo hình chữ C nối liền từ xương gò má lên thái dương, sau đó chấm một chút phấn bắt sáng dạng lỏng lên sống mũi và nhân trung để bắt trọn ánh sáng tự nhiên.",
+                        "Đừng quên dưỡng ẩm môi thật kỹ vào ban đêm với mặt nạ ủ môi giàu dưỡng chất từ quả mọng để đôi môi luôn mềm mịn, sẵn sàng khoác lên sắc son mùa xuân rực rỡ nhất mà không lo lộ vân môi hay bong tróc."
+                ),
+                "22/04/2026",
+                "Xu hướng làm đẹp",
+                "PinkyCloud Editorial",
+                "Ban Biên Tập Chuyên Môn",
+                "4 phút đọc",
+                "/IMG/news07.png",
+                List.of("Son Môi", "Sakura", "Tone Hồng", "Makeup Mùa Xuân", "Phấn Má"),
+                2890L,
+                newsProductMap.get(7)
+        ));
+
+        // Article 8
+        list.add(createArticle(
+                8,
+                "quy-trinh-duong-da-buoi-sang-3-buoc-toi-gian",
+                "Quy trình dưỡng da buổi sáng (Morning Routine) 3 bước tối giản",
+                "Khởi đầu ngày mới với chu trình skincare 3 bước nhanh gọn nhưng đầy đủ bảo vệ, giúp bạn tiết kiệm thời gian mà da vẫn căng mướt suốt ngày dài.",
+                List.of(
+                        "Trong nhịp sống bận rộn hiện đại, việc duy trì một chu trình dưỡng da buổi sáng gồm 7 đến 10 bước phức tạp thường khiến nhiều người cảm thấy quá tải và khó kiên trì. May mắn thay, các bác sĩ da liễu đều đồng thuận rằng: Buổi sáng là thời điểm bảo vệ (Protect), khác với ban đêm là thời điểm phục hồi (Repair). Vì vậy, một chu trình Morning Routine 3 bước chuẩn y khoa là hoàn toàn đủ để làn da tỏa sáng và an toàn trước các tác nhân môi trường.",
+                        "Bước 1: Làm sạch nhẹ nhàng (Gentle Cleansing). Sau một đêm dài ngủ trong phòng máy lạnh, da chỉ tích tụ một lớp dầu tự nhiên và bụi từ chăn gối. Hãy ưu tiên các dòng sữa rửa mặt dịu nhẹ có độ pH chuẩn 5.0 - 5.5, không chứa xà phòng tạo bọt quá mạnh. Việc làm sạch nhẹ nhàng giúp thông thoáng lỗ chân lông mà không làm tổn hại đến màng acid sinh học bảo vệ da.",
+                        "Bước 2: Cấp ẩm và chống oxy hóa (Hydrate & Antioxidant). Serum chứa Hyaluronic Acid đa phân tử hoặc Niacinamide nồng độ vừa phải sẽ nhanh chóng bù đắp lượng nước thiếu hụt, giúp da căng mướt và đàn hồi ngay tức thì. Hoạt chất này cũng tạo lớp màng ẩm vững chắc giúp các bước trang điểm tiếp theo tệp đều và không bị mốc phấn.",
+                        "Bước 3: Chống nắng toàn diện (Sun Protection). Đây là bước quan trọng nhất quyết định đến 90% thành công của chu trình chăm sóc da. Một loại kem chống nắng phổ rộng SPF50+ PA++++ với kết cấu mỏng nhẹ, thoáng mịn không bết rít sẽ tạo thành tấm khiên kiên cố bảo vệ tế bào da khỏi tia UVA, UVB, ánh sáng xanh và bụi mịn PM2.5. Thoa đủ 2 lóng ngón tay kem chống nắng trước khi ra ngoài 20 phút để da được bảo vệ tối ưu."
+                ),
+                "25/04/2026",
+                "Hướng dẫn sử dụng",
+                "Dr. Hoàng Lan",
+                "Cố Vấn Da Liễu PinkyCloud",
+                "5 phút đọc",
+                "/IMG/news08.png",
+                List.of("Morning Routine", "Chống Nắng", "Dưỡng Ẩm", "Tối Giản", "Skincare Buổi Sáng"),
+                3760L,
+                newsProductMap.get(8)
+        ));
+
+        // Article 9
+        list.add(createArticle(
+                9,
+                "chiet-xuat-tra-xanh-va-thao-moc-tu-nhien-cho-da-dau-mun",
+                "Chiết xuất Trà xanh & Thảo mộc tự nhiên: Khắc tinh của làn da dầu mụn",
+                "Sức mạnh kháng viêm và chống oxy hóa vượt trội từ lá trà xanh và các loài thảo mộc phương Đông trong việc thanh lọc và làm dịu làn da dầu mụn.",
+                List.of(
+                        "Đối với những ai sở hữu làn da dầu nhờn và dễ nổi mụn, việc tìm kiếm một giải pháp kiểm soát dầu thừa mà không làm khô căng hay kích ứng da luôn là bài toán nan giải. Trong số các thành phần thiên nhiên được khoa học hiện đại kiểm chứng, chiết xuất lá trà xanh (Camellia Sinensis) cùng các loại thảo mộc hữu cơ đang nổi lên như một cứu tinh toàn diện cho làn da nhiệt đới.",
+                        "Lá trà xanh chứa nồng độ EGCG (Epigallocatechin Gallate) vô cùng đậm đặc - một hợp chất chống oxy hóa tự nhiên mạnh mẽ gấp 100 lần Vitamin C và 25 lần Vitamin E. EGCG có khả năng ức chế enzym sản sinh bã nhờn quá mức, làm dịu tức thì các ổ viêm sưng đỏ của mụn và ngăn ngừa vi khuẩn P.acnes sinh sôi phát triển trên bề mặt da.",
+                        "Bên cạnh trà xanh, sự kết hợp với tinh dầu tràm trà (Tea Tree) và rau má (Centella Asiatica) tạo nên bộ ba thảo mộc hoàn hảo. Tràm trà đóng vai trò kháng khuẩn tự nhiên làm se cồi mụn nhanh chóng, trong khi Madecassoside từ rau má tăng tốc quá trình tái tạo mô liên kết, ngăn ngừa sẹo thâm và sẹo lõm hình thành sau mụn.",
+                        "Khi tích hợp các sản phẩm chiết xuất trà xanh và thảo mộc vào chu trình chăm sóc da hàng ngày - từ gel rửa mặt cân bằng pH, toner thanh lọc đến serum phục hồi - bạn sẽ cảm nhận được sự dịu mát, nền da thông thoáng nhẹ tênh và tình trạng bóng dầu giảm rõ rệt chỉ sau 2 đến 3 tuần sử dụng đều đặn."
+                ),
+                "27/04/2026",
+                "Kiến thức làm đẹp",
+                "Ngọc Trâm",
+                "Beauty Specialist",
+                "6 phút đọc",
+                "/IMG/news09.png",
+                List.of("Trà Xanh", "Thảo Mộc", "Da Dầu Mụn", "Thanh Lọc Da", "EGCG", "Tràm Trà"),
+                4120L,
+                newsProductMap.get(9)
+        ));
+
         return list;
     }
 
@@ -424,6 +533,10 @@ public class NewsServiceImpl implements NewsService {
         }
 
         List<Product> products = productRepository.findAllById(productIds);
+        if (products.isEmpty()) {
+            List<String> upperCodes = productIds.stream().map(String::toUpperCase).collect(Collectors.toList());
+            products = productRepository.findByProductCodeIn(upperCodes);
+        }
         if (products.isEmpty()) {
             return List.of();
         }

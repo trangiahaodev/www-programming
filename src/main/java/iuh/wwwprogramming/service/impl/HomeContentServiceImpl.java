@@ -148,6 +148,38 @@ public class HomeContentServiceImpl implements HomeContentService {
                         .detail("Áp dụng cho mọi khách hàng mới")
                         .status("active")
                         .accent("linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%)")
+                        .build(),
+                VoucherDTO.builder()
+                        .id(5)
+                        .title("Chào bạn mới: Giảm 20.000₫")
+                        .code("PINKYNEW")
+                        .detail("Áp dụng cho đơn hàng đầu tiên từ 199.000₫")
+                        .status("active")
+                        .accent("linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%)")
+                        .build(),
+                VoucherDTO.builder()
+                        .id(6)
+                        .title("Flash Voucher Cuối Tuần 70.000₫")
+                        .code("WEEKEND")
+                        .detail("Dành riêng cho đơn hàng cuối tuần từ 599.000₫")
+                        .status("active")
+                        .accent("linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%)")
+                        .build(),
+                VoucherDTO.builder()
+                        .id(7)
+                        .title("Combo Tiết Kiệm: Giảm 100.000₫")
+                        .code("COMBO3")
+                        .detail("Áp dụng cho đơn hàng mỹ phẩm từ 899.000₫")
+                        .status("active")
+                        .accent("linear-gradient(135deg, #ede7f6 0%, #d1c4e9 100%)")
+                        .build(),
+                VoucherDTO.builder()
+                        .id(8)
+                        .title("Đặc quyền VIP Pinky: Giảm 20%")
+                        .code("VIPBEAUTY")
+                        .detail("Tối đa 200.000₫ cho đơn từ 1.200.000₫")
+                        .status("active")
+                        .accent("linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%)")
                         .build()
         );
     }
