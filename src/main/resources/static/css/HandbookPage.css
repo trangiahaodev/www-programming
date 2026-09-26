@@ -610,6 +610,45 @@
 .hb-card-large {
   grid-column: span 2;
   grid-row: span 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.hb-skin-test-box {
+  background: rgba(247, 108, 133, 0.05);
+  border: 1px solid rgba(247, 108, 133, 0.18);
+  border-radius: 18px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.hb-test-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hb-test-badge {
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.hb-test-oil { background: #e0f2fe; color: #0369a1; }
+.hb-test-mix { background: #fef3c7; color: #b45309; }
+.hb-test-dry { background: #fee2e2; color: #b91c1c; }
+.hb-test-sensitive { background: #fce7f3; color: #be185d; }
+
+.hb-test-desc {
+  font-size: 0.84rem;
+  color: #55444d;
+  line-height: 1.35;
 }
 
 .hb-card-medium {
