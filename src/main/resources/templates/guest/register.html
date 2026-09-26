@@ -1,0 +1,18 @@
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/customer-layout :: layout(~{::main})}">
+<main class="account-panel">
+<h1>ĐĂNG KÝ</h1>
+<form th:action="@{/register}" method="post" th:object="${registration}" class="account-form">
+    <p class="account-error" th:each="error : ${#fields.globalErrors()}" th:text="${error}" role="alert"></p>
+    <label for="fullName">Họ tên</label><input th:field="*{fullName}" maxlength="100" autocomplete="name" required>
+    <p class="account-error" th:errors="*{fullName}"></p>
+    <label for="email">Email</label><input type="email" th:field="*{email}" maxlength="100" autocomplete="email" required>
+    <p class="account-error" th:errors="*{email}"></p>
+    <label for="password">Mật khẩu (ít nhất 8 ký tự)</label><input type="password" id="password" name="password" autocomplete="new-password" minlength="8" maxlength="72" required>
+    <p class="account-error" th:errors="*{password}"></p><p class="account-error" th:errors="*{passwordWithinLimit}"></p>
+    <label for="confirmPassword">Xác nhận mật khẩu</label><input type="password" id="confirmPassword" name="confirmPassword" autocomplete="new-password" required>
+    <p class="account-error" th:errors="*{confirmPassword}"></p><p class="account-error" th:errors="*{passwordMatching}"></p>
+    <button type="submit" class="account-button">Tạo tài khoản</button>
+</form>
+<p>Đã có tài khoản? <a th:href="@{/login}">Đăng nhập</a></p>
+</main>
+</html>

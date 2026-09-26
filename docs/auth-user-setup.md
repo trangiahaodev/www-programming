@@ -8,6 +8,8 @@ Tạo Admin đầu tiên bằng cách bật `BOOTSTRAP_ADMIN_ENABLED=true`, đ�
 
 Guest xem catalog và giỏ hàng; Customer dùng checkout/profile/orders; Admin dùng `/admin/**`. Admin đăng nhập được chuyển đến `/admin/users` (được bổ sung trên nhánh danh sách User). Đăng ký được bổ sung trên nhánh `feature/auth-register`.
 
+Email chào mừng: đặt `MAIL_ENABLED=true`, `MAIL_FROM`, `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_SMTP_AUTH`, `MAIL_STARTTLS`. Mặc định mail bị tắt để môi trường chưa cấu hình SMTP vẫn chạy được. Khi bật, email được gửi sau commit bởi executor hai luồng, hàng đợi tối đa 100; timeout SMTP 5 giây. Lỗi SMTP hoặc hàng đợi đầy được log theo ID User, không gửi lại tự động. Không hứa email đã đến trong Flash message. Email này không phải bước xác minh và không ảnh hưởng quyền đăng nhập.
+
 Mô hình `users`, `orders`, `order_details` kế thừa từ nhánh Cart_Checkout. Không hợp nhất với mô hình OrderItem/customer_name của nhánh admin-order. Khi tích hợp nhánh đó sau này cần thống nhất schema riêng. Không cascade từ User sang Order.
 
 ## Kiểm thử
