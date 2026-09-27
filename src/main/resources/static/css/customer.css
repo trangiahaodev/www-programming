@@ -43,7 +43,7 @@ body {
   font-family: var(--pl-font-sans);
   color: var(--pl-text-body);
   background-color: #fdfbfb;
-  background-image: linear-gradient(to top, #fff1eb 0%, #ace0f9 100%);
+  background-image: linear-gradient(135deg, #fff0f5 0%, #ffe6ef 26%, #f0f7ff 68%, #ace0f9 100%);
   background-attachment: fixed;
   background-size: cover;
   margin: 0;
@@ -472,7 +472,7 @@ img {
   border-radius: 32px;
   box-shadow: 0 24px 60px rgba(247, 108, 133, 0.22);
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   isolation: isolate;
   display: flex;
   flex-direction: column;
@@ -499,7 +499,9 @@ img {
 .hero-banner::before {
   content: "";
   position: absolute;
-  inset: -25% -10%;
+  inset: 0;
+  border-radius: 32px;
+  overflow: hidden;
   z-index: 1;
   pointer-events: none;
   background:
@@ -514,6 +516,8 @@ img {
   content: "";
   position: absolute;
   inset: 0;
+  border-radius: 32px;
+  overflow: hidden;
   z-index: 1;
   pointer-events: none;
   background-image:
@@ -541,6 +545,8 @@ img {
   z-index: 0;
   pointer-events: none;
   contain: layout style;
+  border-radius: 32px;
+  overflow: hidden;
 }
 
 .hero-slider-mask {
@@ -715,7 +721,7 @@ img {
   position: absolute;
   top: 24px;
   right: 28px;
-  z-index: 25;
+  z-index: 100;
 }
 
 .hero-hotdeal-btn {
@@ -742,21 +748,23 @@ img {
 
 .hero-voucher-popup {
   position: absolute;
-  top: calc(100% + 12px);
+  top: calc(100% + 10px);
   right: 0;
-  width: min(460px, calc(100vw - 40px));
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  width: min(485px, calc(100vw - 32px));
+  max-height: min(495px, calc(100vh - 120px));
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
   border: 1px solid rgba(255, 255, 255, 0.95);
-  border-radius: 24px;
-  padding: 20px;
-  box-shadow: 0 20px 50px rgba(130, 50, 70, 0.25);
-  z-index: 99;
+  border-radius: 26px;
+  padding: 16px 16px 12px 16px;
+  box-shadow: 0 24px 60px rgba(130, 50, 70, 0.28);
+  z-index: 101;
   display: none;
+  flex-direction: column;
 }
 .hero-voucher-popup.show {
-  display: block;
+  display: flex;
   animation: voucherFadeIn 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 @keyframes voucherFadeIn {
@@ -764,16 +772,184 @@ img {
   to { opacity: 1; transform: translateY(0); }
 }
 
+.hero-voucher-header {
+  flex-shrink: 0;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(247, 108, 133, 0.12);
+}
+
+.hero-voucher-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.hero-voucher-title-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
+.hero-voucher-title-text {
+  font-weight: 800;
+  font-size: 15px;
+  color: #7a2d49;
+  white-space: nowrap;
+  letter-spacing: -0.2px;
+}
+
+.hero-voucher-badge {
+  font-size: 11px;
+  font-weight: 800;
+  background: #fff0f3;
+  color: #f76c85;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(247, 108, 133, 0.25);
+  white-space: nowrap;
+  flex-shrink: 0;
+  line-height: 1.2;
+}
+
+.hero-voucher-close-btn {
+  background: transparent;
+  border: none;
+  font-size: 22px;
+  line-height: 1;
+  color: #a0aec0;
+  cursor: pointer;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+.hero-voucher-close-btn:hover {
+  background: #fff0f3;
+  color: #f76c85;
+}
+
+.hero-voucher-subbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.hero-voucher-hint {
+  font-size: 11.5px;
+  color: #718096;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hero-voucher-user-tier {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: #edf2f7;
+  color: #4a5568;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.hero-voucher-user-tier.vip {
+  background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+  color: #c05621;
+  border: 1px solid #fbd38d;
+}
+.hero-voucher-user-tier.new {
+  background: #e6fffa;
+  color: #234e52;
+  border: 1px solid #b2f5ea;
+}
+
 .hero-voucher-grid {
-  display: grid;
-  gap: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: min(255px, 38vh);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 6px;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #f76c85 rgba(247, 108, 133, 0.12);
+}
+
+.hero-voucher-grid::-webkit-scrollbar {
+  width: 6px;
+}
+
+.hero-voucher-grid::-webkit-scrollbar-track {
+  background: rgba(247, 108, 133, 0.08);
+  border-radius: 999px;
+}
+
+.hero-voucher-grid::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #f76c85 0%, #ff8da1 100%);
+  border-radius: 999px;
+}
+
+.hero-voucher-grid::-webkit-scrollbar-thumb:hover {
+  background: #e2556e;
 }
 
 .hero-voucher-card {
-  padding: 14px 16px;
+  padding: 13px 15px;
   border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.7);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  flex-shrink: 0;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+}
+.hero-voucher-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+}
+
+.hero-voucher-card.voucher-priority-new {
+  border: 1.5px solid #68d391;
+  box-shadow: 0 4px 14px rgba(104, 211, 145, 0.2);
+}
+
+.hero-voucher-card.voucher-priority-weekend {
+  border: 1.5px solid #f6ad55;
+  box-shadow: 0 4px 14px rgba(246, 173, 85, 0.2);
+}
+
+.hero-voucher-card.voucher-priority-vip {
+  border: 1.5px solid #d69e2e;
+  box-shadow: 0 4px 14px rgba(214, 158, 46, 0.2);
+}
+
+.hero-voucher-tag-pill {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  display: inline-block;
+}
+
+.hero-voucher-footer {
+  flex-shrink: 0;
+  margin-top: 8px;
+  padding-top: 8px;
+  padding-bottom: 2px;
+  border-top: 1px dashed rgba(247, 108, 133, 0.25);
 }
 .hero-voucher-label {
   font-size: 11px;
@@ -1746,9 +1922,11 @@ img {
 }
 
 .news-image-wrap {
+  display: block;
   position: relative;
   height: 200px;
   overflow: hidden;
+  text-decoration: none;
 }
 .news-image {
   width: 100%;
@@ -1759,6 +1937,12 @@ img {
 }
 .news-card:hover .news-image {
   transform: scale(1.05);
+}
+.news-image-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(44, 13, 28, 0.06) 10%, rgba(58, 17, 35, 0.58) 100%);
+  pointer-events: none;
 }
 .news-category-tag {
   position: absolute;
@@ -1771,13 +1955,24 @@ img {
   color: #fff;
   background: linear-gradient(120deg, rgba(245, 87, 137, 0.95), rgba(191, 58, 114, 0.95));
   box-shadow: 0 6px 16px rgba(179, 43, 102, 0.35);
+  z-index: 2;
 }
 
 .news-card-body {
   padding: 20px;
-  flex: 1;
   display: flex;
   flex-direction: column;
+}
+
+.news-card-body.pb-0 {
+  padding-bottom: 0 !important;
+  flex: 1;
+}
+
+.news-card-body.pt-0 {
+  padding-top: 14px !important;
+  margin-top: auto;
+  flex: none;
 }
 
 .news-date {
@@ -1884,6 +2079,8 @@ img {
   text-decoration: none;
   box-shadow: 0 4px 14px rgba(247, 108, 133, 0.25);
   transition: all 0.25s ease;
+  width: 100%;
+  box-sizing: border-box;
 }
 .news-btn:hover {
   background: #ee4d74;
@@ -4945,6 +5142,44 @@ img {
 @media (min-width: 768px) {
   .pl-cat-scroll-arrow {
     display: flex;
+  }
+}
+
+/* Responsive adjustments for Voucher Popup & Hotdeal Button */
+@media (max-width: 768px) {
+  .hero-hotdeal {
+    top: 16px;
+    right: 16px;
+  }
+  .hero-voucher-popup {
+    width: min(440px, calc(100vw - 28px));
+    right: -4px;
+    padding: 14px 14px 10px 14px;
+  }
+  .hero-voucher-grid {
+    max-height: 220px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-hotdeal {
+    top: 12px;
+    right: 12px;
+  }
+  .hero-hotdeal-btn {
+    font-size: 0.8rem;
+    padding: 6px 12px;
+  }
+  .hero-voucher-popup {
+    width: calc(100vw - 20px);
+    right: -6px;
+    padding: 12px 10px 8px 10px;
+  }
+  .hero-voucher-title-text {
+    font-size: 13.5px;
+  }
+  .hero-voucher-grid {
+    max-height: 200px;
   }
 }
 

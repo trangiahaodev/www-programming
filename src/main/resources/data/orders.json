@@ -1,0 +1,104 @@
+[
+  {
+    "orderCode": "ORD26000001",
+    "customerName": "Nguyễn Thị Lan",
+    "customerPhone": "0987654321",
+    "shippingAddress": "12 Nguyễn Văn Bảo, P.4, Q.Gò Vấp, TP.HCM",
+    "totalAmount": 850000.00,
+    "status": "PENDING",
+    "paymentMethod": "COD",
+    "paymentStatus": "UNPAID",
+    "items": [
+      {
+        "productName": "Kem dưỡng ẩm Laneige Water Bank",
+        "productCode": "SP26000001",
+        "unitPrice": 450000.00,
+        "quantity": 1,
+        "subtotal": 450000.00
+      },
+      {
+        "productName": "Sữa rửa mặt Cetaphil Gentle Cleanser",
+        "productCode": "SP26000002",
+        "unitPrice": 200000.00,
+        "quantity": 2,
+        "subtotal": 400000.00
+      }
+    ]
+  },
+  {
+    "orderCode": "ORD26000002",
+    "customerName": "Trần Văn An",
+    "customerPhone": "0912345678",
+    "shippingAddress": "45 Lê Lợi, Q.1, TP.HCM",
+    "totalAmount": 320000.00,
+    "status": "PROCESSING",
+    "paymentMethod": "VNPAY",
+    "paymentStatus": "PAID",
+    "items": [
+      {
+        "productName": "Son dưỡng môi DHC Lip Cream",
+        "productCode": "SP26000003",
+        "unitPrice": 160000.00,
+        "quantity": 2,
+        "subtotal": 320000.00
+      }
+    ]
+  },
+  {
+    "orderCode": "ORD26000003",
+    "customerName": "Lê Hoàng Mai",
+    "customerPhone": "0933221100",
+    "shippingAddress": "78 Trần Phú, Hà Đông, Hà Nội",
+    "totalAmount": 1450000.00,
+    "status": "SHIPPED",
+    "paymentMethod": "BANKING",
+    "paymentStatus": "PAID",
+    "items": [
+      {
+        "productName": "Serum phục hồi da La Roche-Posay B5",
+        "productCode": "SP26000004",
+        "unitPrice": 725000.00,
+        "quantity": 2,
+        "subtotal": 1450000.00
+      }
+    ]
+  },
+  {
+    "orderCode": "ORD26000004",
+    "customerName": "Phạm Minh Tuấn",
+    "customerPhone": "0908776655",
+    "shippingAddress": "102 Hai Bà Trưng, Đà Nẵng",
+    "totalAmount": 590000.00,
+    "status": "DELIVERED",
+    "paymentMethod": "COD",
+    "paymentStatus": "PAID",
+    "items": [
+      {
+        "productName": "Kem chống nắng Anessa Perfect UV",
+        "productCode": "SP26000005",
+        "unitPrice": 590000.00,
+        "quantity": 1,
+        "subtotal": 590000.00
+      }
+    ]
+  },
+  {
+    "orderCode": "ORD26000005",
+    "customerName": "Đỗ Thu Hà",
+    "customerPhone": "0971122334",
+    "shippingAddress": "15 Quang Trung, Cần Thơ",
+    "totalAmount": 210000.00,
+    "status": "CANCELLED",
+    "paymentMethod": "COD",
+    "paymentStatus": "UNPAID",
+    "items": [
+      {
+        "productName": "Tẩy trang Bioderma Sensibio H2O 250ml",
+        "productCode": "SP26000006",
+        "unitPrice": 210000.00,
+        "quantity": 1,
+        "subtotal": 210000.00
+      }
+    ]
+  }
+]

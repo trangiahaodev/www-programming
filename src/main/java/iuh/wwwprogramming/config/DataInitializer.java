@@ -2,56 +2,61 @@ package iuh.wwwprogramming.config;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import iuh.wwwprogramming.entity.Category;
-import iuh.wwwprogramming.entity.Order;
-import iuh.wwwprogramming.entity.OrderItem;
-import iuh.wwwprogramming.entity.OrderStatus;
-import iuh.wwwprogramming.entity.Product;
-import iuh.wwwprogramming.entity.User;
-import iuh.wwwprogramming.repository.CategoryRepository;
-import iuh.wwwprogramming.repository.OrderRepository;
-import iuh.wwwprogramming.repository.ProductRepository;
-import iuh.wwwprogramming.repository.UserRepository;
+import iuh.wwwprogramming.entity.*;
+import iuh.wwwprogramming.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
-@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(name = "app.seed-products", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(name = "app.seed-products", havingValue = "true", matchIfMissing = true)
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class DataInitializer implements CommandLineRunner {
 
-    // Khai báo gộp tất cả các Repository và Bean từ cả 3 nhánh
+    // GỘP V1 & V2: Khai báo toàn bộ các Repository của cả 2 nhánh
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+
+    // TỪ V2: Thêm các Repository cho tính năng mới
+    private final NewsArticleRepository newsArticleRepository;
+    private final VoucherRepository voucherRepository;
+    private final OfficeRepository officeRepository;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     @Transactional
     public void run(String... args) {
-        // Khởi tạo theo đúng thứ tự: User -> Danh mục & Sản phẩm -> Đơn hàng
+        // GỘP: Chạy tuần tự tất cả các hàm mồi dữ liệu
         seedUsers();
         seedProductsAndCategories();
         seedOrders();
+        seedNewsArticles();
+        seedVouchers();
+        seedOffices();
     }
 
     // =========================================================================
-    // 1. NHÁNH CHECKOUT: Nạp Tài khoản Người dùng (Admin & Customer)
+    // 1. TỪ V1: Nạp Tài khoản Người dùng (Admin & Customer)
     // =========================================================================
     private void seedUsers() {
         if (!userRepository.existsByEmail("khachhang@pinkycloud.com")) {
@@ -86,7 +91,7 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     // =========================================================================
-    // 2. NHÁNH CORE: Nạp Danh Mục và Sản Phẩm (từ JSON)
+    // 2. GỘP V1 & V2: Nạp Danh Mục và Sản Phẩm (từ JSON)
     // =========================================================================
     private void seedProductsAndCategories() {
         try {
@@ -103,7 +108,7 @@ public class DataInitializer implements CommandLineRunner {
 
             log.info("Bắt đầu nạp dữ liệu mẫu từ data/products.json...");
             try (InputStream is = resource.getInputStream();
-                 java.io.Reader reader = new java.io.InputStreamReader(is, java.nio.charset.StandardCharsets.UTF_8)) {
+                 java.io.Reader reader = new InputStreamReader(is, StandardCharsets.UTF_8)) {
                 JsonNode root = objectMapper.readTree(reader);
                 JsonNode productsNode = root.has("products") ? root.get("products") : root;
 
@@ -181,14 +186,13 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     // =========================================================================
-    // 3. NHÁNH ORDER: Nạp Đơn hàng và Chi tiết đơn hàng mẫu
+    // 3. TỪ V1: Nạp Đơn hàng và Chi tiết đơn hàng mẫu (Giữ hardcode để đảm bảo mapping chuẩn)
     // =========================================================================
     private void seedOrders() {
         if (orderRepository.count() == 0) {
             log.info("Initializing sample order data...");
             List<Order> sampleOrders = new ArrayList<>();
 
-            // Order 1: PENDING
             Order o1 = Order.builder()
                     .orderCode("ORD26000001")
                     .customerName("Nguyễn Thị Lan")
@@ -218,7 +222,6 @@ public class DataInitializer implements CommandLineRunner {
             o1.setItems(new ArrayList<>(List.of(i1, i2)));
             sampleOrders.add(o1);
 
-            // Order 2: PROCESSING
             Order o2 = Order.builder()
                     .orderCode("ORD26000002")
                     .customerName("Trần Văn An")
@@ -240,74 +243,158 @@ public class DataInitializer implements CommandLineRunner {
             o2.setItems(new ArrayList<>(List.of(i3)));
             sampleOrders.add(o2);
 
-            // Order 3: SHIPPED
-            Order o3 = Order.builder()
-                    .orderCode("ORD26000003")
-                    .customerName("Lê Hoàng Mai")
-                    .customerPhone("0933221100")
-                    .shippingAddress("78 Trần Phú, Hà Đông, Hà Nội")
-                    .totalAmount(new BigDecimal("1450000.00"))
-                    .status(OrderStatus.SHIPPED)
-                    .paymentMethod("BANKING")
-                    .paymentStatus("PAID")
-                    .build();
-            OrderItem i4 = OrderItem.builder()
-                    .order(o3)
-                    .productName("Serum phục hồi da La Roche-Posay B5")
-                    .productCode("SP26000004")
-                    .unitPrice(new BigDecimal("725000.00"))
-                    .quantity(2)
-                    .subtotal(new BigDecimal("1450000.00"))
-                    .build();
-            o3.setItems(new ArrayList<>(List.of(i4)));
-            sampleOrders.add(o3);
-
-            // Order 4: DELIVERED
-            Order o4 = Order.builder()
-                    .orderCode("ORD26000004")
-                    .customerName("Phạm Minh Tuấn")
-                    .customerPhone("0908776655")
-                    .shippingAddress("102 Hai Bà Trưng, Đà Nẵng")
-                    .totalAmount(new BigDecimal("590000.00"))
-                    .status(OrderStatus.DELIVERED)
-                    .paymentMethod("COD")
-                    .paymentStatus("PAID")
-                    .build();
-            OrderItem i5 = OrderItem.builder()
-                    .order(o4)
-                    .productName("Kem chống nắng Anessa Perfect UV")
-                    .productCode("SP26000005")
-                    .unitPrice(new BigDecimal("590000.00"))
-                    .quantity(1)
-                    .subtotal(new BigDecimal("590000.00"))
-                    .build();
-            o4.setItems(new ArrayList<>(List.of(i5)));
-            sampleOrders.add(o4);
-
-            // Order 5: CANCELLED
-            Order o5 = Order.builder()
-                    .orderCode("ORD26000005")
-                    .customerName("Đỗ Thu Hà")
-                    .customerPhone("0971122334")
-                    .shippingAddress("15 Quang Trung, Cần Thơ")
-                    .totalAmount(new BigDecimal("210000.00"))
-                    .status(OrderStatus.CANCELLED)
-                    .paymentMethod("COD")
-                    .paymentStatus("UNPAID")
-                    .build();
-            OrderItem i6 = OrderItem.builder()
-                    .order(o5)
-                    .productName("Tẩy trang Bioderma Sensibio H2O 250ml")
-                    .productCode("SP26000006")
-                    .unitPrice(new BigDecimal("210000.00"))
-                    .quantity(1)
-                    .subtotal(new BigDecimal("210000.00"))
-                    .build();
-            o5.setItems(new ArrayList<>(List.of(i6)));
-            sampleOrders.add(o5);
-
             orderRepository.saveAll(sampleOrders);
             log.info("Initialized {} sample orders successfully.", sampleOrders.size());
+        }
+    }
+
+    // =========================================================================
+    // 4. TỪ V2: Nạp Bài Viết Tin Tức & Cẩm Nang (từ data/news_articles.json)
+    // =========================================================================
+    private void seedNewsArticles() {
+        try {
+            ClassPathResource resource = new ClassPathResource("data/news_articles.json");
+            if (!resource.exists()) {
+                log.warn("Không tìm thấy file data/news_articles.json trên classpath.");
+                return;
+            }
+
+            try (InputStream is = resource.getInputStream();
+                 java.io.Reader reader = new InputStreamReader(is, StandardCharsets.UTF_8)) {
+                JsonNode root = objectMapper.readTree(reader);
+                if (root.isArray()) {
+                    int seededCount = 0;
+                    for (JsonNode node : root) {
+                        String slug = node.has("slug") ? node.get("slug").asText().trim() : null;
+                        if (slug == null || slug.isEmpty()) continue;
+
+                        if (!newsArticleRepository.existsBySlug(slug)) {
+                            NewsArticle article = NewsArticle.builder()
+                                    .slug(slug)
+                                    .title(node.has("title") ? node.get("title").asText() : "")
+                                    .excerpt(node.has("excerpt") ? node.get("excerpt").asText() : "")
+                                    .content(node.has("content") ? node.get("content").asText() : "")
+                                    .publishedDate(node.has("publishedDate") ? node.get("publishedDate").asText() : "01/01/2026")
+                                    .category(node.has("category") ? node.get("category").asText() : "Tin tức")
+                                    .author(node.has("author") ? node.get("author").asText() : "PinkyCloud")
+                                    .authorRole(node.has("authorRole") ? node.get("authorRole").asText() : "Biên tập viên")
+                                    .readTime(node.has("readTime") ? node.get("readTime").asText() : "5 phút đọc")
+                                    .image(node.has("image") ? node.get("image").asText() : "/IMG/news01.png")
+                                    .tags(node.has("tags") ? node.get("tags").asText() : "")
+                                    .viewsCount(node.has("viewsCount") ? node.get("viewsCount").asLong() : 1000L)
+                                    .isFeatured(node.has("isFeatured") && node.get("isFeatured").asBoolean())
+                                    .active(node.has("active") ? node.get("active").asBoolean() : true)
+                                    .linkedProductIds(node.has("linkedProductIds") ? node.get("linkedProductIds").asText() : "")
+                                    .build();
+                            newsArticleRepository.save(article);
+                            seededCount++;
+                        }
+                    }
+                    log.info("Initialized {} new news articles from JSON into SQL Server.", seededCount);
+                }
+            }
+        } catch (Exception e) {
+            log.error("Lỗi khi nạp tin tức từ data/news_articles.json: ", e);
+        }
+    }
+
+    // =========================================================================
+    // 5. TỪ V2: Nạp Mã Giảm Giá Vouchers (từ data/vouchers.json)
+    // =========================================================================
+    private void seedVouchers() {
+        try {
+            ClassPathResource resource = new ClassPathResource("data/vouchers.json");
+            if (!resource.exists()) {
+                log.warn("Không tìm thấy file data/vouchers.json trên classpath.");
+                return;
+            }
+
+            try (InputStream is = resource.getInputStream();
+                 java.io.Reader reader = new InputStreamReader(is, StandardCharsets.UTF_8)) {
+                JsonNode root = objectMapper.readTree(reader);
+                if (root.isArray()) {
+                    int seededVoucherCount = 0;
+                    for (JsonNode node : root) {
+                        String code = node.has("code") ? node.get("code").asText().trim().toUpperCase() : null;
+                        if (code == null) continue;
+
+                        Optional<Voucher> existing = voucherRepository.findByCodeIgnoreCaseAndActiveTrue(code);
+                        Voucher voucher = existing.orElse(new Voucher());
+                        voucher.setCode(code);
+                        voucher.setTitle(node.has("title") ? node.get("title").asText() : "");
+                        voucher.setDetail(node.has("detail") ? node.get("detail").asText() : "");
+                        voucher.setStatus(node.has("status") ? node.get("status").asText() : "active");
+                        voucher.setAccent(node.has("accent") ? node.get("accent").asText() : "linear-gradient(135deg, #fff1f5 0%, #ffd6e3 100%)");
+                        voucher.setDiscountAmount(node.has("discountAmount") && !node.get("discountAmount").isNull() ? new BigDecimal(node.get("discountAmount").asText()) : null);
+                        voucher.setDiscountPercent(node.has("discountPercent") && !node.get("discountPercent").isNull() ? node.get("discountPercent").asInt() : null);
+                        voucher.setMinOrderAmount(node.has("minOrderAmount") && !node.get("minOrderAmount").isNull() ? new BigDecimal(node.get("minOrderAmount").asText()) : BigDecimal.ZERO);
+                        voucher.setTargetAudience(node.has("targetAudience") ? node.get("targetAudience").asText() : "ALL");
+                        voucher.setBadgeText(node.has("badgeText") ? node.get("badgeText").asText() : "VOUCHER HOT");
+                        voucher.setPriority(node.has("priority") ? node.get("priority").asInt() : 50);
+                        voucher.setActive(node.has("active") ? node.get("active").asBoolean() : true);
+
+                        voucherRepository.save(voucher);
+                        if (existing.isEmpty()) seededVoucherCount++;
+                    }
+                    log.info("Initialized/Updated vouchers from JSON into SQL Server (new: {}).", seededVoucherCount);
+                }
+            }
+        } catch (Exception e) {
+            log.error("Lỗi khi nạp voucher từ data/vouchers.json: ", e);
+        }
+    }
+
+    // =========================================================================
+    // 6. TỪ V2: Nạp Hệ thống Chi Nhánh / Showrooms (từ data/offices.json)
+    // =========================================================================
+    private void seedOffices() {
+        try {
+            ClassPathResource resource = new ClassPathResource("data/offices.json");
+            if (!resource.exists()) {
+                log.warn("Không tìm thấy file data/offices.json trên classpath.");
+                return;
+            }
+
+            try (InputStream is = resource.getInputStream();
+                 java.io.Reader reader = new InputStreamReader(is, StandardCharsets.UTF_8)) {
+                JsonNode root = objectMapper.readTree(reader);
+                if (root.isArray()) {
+                    int seededOfficeCount = 0;
+                    for (JsonNode node : root) {
+                        String id = node.has("id") ? node.get("id").asText().trim() : null;
+                        if (id == null) continue;
+
+                        Optional<Office> existing = officeRepository.findById(id);
+                        Office office = existing.orElse(new Office());
+                        office.setId(id);
+                        office.setTitle(node.has("title") ? node.get("title").asText() : "");
+                        office.setAddress(node.has("address") ? node.get("address").asText() : "");
+                        office.setDescription(node.has("description") ? node.get("description").asText() : "");
+                        office.setCity(node.has("city") ? node.get("city").asText() : "");
+                        office.setPhone(node.has("phone") ? node.get("phone").asText() : "");
+                        office.setEmail(node.has("email") ? node.get("email").asText() : "");
+                        office.setWorkingHours(node.has("workingHours") ? node.get("workingHours").asText() : "");
+                        office.setSupportType(node.has("supportType") ? node.get("supportType").asText() : "");
+                        office.setCoupon(node.has("coupon") ? node.get("coupon").asText() : "");
+                        office.setImage(node.has("image") ? node.get("image").asText() : "");
+                        office.setActive(node.has("active") ? node.get("active").asBoolean() : true);
+
+                        List<String> perks = new ArrayList<>();
+                        if (node.has("perks") && node.get("perks").isArray()) {
+                            for (JsonNode p : node.get("perks")) {
+                                perks.add(p.asText());
+                            }
+                        }
+                        office.setPerks(perks);
+
+                        officeRepository.save(office);
+                        if (existing.isEmpty()) seededOfficeCount++;
+                    }
+                    log.info("Initialized/Updated {} showrooms/offices from JSON into SQL Server.", seededOfficeCount);
+                }
+            }
+        } catch (Exception e) {
+            log.error("Lỗi khi nạp dữ liệu chi nhánh từ data/offices.json: ", e);
         }
     }
 }

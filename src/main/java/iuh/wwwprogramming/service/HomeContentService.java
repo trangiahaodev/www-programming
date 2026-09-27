@@ -14,6 +14,8 @@ public interface HomeContentService {
 
     List<VoucherDTO> getActiveVouchers();
 
+    List<VoucherDTO> getActiveVouchers(Boolean isWeekendOverride, String customerTier, boolean hasUsedPinkyNew);
+
     long getTotalActiveProducts();
 
     long getTotalCategories();

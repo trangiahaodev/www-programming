@@ -11,6 +11,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.List;
 
 @Controller
@@ -27,6 +29,9 @@ public class HomeController {
     @GetMapping({"/", "/trang-chu"})
     public String home(
             @RequestParam(name = "keyword", required = false) String keyword,
+            @RequestParam(name = "weekend", required = false) Boolean weekend,
+            @RequestParam(name = "tier", required = false) String tier,
+            @RequestParam(name = "usedNew", required = false, defaultValue = "false") boolean usedNew,
             Model model
     ) {
         // If search keyword is submitted directly from home search bar, forward/redirect to products page
@@ -67,7 +72,9 @@ public class HomeController {
         // 4. Offices, News, Hot Vouchers, and Statistics
         var offices = homeContentService.getOffices();
         var newsList = homeContentService.getFeaturedNews(3);
-        var hotVouchers = homeContentService.getActiveVouchers();
+        DayOfWeek dow = LocalDate.now().getDayOfWeek();
+        boolean isWeekend = (weekend != null) ? weekend : (dow == DayOfWeek.SATURDAY || dow == DayOfWeek.SUNDAY);
+        var hotVouchers = homeContentService.getActiveVouchers(isWeekend, tier, usedNew);
         long totalProducts = homeContentService.getTotalActiveProducts();
         long productCategoryCount = homeContentService.getTotalCategories();
 
@@ -80,6 +87,9 @@ public class HomeController {
         model.addAttribute("offices", offices);
         model.addAttribute("newsList", newsList);
         model.addAttribute("hotVouchers", hotVouchers);
+        model.addAttribute("isWeekend", isWeekend);
+        model.addAttribute("customerTier", tier != null ? tier : "NEW");
+        model.addAttribute("usedNewCustomerVoucher", usedNew);
         model.addAttribute("totalProducts", totalProducts);
         model.addAttribute("productCategoryCount", productCategoryCount);
         model.addAttribute("activeMenu", "home");

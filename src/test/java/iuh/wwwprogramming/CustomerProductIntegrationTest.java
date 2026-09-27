@@ -53,6 +53,24 @@ class CustomerProductIntegrationTest {
     }
 
     @Test
+    @DisplayName("Nhiệm vụ 3: Tải dữ liệu sản phẩm trang chủ (Hot, New, Thương hiệu)")
+    void testHomePageProductServices() {
+        var hotProducts = productService.getHotProducts(6);
+        assertThat(hotProducts).isNotEmpty();
+        assertThat(hotProducts.size()).isLessThanOrEqualTo(6);
+
+        var newProducts = productService.getNewProducts(6);
+        assertThat(newProducts).isNotEmpty();
+        assertThat(newProducts.size()).isLessThanOrEqualTo(6);
+
+        var topBrands = productService.getTopBrands();
+        assertThat(topBrands).isNotEmpty();
+
+        var featuredBrands = productService.getFeaturedBrandProducts(4);
+        assertThat(featuredBrands).isNotEmpty();
+    }
+
+    @Test
     @DisplayName("Nhiệm vụ 1: Khách hàng xem danh sách SP, phân trang, lọc và triệt tiêu N+1 Query")
     @Transactional(readOnly = true)
     void testProductListAndNPlusOnePrevention() throws Exception {

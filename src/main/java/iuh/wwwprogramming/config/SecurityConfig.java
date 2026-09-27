@@ -25,7 +25,7 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // LẤY TỪ V2: Cơ chế đọc tài khoản từ Database
+    // Cơ chế đọc tài khoản từ Database
     @Bean
     public UserDetailsService userDetailsService() {
         return email -> {
@@ -51,7 +51,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        // 1. TỪ V1: Mở cửa hoàn toàn cho các tài nguyên tĩnh
+                        // 1. Mở cửa hoàn toàn cho các tài nguyên tĩnh
                         .requestMatchers(
                                 "/css/**",
                                 "/js/**",
@@ -61,7 +61,7 @@ public class SecurityConfig {
                                 "/error"
                         ).permitAll()
 
-                        // 2. GỘP V1 & V2: Các trang công khai ai cũng vào được (Trang chủ, Sản phẩm, Giỏ hàng)
+                        // 2. Các trang công khai ai cũng vào được (Gộp thêm luồng Tin tức, Cẩm nang từ V2)
                         .requestMatchers(
                                 "/",
                                 "/trang-chu",
@@ -70,11 +70,17 @@ public class SecurityConfig {
                                 "/products",
                                 "/products/**",
                                 "/cart/**",
+                                "/tin-tuc",
+                                "/tin-tuc/**",
+                                "/news",
+                                "/news/**",
+                                "/cam-nang",
+                                "/cam-nang/**",
                                 "/login",
                                 "/register"
                         ).permitAll()
 
-                        // 3. TỪ V2: Phân quyền nghiêm ngặt
+                        // 3. Phân quyền nghiêm ngặt
                         .requestMatchers("/checkout/**").hasRole("CUSTOMER")
                         .requestMatchers("/admin/**").hasRole("ADMIN")
 
@@ -89,7 +95,7 @@ public class SecurityConfig {
                         .logoutSuccessUrl("/")
                         .permitAll()
                 )
-                // TỪ V1: Tắt CSRF tạm thời để các form POST (Thêm giỏ hàng, Checkout) hoạt động mượt mà
+                // Tắt CSRF tạm thời để các form POST hoạt động mượt mà
                 .csrf(csrf -> csrf.disable())
                 .headers(headers -> headers.frameOptions(frame -> frame.disable()));
 

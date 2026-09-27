@@ -20,7 +20,12 @@ public class NewsDTO {
     private String date;
     private String category;
     private String author;
+    private String authorRole;
     private String readTime;
     private String image;
+    private List<String> paragraphs;
     private List<ProductCardDTO> linkedProducts;
+    private java.util.Map<String, String> recommendationReasons;
+    private List<String> tags;
+    private Long viewsCount;
 }
