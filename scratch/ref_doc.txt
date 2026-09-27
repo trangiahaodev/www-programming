@@ -1,0 +1,571 @@
+THU THẬP, LÀM RÕ YÊU CẦU CỦA ỨNG DỤNG
+Nhóm 12 – Thành viên nhóm:
+Phạm Thanh Huy (Nhóm Trưởng)
+Trần Gia Hào
+Trình Hoàng Kỳ
+Nguyễn Công Huy
+Tên ứng dụng: CHƯƠNG TRÌNH HỆ THỐNG BÁN VÉ XE LỬA TẠI GAThời gian thực hiện: Từ 5/8/2025 đến 21/10/2025 (15 tuần)
+MỤC LỤC
+1. Thu thập yêu cầu3
+a. Khảo sát hiện trạng3
+Quản lý vé tàu:3
+Quản lý tàu:6
+Quản lý hành trình:6
+Quản lý nhân viên:7
+Quản lý khách hàng:7
+Quản lý thống kê:8
+Quản lý hoá đơn:9
+b. Quy trình nghiệp vụ10
+b.1. Quản lý bán vé:10
+b.2. Quản lý hành trình (dành cho quản lý)13
+b.3 Quản lý khách hàng15
+b.4 Quản Lí nhân viên (dành cho quản lý)16
+b.5. Quản lý tàu16
+b.6. Quản lý thống kê17
+c. Quy định18
+c.1 Quy định về Quản lý vé xe:18
+c.2 . Quy định về quản lý hành trình19
+c.3. Quy định về quản lý khách hàng20
+c.4. Quy định về quản lý nhân viên21
+c.5. Quy định về quản lý tàu21
+c.6. Quy định về quản lý thống kê22
+2.   Danh sách các câu hỏi khi thu thập và làm rõ yêu cầu của ứng dụng22
+3.   Yêu cầu chức năng/phi chức năng của ứng dụng24
+Yêu cầu chức năng:24
+Quản lý vé tàu24
+Quản lý tàu25
+Quản lý hành trình25
+Quản lý khách hàng25
+Quản lý nhân viên25
+Quản lý thống kê25
+Phân quyền truy cập hệ thống Yêu cầu phi chức năng:25
+4.   Sơ đồ phân cấp chức năng của ứng dụng26
+5.   Các chức năng chính cho ứng dụng (Mục tiêu của ứng dụng)26
+Quản lý đặt vé:26
+Quản lý đổi vé:26
+Quản lý trả vé:27
+Quản lý mất vé:27
+Quản lý hành trình (dành cho quản lý)27
+Quản lý thống kê:27
+Quản lý hoá đơn:27
+Quản lý Nhân viên:27
+Quản lý khách hàng:27
+Quản lý Tàu:28
+1. Thu thập yêu cầu
+a. Khảo sát hiện trạng
+Ngành đường sắt Việt Nam hiện do Công ty Đường sắt Việt Nam quản lý và khai thác, đóng vai trò là đơn vị duy nhất cung cấp dịch vụ vận tải hành khách bằng đường sắt trên phạm vi toàn quốc. Tại các ga tàu, hoạt động bán vé và điều hành vận tải hiện được triển khai thông qua hệ thống bán vé trực tiếp tại quầy. Cơ cấu tổ chức cơ bản của một ga tàu bao gồm: bộ phận bán vé (chịu trách nhiệm phát hành, đổi, trả vé), bộ phận điều hành tàu (quản lý thông tin tàu và hành trình), bộ phận kiểm soát vé (đảm bảo hành khách lên tàu hợp lệ), và bộ phận quản lý nhân sự (phân công, giám sát nhân viên). Hoạt động vận hành hiện tại chủ yếu dựa trên sự phối hợp giữa các bộ phận này, với sự hỗ trợ của hệ thống phần mềm hiện hữu nhưng còn hạn chế, và phụ thuộc đáng kể vào quy trình thủ công.
+Năm nghiệp vụ chính được xác định tại ga tàu bao gồm: quản lý vé tàu, quản lý tàu, quản lý lịch trình, quản lý nhân viên và quản lý khách hàng.
+Quản lý vé tàu:
+1) Bán vé: Hiện nay, quy trình bán vé tàu tại quầy được thực hiện thông qua hệ thống điện tử với sự hỗ trợ của nhân viên. Khi khách hàng có nhu cầu mua vé, họ sẽ cung cấp thông tin hành trình (ga đi, ga đến, ngày đi, loại vé) cho nhân viên. Nhân viên tiến hành tra cứu trên hệ thống, từ đó hệ thống sẽ tra cứu và trả về danh sách các chuyến tàu phù hợp. Trường hợp không có chuyến tàu thỏa mãn, hệ thống sẽ thông báo ngay cho nhân viên để phản hồi cho khách hàng. Khi danh sách chuyến tàu được hiển thị, nhân viên có thể lựa chọn chuyến tàu theo yêu cầu của khách hàng. Hệ thống chọn mặc định 1 đoàn tàu có thời gian gần nhất so với thời gian tìm kiếm. Khách hàng có thể chọn đoàn tàu khác tuỳ theo ý muốn. Mỗi khi chọn 1 đoàn tàu, danh sách các toa xe trong đoàn tàu đó được hiển thị trên màn hình, trạng thái của các toa xe được thể hiện qua màu sắc như sau: 1) Toa hết vé – Màu đỏ; 2) Toa còn vé – Màu trắng. Với mỗi chuyến tàu, hệ thống cung cấp danh sách toa và chỗ ngồi kèm trạng thái cụ thể. Trạng thái ghế được phân biệt rõ ràng: ghế trống (chưa bán), ghế đang giao dịch (tạm giữ trong giỏ vé), và ghế đã bán. Nhân viên chỉ được phép lựa chọn các ghế trống để đưa vào giỏ vé, đồng thời hệ thống sẽ cập nhật trạng thái các ghế này thành “đang giao dịch”. Nếu khách hàng muốn thay đổi, nhân viên có thể xóa ghế khỏi giỏ vé, khi đó ghế sẽ trở về trạng thái trống. Hệ thống cũng kiểm soát số lượng vé tối đa cho mỗi giao dịch, theo quy định không được vượt quá 10 vé.
+Sau khi hoàn tất việc chọn chỗ, nhân viên tiến hành nhập thông tin hành khách đi tàu, bao gồm: họ tên, số CMND/Hộ chiếu và đối tượng hành khách. Đối với các trường hợp đặc biệt như trẻ em hoặc người cao tuổi, hệ thống sẽ yêu cầu nhập thêm ngày, tháng, năm sinh để tự động áp dụng chính sách giảm giá theo quy định. Riêng đối với vé trẻ em, hệ thống bắt buộc phải nhập kèm mã vé của người lớn đi chung; nếu không có vé người lớn hợp lệ thì việc bán vé sẽ bị từ chối. Kế tiếp, hệ thống yêu cầu nhập thông tin người mua vé, bao gồm: họ tên, số CMND/Hộ chiếu, email và số điện thoại.
+Theo quy định công ty, các trường hợp sau đây sẽ được hưởng ưu đãi giảm giá: 1) Trẻ em dưới 6 tuổi: Miễn vé và sử dụng chung chỗ của người lớn đi kèm; 2) Trẻ em từ 6 đến dưới 10 tuổi: Giảm 25% giá vé; 3) Người cao tuổi từ 60 tuổi trở lên: Giảm 15% giá vé; 4) Học sinh, sinh viên: Giảm 10% giá vé (Học sinh các trường Dạy nghề, Trung học chuyên nghiệp; sinh viên, học viên các trường Cao đẳng, Đại học, Học viện (không bao gồm các sinh viên, học viên học sau Đại học)).
+Sau khi toàn bộ thông tin được ghi nhận, hệ thống sẽ tính toán tổng số tiền phải thanh toán, đồng thời hiển thị đầy đủ thông tin vé để nhân viên cho khách hàng kiểm tra. Nếu khách hàng có điểm tích lũy và yêu cầu quy đổi, nhân viên có thể thực hiện thao tác đổi điểm ngay trên hệ thống; số điểm sẽ được trừ trực tiếp vào tổng tiền theo quy định, không vượt quá 10% giá trị vé và không áp dụng cộng dồn, nếu khách hàng thuộc diện đối tượng được ưu đãi thì sẽ không được sử dụng chính sách quy đổi điểm của công ty đường sắt. Cứ mỗi 10.000 đồng sẽ quy đổi được 1 điểm, và 1 điểm sẽ được giảm 1.000 đồng tiền vé.
+Tại bước này, khách hàng được xem số tiền cuối cùng cần thanh toán. Nếu khách hàng có nhu cầu xuất hóa đơn, nhân viên sẽ nhập bổ sung thông tin xuất hóa đơn vào hệ thống. Hiện tại chỉ cho phép khách hàng thanh toán bằng tiền mặt, không áp dụng thanh toán chuyển khoản. Sau đó, nhân viên xác nhận với khách hàng và tiến hành bước thanh toán. Khi khách hàng đồng ý thanh toán, nhân viên xác nhận giao dịch trên hệ thống. Hệ thống sẽ ghi nhận thanh toán, cập nhật trạng thái ghế thành “đã bán”, đồng thời in vé giấy (và hóa đơn nếu có) để phát hành cho khách hàng. Vé giấy chứa đầy đủ thông tin cần thiết, bao gồm mã QR, mã vé, mã chỗ ngồi, ga đi, ga đến, loại tàu, loại chỗ ngồi, ngày giờ khởi hành, họ tên hành khách, số CMND/Hộ chiếu và giá vé.
+Hình ảnh minh hoạ vé tàu
+Hình ảnh minh hoạ vé tàu
+- Giá vé được tính theo công thức:
+Giá vé = Giá cơ bản ban đầu * Hệ số khoảng cách đường đi * Hệ số chỗ ngồi + phí bảo hiểm * (% giảm giá nếu có)
+Trong đó:
+Giá cơ bản ban đầu: 500 đồng/km.
+Hệ số khoảng cách: Tùy thuộc vào độ dài hành trình, hệ số sẽ thay đổi để phản ánh chi phí vận hành.
+Hệ số loại toa: Xác định dựa trên tiện nghi và chất lượng chỗ ngồi/toa.
+Phí bảo hiểm: 2.000 đồng/vé.
+Mức giảm giá: Tính theo % tùy thuộc vào đối tượng hành khách.
+Yếu tố
+Quy định hệ số/chi phí
+Giá cơ bản
+500 đồng/km
+Hệ số khoảng cách
+0–100 km: 1.1
+101–300 km: 1.25
+301–800 km: 1.5
+>800 km: 2.0
+Hệ số chỗ ngồi
+Ghế cứng: 1.0
+Ghế mềm: 1.2
+Giường nằm khoang 4: 1.4
+Giường nằm khoang 6: 1.6
+VIP: 2.0
+Phí bảo hiểm
+2000 đồng/vé
+Giảm giá (nếu có)
+Áp dụng % giảm trực tiếp trên giá vé
+Ví dụ: 1 học sinh đặt vé một chiều đi từ Sài Gòn ra đến Hà Nội ngồi ở toa giường nằm khoang 4 với khoảng cách là khoảng 1700km. Giá vé sẽ được tính: 500 * 1700 * 2 * 1.4 + 2000 * 0.95 = 2,262,900 đ (làm tròn thành 2,263,000đ). Giá vé khứ hồi sẽ được giảm 10% so với vé một chiều, nếu hành khách đi từ Sài Gòn đến Hà Nội sẽ mất 2,263,000đ thì từ Hà Nội quay trở về Sài Gòn chỉ mất 2,263,000đ x 0,9 = 2,036.000đ
+2) Đổi vé: Trong trường hợp hành khách có nhu cầu đổi vé, quy trình được thực hiện trực tiếp tại quầy bán vé với sự hỗ trợ của nhân viên. Hành khách phải đáp ứng đầy đủ các điều kiện quy định, bao gồm: thời gian đổi vé tối thiểu trước giờ tàu chạy là 24 giờ (72 giờ đối với một số tuyến đặc thù), ga đi và ga đến giữ nguyên, vé chỉ được phép đổi một lần duy nhất, bố trí được chỗ ngồi mới theo yêu cầu và không thay đổi thông tin cá nhân in trên vé. Người thực hiện đổi vé phải là chính người mua vé hoặc hành khách có tên trong vé điện tử thuộc cùng giao dịch, trường hợp trẻ em vị thành niên phải có người bảo lãnh thực hiện thay.
+Khi đổi vé, hành khách phải hoàn trả toàn bộ các dịch vụ đi kèm theo vé và nộp một khoản lệ phí đổi vé theo quy định (thông thường 20.000đ/vé, có thể thay đổi theo từng tuyến và từng giai đoạn). Nếu vé mới có giá cao hơn vé cũ, hành khách phải thanh toán thêm phần chênh lệch giá vé cùng với lệ phí đổi vé. Trường hợp vé mới có giá thấp hơn vé cũ, hệ thống và nhân viên bán vé sẽ không hoàn trả phần tiền dư, hành khách chỉ được nhận vé mới sau khi đã thực hiện thanh toán lệ phí đổi vé. Sau khi quy trình hoàn tất, nhân viên cập nhật trạng thái vé cũ thành “đã đổi”, đồng thời vô hiệu hóa mã QR của vé cũ trên hệ thống. Vé mới được in ra và bàn giao cho hành khách với ghi chú “đã đổi”.
+Để đảm bảo minh bạch, các vé đã đổi (đối với vé cứng) sẽ được nhân viên ghi bổ sung thông tin “vé đã đổi” bằng bút không tẩy xóa và đóng dấu khách vận theo đúng quy định. Quy trình này giúp đảm bảo kiểm soát chặt chẽ việc sử dụng vé, đồng thời hạn chế rủi ro gian lận trong vận hành thực tế.
+3) Trả vé: Chức năng trả vé cũng được tiến hành tại quầy bán vé với sự hỗ trợ trực tiếp của nhân viên. Khi khách hàng yêu cầu trả vé, nhân viên nhập số CMND/Hộ chiếu vào hệ thống để tra cứu thông tin vé đã mua. Nếu khách hàng chưa từng mua vé hoặc vé không đủ điều kiện trả (ví dụ: thời gian trả vé cách giờ tàu chạy dưới 4 giờ), hệ thống sẽ thông báo và từ chối giao dịch.
+Nếu vé đủ điều kiện trả, nhân viên chọn vé cần hoàn trả từ danh sách và xác nhận thao tác “Trả vé”. Hệ thống sau đó sẽ tính toán mức phí trả vé theo quy định. Cụ thể, vé trả trước giờ tàu chạy từ 4 đến dưới 24 giờ sẽ bị khấu trừ 20% giá vé; vé trả trên 24 giờ sẽ bị khấu trừ 10% giá vé. Lệ phí tối thiểu áp dụng cho mỗi lần trả vé là 10.000 đồng. Đặc biệt, nếu vé đã từng đổi trước đó thì khi trả sẽ bị khấu trừ 30% giá trị vé in trên vé.
+Sau khi hệ thống tính toán và hiển thị số tiền hoàn lại, nhân viên sẽ thông báo cho khách hàng, tiến hành hoàn trả bằng tiền mặt và xác nhận thao tác trên hệ thống. Vé được cập nhật trạng thái “đã trả” và mã QR đi kèm sẽ bị vô hiệu hóa. Đồng thời, hệ thống hiển thị thông báo trả vé thành công để xác nhận kết thúc giao dịch. Quy định về trả vé yêu cầu vé phải còn nguyên vẹn, không bị tẩy xóa, sửa chữa hoặc rách nát, và đầy đủ thông tin in trên vé. Khách hàng khi trả vé cũng phải hoàn trả toàn bộ các dịch vụ đi kèm nếu có.
+4) Mất vé: Nếu khách hàng làm mất vé thì có thể tới quầy và xuất trình căn cước công dân/hộ chiếu, họ tên cho nhân viên, nhân viên sẽ tra cứu, đối chiếu thông tin trên hệ thống và in ra vé mới cho khách hàng. Khi xử lý thì nhân viên vô hiệu hoá mã QR trên vé mất đề phòng trường hợp có 2 vé lưu hành cùng lúc. Lưu ý rằng mỗi vé chỉ có thể in lại duy nhất một lần, do đó hành khách cần bảo quản vé cẩn thận sau khi nhận lại.
+Quản lý tàu:
+Dữ liệu về đoàn tàu là nền tảng để hệ thống bán vé hoạt động chính xác, trong đó mỗi đoàn tàu thường bao gồm từ 3 đến 15 toa xe, được chia thành hai nhóm chính: toa ghế và toa giường. Toa ghế gồm các toa ghế ngồi cứng và ghế ngồi mềm, mỗi toa có 64 ghế, giá vé chênh lệch tùy vào mức độ tiện nghi. Toa giường được thiết kế cho khách hàng cao cấp, bao gồm giường nằm khoang 2 với 28 giường (7 khoang, mỗi khoang 4 giường) và toa giường nằm khoang 6 với 42 giường (7 khoang, mỗi khoang 6 giường). Thông thường, một đoàn tàu được cấu hình theo nguyên tắc: có từ 0 đến 1 toa ghế ngồi cứng, 0 đến 3 toa ghế ngồi mềm, số còn lại phân bổ cho giường nằm khoang 4 và khoang 6. Phần lớn các toa đều được trang bị hệ thống điều hòa để bảo đảm sự thoải mái của hành khách trong hành trình. Đoàn tàu có 2 trạng thái: Đang chạy và Dừng chạy. Đoàn tàu đang chạy là đoàn tàu có lịch trình cụ thể, không thể chỉnh sửa cấu trúc tàu. Đoàn tàu dừng chạy là đoàn tàu không có lịch trình và có thể cho phép chỉnh sửa cấu trúc tàu.
+Phân hệ Quản lý Tàu được định hướng xây dựng nhằm số hóa hồ sơ đoàn tàu, chuẩn hóa cấu hình toa – chỗ và đồng bộ dữ liệu theo thời gian thực với hệ thống bán vé cũng như lịch trình chạy tàu. Khi lập hồ sơ tàu mới, nhân viên điều hành sẽ khai báo các thông tin cơ bản như mã tàu, loại tàu, đồng thời có thể đăng ký mới hoặc tra cứu thông tin các toa thuộc đoàn tàu đó. Mỗi toa được khai báo chi tiết theo loại hình (ghế ngồi cứng, ghế ngồi mềm, giường nằm khoang 4, giường nằm khoang 6). Hệ thống hỗ trợ thao tác cấu hình tàu như thêm toa, bớt toa hoặc đổi vị trí toa trong đoàn tàu, đồng thời kiểm tra tính hợp lệ để tránh trùng số thứ tự toa. Toàn bộ thay đổi chỉ được xảy ra khi trạng thái tàu đã dừng. Nếu cấu hình thành công, cấu hình tàu mới sẽ được ghi nhận và cập nhật ngay lên hệ thống, giúp dữ liệu luôn khớp với tình trạng thực tế.
+Hiện nay, công tác quản lý đoàn tàu hiện nay vẫn chủ yếu thực hiện thủ công, thông qua báo cáo giấy tờ và sổ sách. Việc này khiến thông tin toa xe và chỗ ngồi thường xuyên không được cập nhật kịp thời. Khi có sự thay đổi như thêm toa, bớt toa hoặc hoán đổi vị trí toa, dữ liệu không được đồng bộ dẫn đến sai lệch thông tin bán vé. Đặc biệt, trong trường hợp đoàn tàu được điều chuyển sang một lịch trình khác, sự thiếu thống nhất trong cập nhật khiến bộ phận bán vé có thể bán nhầm chỗ không tồn tại, gây ảnh hưởng trực tiếp đến quyền lợi và trải nghiệm của hành khách. Ngoài ra, việc không có công cụ hỗ trợ giám sát và kiểm soát khiến quá trình điều hành đoàn tàu phụ thuộc nhiều vào năng lực và kinh nghiệm cá nhân của nhân viên, dẫn đến nguy cơ xảy ra nhầm lẫn cao, nhất là trong thời điểm cao điểm khi nhu cầu đi lại tăng mạnh.
+Quản lý hành trình:
+Hiện nay, các chuyến tàu được bộ phận điều hành lập kế hoạch và nhập vào hệ thống quản lý. Trong hệ thống, quản lý hành trình bao gồm hai phần chính: quản lý tuyến đường và quản lý lịch trình.
+Với tuyến đường, hệ thống cho phép quản lý xem danh sách đầy đủ kèm các thông tin cơ bản như mã tuyến, ga đi, ga đến, thời gian di chuyển dự kiến và giá vé cơ bản. Để thuận tiện cho việc tìm kiếm, người quản lý có thể lọc danh sách theo ga đi hoặc ga đến, hoặc trạng thái. Khi cần bổ sung tuyến mới, quản lý nhập thông tin về ga đi, ga đến, thời gian di chuyển dự kiến  Hệ thống sẽ tự động sinh ra một mã tuyến duy nhất, tính giá tuyến và lưu tuyến mới. Trong trường hợp muốn chỉnh sửa, việc thay đổi chỉ được phép khi tuyến chưa được gắn với bất kỳ lịch trình nào hoặc tuyến đường đang ở bản nháp, và phạm vi chỉnh sửa giới hạn ở thông tin về thời gian di chuyển dự kiến, điểm đi, điểm đến. Nếu tuyến đường không còn phù hợp để khai thác, quản lý có thể vô hiệu hóa, tuy nhiên hệ thống chỉ chấp nhận thao tác này nếu tuyến ở trạng thái bản nháp hoặc không còn lịch trình tương lai nào sử dụng. Khi vô hiệu hóa, hệ thống sẽ đánh dấu tuyến ở trạng thái ngừng hoạt động thay vì xóa hẳn.
+Đối với lịch trình, hệ thống cho phép tìm kiếm và lọc theo nhiều tiêu chí khác nhau, chẳng hạn như mã tàu, ga đi, ga đến hoặc trạng thái chuyến (bao gồm nháp, chưa khởi hành, đang chạy, tạm hoãn, đã kết thúc, tạm ngưng). Kết quả tìm kiếm sẽ hiển thị đầy đủ thông tin về mã lịch trình, tuyến đường, tàu thực hiện, thời gian khởi hành và thời gian kết thúc dự kiến, trạng thái hiện tại, số ghế trống trên tổng số ghế, cùng với giá lịch trình áp dụng dựa trên tuyến.
+Khi cần tạo lịch trình mới, quản lý chọn tuyến từ danh sách tuyến đang hoạt động, chọn tàu trong danh sách tàu sẵn sàng, rồi nhập thời gian khởi hành. Hệ thống sẽ tự động tính toán thời gian đến dự kiến dựa trên thời gian di chuyển của tuyến. Sau đó, hệ thống tiến hành kiểm tra tính hợp lệ: thời gian khởi hành phải lớn hơn thời điểm hiện tại ít nhất 5 ngày và tàu được chọn không bị phân công vào lịch trình khác trùng giờ. Nếu dữ liệu hợp lệ, lịch trình mới sẽ được lưu vào hệ thống với trạng thái mặc định là “Nháp”, đồng thời hệ thống cũng sinh danh sách ghế dựa trên số ghế thực tế của tàu.
+Trong trường hợp cần chỉnh sửa, hệ thống chỉ cho phép thay đổi nếu lịch trình còn ở trạng thái “Nháp”. Người quản lý có thể cập nhật lại thời gian khởi hành hoặc thay đổi con tàu được phân công. Các dữ liệu chỉnh sửa cũng sẽ trải qua quá trình kiểm tra hợp lệ giống như khi tạo mới. Khi lịch trình đã chuyển sang trạng thái “Chưa khởi hành”, “Đang chạy” hoặc “Đã kết thúc”, việc chỉnh sửa sẽ không còn được chấp nhận.
+Như vậy, toàn bộ quy trình quản lý hành trình được thiết kế để đảm bảo dữ liệu luôn chính xác, hợp lệ và phản ánh đúng tình trạng khai thác thực tế, đồng thời giúp quản lý kiểm soát chặt chẽ từ khâu định nghĩa tuyến đường cho đến việc vận hành lịch trình cụ thể.
+Quản lý nhân viên: 
+Việc phân công ca trực và theo dõi hiệu suất nhân viên chủ yếu dựa vào báo cáo giấy tờ truyền thống. Điều này gây khó khăn cho hoạt động giám sát, đánh giá và điều chỉnh nhân lực, đặc biệt tại các ga lớn vào giờ cao điểm. Hệ thống mới sẽ số hóa toàn bộ quy trình quản lý nhân sự. Quản trị viên sẽ nhập hồ sơ nhân viên vào hệ thống với đầy đủ thông tin (họ tên, mã số, chức vụ...). Hệ thống sẽ tự động phân cấp tài khoản truy cập, đảm bảo mỗi người chỉ thực hiện các tác vụ đúng với vai trò của mình. Quản lý cũng sẽ có thể xoá nhân viên, bằng cách chọn cho nghỉ việc, nhân viên vẫn sẽ còn lưu ở dữ liệu
+Quản lý khách hàng: 
+Về quản lý khách hàng, việc lưu trữ thông tin hành khách tại ga chỉ dừng ở mức cơ bản, chủ yếu được ghi trực tiếp trên vé giấy và một số file hỗ trợ như Word hoặc Excel, chưa xây dựng được một hệ thống lưu trữ và quản lý thông tin khách hàng một cách bài bản và có tổ chức. Điều này khiến cho dữ liệu phân tán, khó tra cứu và hầu như không thể theo dõi được lịch sử đi tàu hay xây dựng hồ sơ khách hàng. Trong bối cảnh nhu cầu đi lại ngày càng tăng, việc chỉ dựa vào vé giấy khiến nhà ga chưa thể triển khai các hoạt động chăm sóc khách hàng hay mở rộng dịch vụ giá trị gia tăng.
+Nhân viên có mong muốn Hệ thống quản lý khách hàng mới sẽ cung cấp khả năng lưu trữ tập trung và đầy đủ hơn, cho phép theo dõi lịch sử đi tàu, hỗ trợ tích điểm và triển khai các chính sách khuyến mãi, từ đó nâng cao trải nghiệm của hành khách và hiệu quả kinh doanh.
+Quản lý thống kê: 
+Quản lý thống kê là chức năng giúp nhân viên và quản lý theo dõi, tổng hợp thông tin về tình hình bán vé và doanh thu trong hệ thống. Hiện tại, chức năng này được chia thành các loại thống kê theo ngày, tuần và tháng, với phạm vi quyền truy cập khác nhau cho từng đối tượng.
+Đối với thống kê theo ngày, cả nhân viên và quản lý đều có thể sử dụng. Khi chọn chức năng “Thống kê vé theo ngày”, người dùng chỉ cần chọn ngày cần xem thống kê. Hệ thống sẽ hiển thị kết quả gồm số lượng vé đã bán, số lượng vé đã trả và tổng doanh thu trong ngày đó, giúp người dùng dễ dàng theo dõi tình hình kinh doanh từng ngày.
+Thống kê theo tuần là chức năng dành riêng cho quản lý. Khi cần tổng hợp doanh thu trong một tuần, quản lý sẽ chọn chức năng “Thống kê vé theo tuần”, sau đó chọn tuần cần thống kê. Hệ thống sẽ hiển thị kết quả tổng hợp doanh thu của toàn bộ các ngày trong tuần đó, hỗ trợ công tác phân tích, đánh giá và lập kế hoạch kinh doanh.
+Đối với thống kê theo tháng, đây cũng là chức năng chỉ dành cho quản lý. Quản lý sẽ chọn chức năng “Thống kê vé theo tháng”, sau đó chọn tháng cần xem báo cáo. Hệ thống sẽ hiển thị báo cáo tổng hợp doanh thu của toàn bộ các ngày trong tháng, giúp lãnh đạo nắm được tình hình hoạt động, doanh thu và hiệu quả kinh doanh theo từng tháng. Các chức năng thống kê này góp phần hỗ trợ nhân viên, quản lý trong việc kiểm soát, đánh giá và ra quyết định phù hợp nhằm nâng cao hiệu quả hoạt động của hệ thống bán vé tàu xe.
+Hệ thống sẽ cung cấp các chức năng cốt lõi bao gồm: (1) Quản lý vé tàu; (2) Quản lý tàu; (3) Quản lý lịch trình; (4) Quản lý nhân viên và (5) Quản lý khách hàng, (6) Quản lý hoá đơn, (7) Quản lý thống kê. Các chức năng này được thiết kế nhằm đảm bảo quy trình bán vé tại ga diễn ra minh bạch, chính xác và hiệu quả. Hệ thống phải hỗ trợ đầy đủ các nghiệp vụ bán vé (tạo, đổi, trả vé), quản lý dữ liệu đoàn tàu và lịch trình, lưu trữ và khai thác dữ liệu khách hàng, quản lý phân công và theo dõi nhân viên, đồng thời cung cấp báo cáo và thống kê phục vụ công tác quản lý. Ngoài ra, hệ thống cần đảm bảo tính dễ sử dụng cho nhân viên, tốc độ xử lý nhanh, khả năng mở rộng khi quy mô hành khách tăng, an toàn và bảo mật dữ liệu.
+Quản lý hoá đơn: 
+Hiện nay với sự quan trọng hoá đơn trong của hệ thống bán vé tàu xe, thì quản lý hoá đơn sẽ giúp người quản lý kiểm soát và xử lý các giao dịch thanh toán một cách thuận tiện và chính xác. Khi phát sinh giao dịch bán vé, hệ thống tự động tạo hóa đơn với đầy đủ thông tin như mã hóa đơn, khách hàng, số seri vé, tổng tiền thanh toán, tuyến đường liên quan và thời gian xuất hóa đơn. 
+ Tất cả các hóa đơn đã tạo sẽ được lưu trữ trong hệ thống để tiện cho việc quản lý về sau. Nhân viên có thể tra cứu hóa đơn dễ dàng thông qua chức năng tìm kiếm, với các tiêu chí như mã hóa đơn, tên khách hàng, ngày xuất hóa đơn, tuyến đường. 
+Kết quả tra cứu sẽ hiển thị chi tiết thông tin từng hóa đơn để tiện theo dõi và đối chiếu. Ngoài ra, hệ thống cho phép xem lại hóa đơn đã bán bất kỳ lúc nào khi cần thiết. Người quản lý có thể truy cập vào từng hóa đơn để kiểm tra lại thông tin giao dịch, phục vụ công tác kiểm tra, thống kê hoặc hỗ trợ khách hàng. Trường hợp cần thiết, quản lý có thể xuất hóa đơn ra định dạng phù hợp (ví dụ: PDF, bản in...), đảm bảo phục vụ nhu cầu lưu trữ nội bộ hoặc cung cấp cho khách hàng theo quy định. Nhờ các chức năng trên, việc quản lý hóa đơn trong hệ thống bán vé tàu xe trở nên đơn giản, minh bạch, giúp nhân viên kiểm soát tốt các giao dịch, hỗ trợ công tác kế toán và đảm bảo quyền lợi cho khách hàng
+Hệ thống sẽ cung cấp các chức năng cốt lõi bao gồm: (1) Quản lý vé tàu; (2) Quản lý tàu; (3) Quản lý hành trình; (4) Quản lý nhân viên và (5) Quản lý khách hàng , (6) Quản lý hoá đơn, (7) Quản lý thống kê. Các chức năng này được thiết kế nhằm đảm bảo quy trình bán vé tại ga diễn ra minh bạch, chính xác và hiệu quả. Hệ thống phải hỗ trợ đầy đủ các nghiệp vụ bán vé (tạo, đổi, trả vé), quản lý dữ liệu đoàn tàu và lịch trình, lưu trữ và khai thác dữ liệu khách hàng, quản lý phân công và theo dõi nhân viên, đồng thời cung cấp báo cáo và thống kê phục vụ công tác quản lý. Ngoài ra, hệ thống cần đảm bảo tính dễ sử dụng cho nhân viên, tốc độ xử lý nhanh, khả năng mở rộng khi quy mô hành khách tăng, an toàn và bảo mật dữ liệu.
+ 
+b. Quy trình nghiệp vụ
+b.1. Quản lý bán vé:
+Bán vé
+Bước 1: Tiếp nhận yêu cầu khách hàng
+Khách hàng đến trực tiếp quầy vé.
+Khai báo thông tin hành trình: ga đi, ga đến, ngày đi, ngày về (vé khứ hồi).
+Quy định: mỗi lần đặt tối đa 10 vé (không tính trẻ sơ sinh).
+Bước 2: Tra cứu chuyến tàu
+Nhân viên nhập thông tin hành trình vào hệ thống.
+Hệ thống trả về danh sách các đoàn tàu phù hợp và tình trạng chỗ.
+Mặc định, hệ thống gợi ý chuyến sớm nhất, nhưng khách có thể thay đổi lựa chọn.
+Bước 3: Chọn toa và ghế ngồi
+Khi khách chọn đoàn tàu, hệ thống hiển thị danh sách toa:
+Hết vé: đỏ.
+Còn vé: trắng.
+Khách chọn toa → hệ thống hiển thị sơ đồ ghế:
+Ghế trống: trắng.
+Ghế đã bán: đỏ.
+Ghế đang giao dịch: xanh lá cây.
+Khách chọn ghế (chỉ được chọn ghế trắng). Ghế chuyển sang xanh lá cây và được đưa vào giỏ vé.
+Nếu đổi ghế → nhân viên xóa khỏi giỏ, ghế trở về trắng.
+Nếu vé khứ hồi → thao tác tương tự cho chiều về.
+Bước 4: Nhập thông tin khách hàng
+Nhân viên ghi nhận:
+Thông tin hành khách: Họ tên, CMND/Hộ chiếu, ngày sinh (xác định ưu đãi), loại khách hàng.
+Thông tin người đặt vé: Họ tên, CMND/Hộ chiếu, Email, SĐT.
+Bước 5: Áp dụng chính sách ưu đãi
+Hệ thống tự động tính giảm giá theo đối tượng hoặc chương trình khuyến mãi.
+Nếu khách có điểm thành viên: có thể quy đổi (tối đa 10% giá trị vé, không cộng dồn với ưu đãi khác).
+Bước 6: Xác nhận thông tin & hiển thị số tiền
+Nhân viên đối chiếu thông tin vé (tàu, ngày giờ, toa, ghế, hành khách, giá vé).
+Hệ thống hiển thị số tiền thanh toán.
+Khách hàng xác nhận đồng ý.
+Bước 7: Thu thập thông tin xuất hóa đơn (nếu có)
+Nếu khách yêu cầu xuất hóa đơn → nhân viên nhập thông tin xuất hóa đơn.
+Bước 8: Thanh toán
+Khách hàng thanh toán bằng tiền mặt.
+Tổng tiền đã bao gồm thuế và phí.
+Bước 9: In vé & hoàn tất
+Nhân viên in vé giấy: QR code, mã vé, ga đi/đến, ngày giờ đi, toa/chỗ, họ tên khách, CMND/Hộ chiếu, giá vé.
+Nếu khách yêu cầu tích điểm → cập nhật vào hệ thống.
+Đổi vé
+Bước 1: Khách hàng yêu cầu đổi vé
+Khách hàng đến quầy vé, cung cấp CMND/Hộ chiếu.
+Nếu hành khách là trẻ vị thành niên → chỉ người bảo lãnh mua vé mới được quyền đổi.
+Bước 2: Nhân viên tra cứu thông tin vé
+Nhân viên nhập thông tin khách hàng vào hệ thống.
+Xác thực vé hợp lệ (chưa bị trả, chưa bị đổi, còn nguyên vẹn).
+Bước 3: Khách hàng cung cấp chỗ ngồi mới mong muốn
+Bước 4: Tính phí và chênh lệch giá
+Phí đổi vé cố định: 20.000đ/vé.
+Nếu vé mới có giá cao hơn vé cũ → thanh toán thêm phần chênh lệch giá vé cùng với lệ phí đổi vé
+Nếu vé mới có giá thấp hơn vé cũ → không hoàn trả tiền dư
+Bước 5: Xác nhận và cập nhật vé
+Nhân viên xác nhận với khách hàng về vé mới, chi phí và các điều kiện.
+Cập nhật trạng thái vé trên hệ thống thành “vé đã đổi”.
+Trên vé giấy mới: nhân viên ghi chú “vé đã đổi” bằng bút không tẩy xóa, đóng dấu khách vận.
+In và phát hành vé mới cho khách hàng.
+Trả vé
+Bước 1: Khách hàng yêu cầu trả vé
+Khách hàng đến quầy vé, cung cấp CMND/Hộ chiếu.
+Nếu hành khách là trẻ vị thành niên → chỉ người bảo lãnh mua vé mới được quyền trả.
+Bước 2: Nhân viên tra cứu và kiểm tra vé
+Bước 3: Tính phí trả vé
+Bước 4: Hoàn tiền
+Bước 5: Cập nhật hệ thống
+Vé gốc chuyển sang trạng thái "Đã hủy".
+Ghế quay lại tình trạng "trống".
+Bước 7: Hoàn tất
+Nhân viên bàn giao chứng từ hoàn tiền cho khách
+Xử lý mất vé
+Bước 1. Tiếp nhận yêu cầu khách hàng
+Khách hàng đến quầy, báo mất vé.
+Xuất trình CMND/CCCD hoặc Hộ chiếu, họ tên để nhân viên xác minh.
+Bước 2. Tra cứu thông tin vé
+Nhân viên nhập số CMND/CCCD vào hệ thống.
+Hệ thống hiển thị danh sách vé đã mua gắn với khách hàng.
+Bước 3. Đối chiếu & xác minh
+Nhân viên so sánh thông tin cá nhân với dữ liệu trên hệ thống
+Nếu trùng khớp và còn hiệu lực → xác nhận khách thực sự là chủ vé.
+Bước 4. Cập nhật trạng thái vé cũ
+Nhân viên vô hiệu hoá mã QR trên vé cũ
+Bước 5. In vé mới
+b.2. Quản lý hành trình (dành cho quản lý)
+Quản lý Tuyến Đường
+1. Danh sách tuyến đường
+Bước 1: Lấy danh sách tuyến đường từ hệ thống.
+Bước 2: Hiển thị thông tin cơ bản:
+Mã tuyến
+Điểm đi
+Điểm đến
+Thời gian di chuyển dự kiến
+Giá vé cơ bản 
+Trạng thái tuyến đường
+Bước 3: Cung cấp chức năng lọc theo:
+Điểm đi
+Điểm đến
+Trạng thái
+2. Thêm tuyến đường mới
+Bước 1: Nhập thông tin tuyến mới:
+Điểm đi
+Điểm đến
+Thời gian di chuyển dự kiến 
+Bước 2: Hệ thống tính Giá vé cơ bản theo số km và tự động sinh ra mã tuyến duy nhất
+Bước 3: Lưu tuyến đường vào hệ thống.
+3. Chỉnh sửa tuyến đường
+Điều kiện: Cho phép chỉnh sửa chỉ khi tuyến không có lịch trình nào liên kết hoặc tuyến đường đang ở bản nháp
+Bước 1: Chọn tuyến cần chỉnh sửa.
+Bước 2: Chỉnh sửa được:
+Địa điểm đến, địa điểm đi
+Thời gian di chuyển dự kiến
+Bước 3: Xác nhận và lưu thay đổi.
+4. Vô hiệu hóa tuyến đường
+Điều kiện:
+Không còn lịch trình tương lai nào đang dùng hoặc tuyến đường ở bản nháp
+Bước 1: Chọn tuyến muốn vô hiệu hóa.
+Bước 2: Kiểm tra xem có lịch trình tương lai nào đang dùng tuyến không.
+Bước 3: Nếu không có → đánh dấu tuyến ngừng hoạt động (không xóa hoàn toàn) , xoá hoàn toàn với tuyến đường nháp
+Quản lý Lịch Trình
+1. Lọc lịch trình
+Bước 1: Người dùng nhập tiêu chí tìm kiếm:
+Mã tàu
+điểm đi, ga điểm đến
+Trạng thái chuyến (nháp, chưa khởi hành, đang chạy, tạm hoãn, đã kết thúc , tạm ngưng)
+Bước 2: Hệ thống tìm kiếm và trả kết quả.
+Bước 3: Hiển thị thông tin chi tiết:
+Mã lịch trình
+Tuyến đường
+Tàu thực hiện (mã tàu)
+Thời gian khởi hành, thời gian đến dự kiến
+Trạng thái hiện tại
+Số ghế trống / tổng số ghế
+Giá vé áp dụng (dựa trên giá vé cơ bản của tuyến đường)
+2. Tạo lịch trình mới
+Bước 1: Chọn tuyến đường từ danh sách tuyến đang hoạt động.
+Bước 2: Chọn tàu từ danh sách tàu sẵn sàng.
+Bước 3: Nhập thông tin thời gian khởi hành.
+Hệ thống tự tính thời gian đến dự kiến dựa vào thời gian di chuyển của tuyến.
+Bước 4: Kiểm tra hợp lệ:
+Thời gian khởi hành > thời gian hiện tại + 1 ngày
+Tàu không bị phân công vào lịch trình khác trùng giờ hoặc thời gian
+Bước 5: Xác nhận và lưu lịch trình
+Trạng thái mặc định: Nháp
+Bước 6: Hệ thống tự động sinh danh sách ghế dựa vào số ghế của tàu đã gắn.
+3. Chỉnh sửa lịch trình
+Điều kiện tiên quyết:
+Chỉ cho phép nếu lịch trình đang ở trạng thái Nháp
+Bước 1: Chọn lịch trình cần chỉnh sửa.
+Bước 2: Cho phép chỉnh sửa:
+Thời gian khởi hành
+Tàu được phân công
+Ngày khởi hành
+Giờ khởi hành
+Tuyến đường
+Bước 3: Kiểm tra hợp lệ (giống khi tạo mới).
+4. Vô hiệu hoá lịch trình
+Bước 1: Chọn lịch trình nháp hoặc ghế trống vẫn còn 100%
+Bước 2: Tiến hành xoá vĩnh viến với lịch trình nháp, hoặc trạng thái tạm ngưng với lịch trình vẫn chưa có hành khách mua vé
+b.3 Quản lý khách hàng 
+Tạo mới thông tin khách hàng
+Bước 1: Nhập tên khách hàng, CCCD/Hộ chiếu, số điện thoại, email (nếu có)
+Bước 2: Tạo và Lưu thông tin khách hàng, điểm tích bằng 0
+Sửa thông tin khách hàng
+Bước 1: Chọn thông tin khách hàng cần chỉnh sửa
+Bước 2: Cập nhật thông tin: tên khách hàng, số điện thoại, email (nếu có)
+Bước 3: Lưu thay đổi
+Xóa thông tin khách hàng
+Bước 1: Chọn thông tin khách hàng cần xóa
+Bước 2: Hỏi xác nhận xóa toàn bộ thông tin khách hàng và điểm tích
+Bước 3: Xóa thông tin khách hàng và điểm tích
+Tra cứu thông tin khách hàng
+Bước 1: Chọn chức năng tra cứu thông tin khách hàng
+Bước 2: Nhập thông tin cần tra cứu
+Bước 3: Xuất kết quả gồm: tên, CCCD/Hộ chiếu, email, sđt, điểm tích, lịch sử đi tàu (ga đi, ga đến, loại chỗ, mác tàu, thời gian đi)
+Tích điểm và Đổi điểm
+Phần này tích hợp chung với quá trình bán vé
+Sau khi hoàn thành việc bán vé: Nếu có tài khoản khách hàng để tích điểm thì thực hiện đổi điểm từ hóa đơn theo tỉ lệ quy đổi (10,000đ = 1 điểm)
+Trước khi xác nhận mua vé: Nếu có tài khoản khách hàng để tích điểm thì thực hiện giảm giá theo mức điểm do khách hàng chọn hoặc dùng hết điểm tích, theo tỉ lệ quy đổi (1 điểm = 1,000đ giảm)
+b.4 Quản Lí nhân viên (dành cho quản lý)
+Tạo hồ sơ nhân viên
+Bước 1: Chọn chức năng “Tạo hồ sơ nhân viên”
+Bước 2: Nhập thông tin hồ sơ (Mã nhân viên, Họ tên, CCCD, Ngày sinh, Địa chỉ, SĐT, Email)
+Bước 3: Chọn “Lưu”
+Bước 4: Hệ thống lưu hồ sơ nhân viên
+Bước 5: Chọn cấp tài khoản 
+Bước 6 : Tạo tài khoản theo mã nhân viên, mật khẩu ngẫu nhiên
+Xoá mềm nhân viên
+Bước 1: Chọn chức năng “Xoá nhân viên”
+Bước 2: Hệ thống cập nhật trạng thái nhân viên thành “Nghỉ việc”
+b.5. Quản lý tàu
+Lập tàu mới
+Bước 1: Chọn chức năng “Lập tàu mới” trong hệ thống.
+Bước 2: Nhập mác tàu. Thêm toa tàu vào nếu có từ danh sách kế bên.
+Bước 3: Lưu thông tin tàu vào hệ thống.
+Tra cứu tàu/toa
+Bước 1: Chọn chức năng “Tra cứu tàu/toa” trong hệ thống.
+Bước 2: Nhập thông tin cần tra cứu (mác tàu, loại toa, số toa trên tàu)
+Bước 3: Xuất kết quả thông tin gồm: mác tàu, số toa trên tàu, các loại toa
+Đăng ký mới toa
+Bước 1: Chọn chức năng “Đăng ký toa” trong hệ thống
+Bước 2: Nhập loại toa/Chọn loại toa có sẵn. Nhập số lượng chỗ (tạo mặc định theo ngồi nếu bỏ trống hoặc nhập cụ thể 1 con số từ 1-99)
+Bước 3: Lưu thông tin toa vào hệ thống
+Cấu hình tàu
+Bước 1: Chọn tàu cần cấu hình từ danh sách tàu
+Bước 2: Chọn thay đổi cấu hình tàu
+Bước 3: Thực hiện một hoặc nhiều chức năng lên tàu đã chọn
+Thêm toa vào tàu: 
+Bước 3.1: Chọn 1 toa từ danh sách toa 
+Bước 3.2: Chọn vị trí trên tàu 
+Bước 3.3: Chọn Thêm toa vào tàu
+Bỏ toa khỏi tàu:
+Bước 3.1: Chọn 1 hoặc nhiều toa trên tàu
+Bước 3.2: Chọn Bỏ toa khỏi tàu
+Bước 3.3: Xác nhận bỏ các toa đã chọn ra khỏi tàu
+Bước 3.4: Xóa các toa đã chọn khỏi tàu
+Đổi chỗ toa: 
+Bước 3.1: Chọn 1 toa trên tàu
+Bước 3.2: Nhập vị trí mới muốn đổi
+Bước 3.2: Nhấn Đổi chỗ toa
+Bước 4: Xác nhận thay đổi cấu hình tàu
+Bước 5: Lưu cấu hình tàu mới
+b.6. Quản lý thống kê
+Thống kê theo ngày (dành cho cả nhân viên và quản lí)
+Bước 1: Chọn chức năng “Thống kê vé theo ngày” trong mục quản lý thống kê ở hệ thống.
+Bước 2: Chọn ngày cần thống kê.
+Bước 3: Xem kết quả thống kê: số lượng vé bán, vé trả, doanh thu
+Thống kê theo tuần (chỉ dành cho quản lý)
+Bước 4: Chọn chức năng “Thống kê vé theo tuần”.
+Bước 5: Chọn tuần cần thống kê.
+Bước 6: Xem kết quả tổng hợp doanh thu theo tuần.
+Thống kê theo tháng (chỉ dành cho quản lý)
+Bước 7: Chọn chức năng “Thống kê vé theo tháng”.
+Bước 8: Chọn tháng cần thống kê.
+Bước 9: Xem báo cáo tổng hợp doanh thu theo tháng
+c. Quy định
+c.1 Quy định về Quản lý vé xe:
+Bán vé:
++ Số lượng vé:
+Mỗi lần đặt tối đa 10 vé (không tính trẻ sơ sinh).
+Trẻ em dưới 10 tuổi phải có người lớn đi kèm.
++ Chính sách giá vé & ưu đãi:
+Trẻ em dưới 6 tuổi
+Miễn vé và sử dụng chung chỗ của người      lớn đi kèm
+Trẻ em từ 6 đến dưới 10 tuổi
+Giảm 25% giá vé
+Người cao tuổi từ 60 tuổi trở lên
+Giảm 15% giá vé
+Học sinh, sinh viên
+Giảm 10% giá vé (Không bao gồm các sinh   viên, học viên học sau Đại học)
+Đổi/Trả vé:
+Trả vé
+Đổi vé
+Thời gian
+Trả vé trước giờ tàu chạy là 4 giờ
+Đổi vé trước giờ tàu chạy tối thiểu 24 giờ
+Điều kiện
+Vé còn nguyên vẹn, không bị rách nát; Không bị tẩy, xóa, sửa chữa và còn đủ các thông tin trên vé.
+Có cùng ga đi, ga đến
+Đổi vé 1 lần duy nhất
+Bố trí được chỗ ngồi mới theo yêu cầu của hành khách
+Không được đổi vé trong trường hợp thay đổi thông tin cá nhân ghi trên vé đã mua.
+Sau khi đã đổi vé, nếu hành khách có nhu cầu trả lại vé thì mức khấu trừ trả vé đối với các vé đã đổi là 30% số tiền in trên vé.
+Sau khi đổi, vé mới được đánh dấu “vé đã đổi”: Trên vé giấy: ghi chú “vé đã đổi” bằng bút không tẩy xóa; Trên hệ thống: cập nhật trạng thái “vé đã đổi” trên vé cũ
+Mức phí
+Trả vé trước giờ tàu chạy từ 4 đến dưới 24 giờ: 20% giá vé
+Trên 24 giờ: 10% giá vé
+Lệ phí trả vé tối thiểu 10.000đ.
+Lệ phí đổi vé là 20.000đ/vé.
+Lưu ý: Khi đổi vé, nếu giá vé cũ thấp hơn vé mới, yêu cầu khách hàng thanh toán thêm phần chênh lệch giá vé cùng với lệ phí đổi vé. Ngược lại, nếu giá vé cũ cao hơn vé mới thì không hoàn tiền dư
+c.2 . Quy định về quản lý hành trình
+Nghĩa vụ của doanh nghiệp
+Niêm yết tại ga: Bảng giờ tàu, Bảng giá vé, Nội quy đi tàu, Nhiệm vụ nhân viên 
+Khi tàu chậm giờ, trưởng ga / trưởng tàu phải thông báo kịp thời cho hành khách và lich trình tạm hoãn.
+Quy tắc về trạng thái lịch trình:
+“Nháp” :  Lịch trình mới được tạo 
+"Chưa khởi hành" : Lịch trình được đưa vào công khai
+"Tạm hoãn" : Lịch trình có vấn đề tạm hoãn 
+"Đã kết thúc" : Lịch trình đã chạy xong 
+"Đang chạy" : Lịch trình đang chạy 
+“Tạm ngưng” : Lịch trình được đưa vào tạm ngưng
+Quy tắc về trạng thái tuyến:
+“Nháp” :  Tuyến đường mới được tạo 
+"Sẵn sàng" : Tuyến đường được đưa vào sử dụng 
+“Tạm ngưng” : Tuyến đường được đưa vào sử dụng nhưng bị tạm ngưng
+c.3. Quy định về quản lý khách hàng
+Tạo mới thông tin khách hàng
+Phải tra cứu CCCD của khách hàng để xác nhận tồn tại thông tin trước khi tạo thông tin khách hàng mới (phần của hệ thống tự tìm)
+Nếu thông tin đã tồn tại thì chỉ được chỉnh sửa hoặc xóa thông tin khách hàng
+Thông tin tạo mới phải có ít nhất Họ tên và CCCD
+Sửa thông tin khách hàng
+Chỉ được sửa thông tin khách hàng (họ tên, sđt, email) nếu có mặt khách hàng cùng CCCD để xác nhận
+Chỉ thay đổi điểm tích của khách hàng trong thời gian thực hiện việc bán vé (áp dụng đổi điểm lấy chiết khấu trước khi bán vé, áp dụng tích điểm sau khi thanh toán) 
+Xóa thông tin khách hàng
+Khách hàng phải có mặt xác nhận cùng CCCD trước khi thực hiện, đồng thời phải hỏi xác nhận, trước khi thực hiện việc xóa toàn bộ thông tin khách hàng cùng điểm tích.
+Tra cứu thông tin khách hàng
+Báo không có cho khách hàng không tồn tại
+Cho phép lọc theo nhiều tiêu chí 
+Tích điểm và Đổi điểm
+Thực hiện việc đổi điểm chỉ khi điểm của khách hàng lớn hơn 0. Số tiền giảm tối đa là 90% giá vé. Chỉ đổi điểm khi khách yêu cầu.
+Thực hiện việc tích điểm với quy tắc làm tròn xuống (chia lấy nguyên)
+c.4. Quy định về quản lý nhân viên
+Định danh
+Mã nhân viên duy nhất, không trùng lặp.
+Vai trò & quyền hạn
+Phân quyền theo vị trí: Nhân viên và Quản trị viên.
+Bảo mật
+Mật khẩu phải đủ mạnh, được cấp ngẫu nhiên khi tạo tài khoản.
+c.5. Quy định về quản lý tàu
+Lập tàu mới
+Mác tàu không trùng với các tàu khác trong hệ thống
+Mác tàu duy nhất theo format: 2-3 chữ cái + 1-2 chữ số (VD: SE1, SNT12) 
+Mác tàu không được thay đổi sau khi lưu vào hệ thống
+Tàu phải có từ 3 tới 16 toa mới cho lập
+Trạng thái của tàu sẽ tự động cập nhật: nếu tàu có lịch trình thì trạng thái “Đang chạy”, nếu không có thì trạng thái “Ngưng chạy” 
+Sức chứa & cấu hình 
+Ghế cứng: tối đa 72 chỗ/toa
+Ghế mềm: tối đa 64 chỗ/toa
+Ghế mềm Chất lượng cao: tối đa 56 chỗ/toa 
+Giường nằm 6 người: 42 chỗ/toa 
+Giường nằm 4 người: 28 chỗ/toa  
+c.6. Quy định về quản lý thống kê 
+Nhân viên
+Quản lý
+Phải có tài khoản mật khẩu hợp lệ
+2.   Danh sách các câu hỏi khi thu thập và làm rõ yêu cầu của ứng dụng
+STT
+Câu hỏi (Questions)
+Trả lời (Answers)
+Ghi chú
+1.
+Khi có khách mua vé nhưng quên mang giấy tờ tùy thân, anh thường xử lý thế nào? Có thể dựa vào số điện thoại tích điểm không, hay bắt buộc phải có CMND/CCCD?
+Nếu đã lên tàu mà không có vé, nhân viên sẽ coi như khách không có vé và buộc phải mua lại vé trên tàu, nếu chưa lên tàu buộc phải đến phòng quản lý gần nhất để kiểm tra cccd so với vé để cấp lại vé mới 
+Người hỏi Phạm Thanh Huy
+2.
+Khi phần mềm hoặc máy in gặp sự cố, mình thường ghi chép tạm thông tin khách như thế nào? 
+Thường thì khi phần mềm hoặc máy in gặp sự cố, nhân viên sẽ ghi nhanh thông tin khách vào một cuốn sổ phiếu tạm: gồm họ tên, số CMND/CCCD, ga đi – ga đến, giờ tàu, loại ghế và giá vé. Sau đó nhân viên giữ lại phiếu đó để nhập lại vào hệ thống khi máy hoạt động bình thường.
+Câu hỏi của Trịnh Hoàng Kỳ
+3.
+Khi khách hàng mua nhiều vé (vd: 4 người đi cùng chuyến), hệ thống sẽ tạo: Một vé gộp chung cho cả nhóm hay Một vé riêng cho từng hành khách?
+Hệ thống sẽ tạo cho mỗi khách hàng một vé riêng vì dễ quản lý trong việc đổi/trả vé, kiểm soát thông tin tốt hơn
+Câu hỏi của Trần Gia Hào
+4.
+Trong phần tạo vé mới hệ thống có hỗ trợ tự động tính toán theo giá vé theo chỗ ngồi không? Nếu có thì quy tắc tính toán là gì?
+Hiện nay, khi tạo vé mới thì phần mềm nội bộ có hỗ trợ tự động tính giá vé theo chỗ ngồi. Quy tắc tính toán dựa trên:
+- Giá cơ bản của tuyến (ga đi → ga đến).
+- Loại toa và chỗ ngồi: ghế cứng, ghế mềm, giường nằm khoang 4 người, giường nằm khoang 6 người…
+- Phụ thu: ví dụ như vé mua cận giờ có thể cộng thêm, hoặc vé lễ tết thì có phụ thu theo quy định.
+- Giảm giá: nếu khách thuộc diện ưu đãi (sinh viên, trẻ em, người cao tuổi) thì phần mềm trừ thẳng theo % quy định.
+Phần mềm sẽ hiển thị giá vé cuối cùng để tôi báo ngay cho khách, nhưng trong một số trường hợp đặc biệt (ví dụ có văn bản mới về điều chỉnh giá), chúng tôi vẫn phải nhập thủ công hoặc cập nhật lại bảng giá trong hệ thống.
+Câu hỏi của Trịnh Hoàng Kỳ
+5.
+Trong mục “Tạo lịch trình”, mã lịch trình được quy định theo format: Mã tuyến_Số thứ tự_Giờ khởi hành. Vậy nếu giờ khởi hành trùng nhau thì hệ thống sẽ xử lý như thế nào?
+Nếu giờ khởi hành trùng nhau , hệ thống sẽ kiểm tra và từ chối tạo lịch trình mới nhất giữ lại lịch trình cũ
+ Câu hỏi của Phạm Thanh Huy
+6.
+Về đổi/trả vé: Trường hợp khách hàng có nhiều vé trong một booking, đổi một phần (ví dụ 2 vé trong tổng số 4 vé) có được không? Hay bắt buộc đổi/trả toàn bộ?
+Hệ thống cho phép thực hiện trả vé một phần nhưng bắt buộc phải có xác nhận từ người đặt vé (người đại diện mua cả nhóm). Nếu người trả vé khác với người đặt → cần có giấy tờ xác minh (ví dụ: CCCD người đặt, hoặc giấy ủy quyền ký tên).
+Câu hỏi của Trần Gia Hào
+7.
+Khi thống kê doanh thu, bạn muốn thống kê theo doanh thu gộp hay doanh thu thực thu (net)?
+Hệ thống sẽ thống kê doanh thu gộp, thể hiện rõ “quy mô hoạt động” của hệ thống (tổng giá trị vé xuất ra).
+Câu hỏi của Nguyễn Công Huy
+8.
+Nếu chính nhà tàu lịch trình chuyến đi (do sự cố, bảo trì, thiên tai) thì nhà tàu sẽ xử lý như thế nào 
+Nhà tàu sẽ tiến hành thay thế tàu đang trống, vào lịch trình bị sự cố, trong trường hợp không còn tàu trống, nhà tàu sẽ hoàn thời hạn lịch trình đến khi sự cố được khắc phục xong
+Câu hỏi của Nguyễn Công Huy
+ 
+3.   Yêu cầu chức năng/phi chức năng của ứng dụng
+Yêu cầu chức năng:
+Quản lý vé tàu
+Đặt vé (tra cứu chỗ trống, chọn loại tàu/chỗ, nhập thông tin hành khách, in vé).
+Đổi vé (kiểm tra điều kiện, cập nhật vé cũ, in vé mới).
+Trả vé (kiểm tra điều kiện, tính phí, hoàn tiền, cập nhật trạng thái).
+Tra cứu vé (theo CCCD + mã vé, hoặc họ tên).
+Cấp lại vé khi mất (dựa vào CCCD, họ tên).
+Kiểm tra, xác thực vé
+Quản lý tàu
+Lập tàu mới/Xem thông tin tàu.
+Đăng ký mới toa
+Cấu hình tàu (Thêm toa vào tàu đang chọn, Bỏ toa đang chọn khỏi tàu, Đổi chỗ toa trên tàu)
+Tra cứu tàu/toa
+Quản lý hành trình
+Quản lý tuyến đường: 
+xem danh sách, 
+lọc theo ga đi/ga đến, 
+thêm mới, chỉnh sửa, 
+vô hiệu hóa.
+Quản lý lịch trình: 
+tạo mới (ga đi, ga đến, ngày chạy, giờ chạy, chọn tàu), 
+cập nhật khi còn hợp lệ, 
+tra cứu theo nhiều tiêu chí với bộ lọc và sắp xếp.
+xoá lịch trình nháp
+Quản lý khách hàng
+Tạo mới/Cập nhật/Xóa hồ sơ khách hàng
+Tra cứu hồ sơ khách hàng
+Tích điểm mua vé, đổi điểm lấy chiết khấu
+Quản lý nhân viên
+Quản lý hồ sơ nhân viên (Thêm/Xoá/Sửa thông tin nhân viên)
+Phân quyền truy cập hệ thống
+Quản lý thống kê
+Thống kê doanh thu theo tháng, theo ngày với nhân viên và theo quý với quản lý
+Phân quyền truy cập hệ thống Yêu cầu phi chức năng:
+Hiệu năng – Hệ thống xử lý nhanh, đáp ứng được khối lượng vé trong giờ cao điểm.
+Tính chính xác – Đảm bảo thông tin vé, tàu, lịch trình đồng bộ, tránh sai lệch.
+Tính bảo mật – Bảo vệ thông tin cá nhân khách hàng (ẩn bớt số CCCD, bảo mật email/SDT).
+Tính dễ sử dụng – Giao diện thân thiện cho nhân viên đa số là người lớn tuổi (nhiều thao tác thủ công cần nhanh gọn).
+4.   Sơ đồ phân cấp chức năng của ứng dụng
+5.   Các chức năng chính cho ứng dụng (Mục tiêu của ứng dụng)
+Quản lý đặt vé:
+Tiếp nhận và xử lý yêu cầu đặt vé (vé một chiều, khứ hồi).
+Tìm kiếm và đề xuất chuyến tàu phù hợp với thông tin khách hàng (ga đi, ga đến, ngày đi/ngày về).
+Hiển thị tình trạng chỗ trống trên toa và ghế để lựa chọn.
+Xác nhận, lưu trữ thông tin đặt vé và in vé giấy.
+Quản lý đổi vé:
+Tiếp nhận và xử lý yêu cầu đổi vé theo quy định về thời gian và điều kiện đổi.
+Tra cứu vé, xác thực thông tin, cập nhật trạng thái vé (“đã đổi”).
+Xử lý chênh lệch giá vé và thu phí đổi vé.
+Lưu trữ thông tin giao dịch đổi vé
+Quản lý trả vé:
+Tiếp nhận và xử lý yêu cầu trả vé theo điều kiện hiện hành.
+Tra cứu vé, xác thực thông tin, cập nhật trạng thái vé (“đã trả”).
+Tính toán và trừ phí trả vé, hoàn tiền cho khách.
+Lưu trữ thông tin giao dịch trả vé
+Quản lý mất vé:
+Hỗ trợ khách hàng khi làm mất vé bằng cách tra cứu thông tin (CMND/hộ chiếu, họ tên).
+Xác thực thông tin và in lại vé mới.
+Quản lý hành trình (dành cho quản lý)
+Quản lý tuyến đường: xem danh sách, lọc theo ga đi/ga đến, thêm mới, chỉnh sửa, vô hiệu hóa.
+Quản lý lịch trình: lọc và tìm kiếm, tạo mới, chỉnh sửa khi còn ở trạng thái Nháp, vô hiệu hoá
+Quản lý thống kê:
+Thống kê số lượng vé đã bán theo ngày/tháng/năm.
+Quản lý hoá đơn:
+Xem và tra cứu hoá đơn đã bán
+Xuất hoá đơn nếu cần thiết
+Quản lý Nhân viên:
+Nhập hồ sơ, cấp tài khoản cho nhân viên, xem danh sách nhân viên, xoá mềm
+Quản lý khách hàng:
+Tạo, sửa, xóa, tra cứu thông tin khách hàng
+Quản lý Tàu:
+Lập tàu mới, Đăng ký mới toa 
+Cấu hình tàu (Thêm toa vào tàu, Bỏ toa đang chọn khỏi tàu, Đổi chỗ toa trên tàu)
+Tra cứu tàu/toa
+Link nhật ký https://docs.google.com/document/d/1Mensk6BrdDZvsO_fGUVPmbPdaiwzaj8Ib21cGLRbeeI/edit?hl=vi&tab=t.0

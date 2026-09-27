@@ -250,6 +250,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">Hủy bỏ</button>
                 <form id="deleteCategoryForm" method="post" action="">
+<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                     <button type="submit" class="btn btn-danger">Xác nhận xóa</button>
                 </form>
             </div>

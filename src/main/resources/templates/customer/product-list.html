@@ -184,10 +184,12 @@
             <div th:each="prod : ${products}" class="pc">
                 <a th:href="@{/san-pham/{id}(id=${prod.id})}" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; flex: 1;">
                     <div class="pc-img-wrap">
-                        <img th:src="@{${prod.image != null ? prod.image : (prod.imageUrl != null ? prod.imageUrl : '/IMG/default.png')}}" th:alt="${prod.name}" class="pc-img" loading="lazy">
-                        <span th:if="${prod.isOutOfStock != null ? prod.isOutOfStock : (prod.stockQuantity <= 0)}" class="pc-badge pc-badge--out">Hết hàng</span>
-                        <span th:if="${(prod.isOutOfStock != null ? !prod.isOutOfStock : (prod.stockQuantity > 0)) and prod.discount > 0}" class="pc-badge pc-badge--sale" th:text="'-' + ${prod.discount} + '%'">-15%</span>
-                        <span th:if="${(prod.isOutOfStock != null ? !prod.isOutOfStock : (prod.stockQuantity > 0)) and (prod.discount == null or prod.discount == 0) and prod.isNew}" class="pc-badge pc-badge--new">Mới ✨</span>
+                        <img th:src="@{${prod.image != null ? prod.image : '/IMG/default.png'}}" th:alt="${prod.name}" class="pc-img" loading="lazy">
+
+                        <!-- ĐÃ SỬA: Rút gọn logic và dùng cờ isOutOfStock có sẵn của DTO -->
+                        <span th:if="${prod.isOutOfStock}" class="pc-badge pc-badge--out">Hết hàng</span>
+                        <span th:if="${!prod.isOutOfStock and prod.discount > 0}" class="pc-badge pc-badge--sale" th:text="'-' + ${prod.discount} + '%'">-15%</span>
+                        <span th:if="${!prod.isOutOfStock and (prod.discount == null or prod.discount == 0) and prod.isNew}" class="pc-badge pc-badge--new">Mới ✨</span>
                     </div>
                     <div class="pc-body">
                         <div class="pc-meta" th:text="${(prod.brand != null ? prod.brand : '') + (prod.categoryName != null and !prod.categoryName.isEmpty() ? ' &bull; ' + prod.categoryName : '')}">Anessa &bull; Chống nắng</div>
@@ -205,20 +207,17 @@
                     </div>
                 </a>
 
-                <!-- =========================================================
-                     TÍCH HỢP V2: NÚT THÊM VÀO GIỎ HÀNG NGAY TẠI CARD SẢN PHẨM
-                     ========================================================= -->
                 <div class="pc-foot" style="display: flex; gap: 6px; padding-top: 8px;">
                     <a th:href="@{/san-pham/{id}(id=${prod.id})}"
                        class="pc-btn"
                        style="flex: 1; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 13px; padding: 6px;">
-                        <span th:text="${prod.isOutOfStock != null ? (prod.isOutOfStock ? 'Hết hàng' : 'Chi tiết') : (prod.stockQuantity <= 0 ? 'Hết hàng' : 'Chi tiết')}">Chi tiết</span>
+                        <span th:text="${prod.isOutOfStock ? 'Hết hàng' : 'Chi tiết'}">Chi tiết</span>
                     </a>
 
-                    <!-- Form Thêm Giỏ Hàng (Ẩn nếu hết hàng) -->
-                    <form th:if="${prod.isOutOfStock != null ? !prod.isOutOfStock : (prod.stockQuantity > 0)}" th:action="@{/cart/add}" method="post" style="display: flex; gap: 4px; flex: 1.5;">
+                    <!-- ĐÃ SỬA: Đổi prod.stockQuantity thành prod.stock -->
+                    <form th:if="${!prod.isOutOfStock}" th:action="@{/cart/add}" method="post" style="display: flex; gap: 4px; flex: 1.5;">
                         <input type="hidden" name="productId" th:value="${prod.id}"/>
-                        <input type="number" name="quantity" value="1" min="1" th:max="${prod.stockQuantity}" class="pc-btn" style="width: 44px; text-align: center; padding: 0; font-size: 13px; font-weight: 600;" title="Số lượng">
+                        <input type="number" name="quantity" value="1" min="1" th:max="${prod.stock}" class="pc-btn" style="width: 44px; text-align: center; padding: 0; font-size: 13px; font-weight: 600;" title="Số lượng">
                         <button type="submit" class="pc-btn" style="flex: 1; background-color: var(--color-primary, #ec4899); color: white; border-color: var(--color-primary, #ec4899); padding: 0; font-size: 13px; cursor: pointer;">
                             Thêm Giỏ
                         </button>

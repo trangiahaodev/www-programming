@@ -1,0 +1,17 @@
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/customer-layout :: layout(~{::main})}">
+<main class="account-panel">
+    <h1>ĐĂNG NHẬP</h1>
+    <p th:if="${successMessage}" th:text="${successMessage}" role="status"></p>
+    <p th:if="${param.error}" class="account-error" role="alert">Email, mật khẩu không đúng hoặc tài khoản đã bị khóa.</p>
+    <p th:if="${param.expired}" class="account-error" role="alert">Tài khoản đã thay đổi hoặc không còn hoạt động. Vui lòng đăng nhập lại.</p>
+    <p th:if="${param.logout}" role="status">Bạn đã đăng xuất.</p>
+    <form th:action="@{/login}" method="post" class="account-form">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" autocomplete="username" maxlength="100" required autofocus>
+        <label for="password">Mật khẩu</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required>
+        <button type="submit" class="account-button">Đăng nhập</button>
+    </form>
+    <p>Chưa có tài khoản? <a th:href="@{/register}">Đăng ký</a></p>
+</main>
+</html>
