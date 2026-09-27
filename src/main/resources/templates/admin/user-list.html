@@ -20,7 +20,11 @@
                 <td th:text="${user.userCode}"></td><td th:text="${user.fullName}"></td><td th:text="${user.email}"></td>
                 <td th:text="${user.phone}"></td><td th:text="${user.role == 'ROLE_ADMIN' ? 'Admin' : 'Khách hàng'}"></td>
                 <td th:text="${user.active ? 'Hoạt động' : 'Đã khóa'}"></td>
-                <td><a class="account-button secondary" th:href="@{/admin/users/{id}/edit(id=${user.id})}">Sửa</a></td>
+                <td><a class="account-button secondary" th:href="@{/admin/users/{id}/edit(id=${user.id})}">Sửa</a>
+                    <button type="button" class="account-button danger" data-user-delete
+                        th:data-delete-url="@{/admin/users/{id}/delete(id=${user.id})}"
+                        th:data-user-name="${user.fullName}" th:data-user-code="${user.userCode}">Xóa</button>
+                </td>
             </tr>
             <tr th:if="${users.empty}"><td colspan="7">Không tìm thấy người dùng. Hãy thử từ khóa khác hoặc xóa bộ lọc.</td></tr>
             </tbody>
@@ -31,5 +35,21 @@
         <span th:text="|Trang ${users.number + 1} / ${users.totalPages} — ${users.totalElements} tài khoản|"></span>
         <a th:if="${users.hasNext()}" th:href="@{/admin/users(keyword=${query.keyword},page=${users.number + 1},size=${users.size})}">Trang sau</a>
     </nav>
+    <!-- Delete confirmation: no request is sent until the explicit submit. -->
+    <dialog id="deleteUserDialog" class="user-dialog" aria-labelledby="deleteUserTitle" aria-describedby="deleteUserDescription">
+        <h2 id="deleteUserTitle">XÁC NHẬN XÓA NGƯỜI DÙNG</h2>
+        <p id="deleteUserDescription">Xóa <strong id="deleteUserName"></strong> (<span id="deleteUserCode"></span>)? Thao tác này không thể hoàn tác. Người dùng đã có đơn hàng không thể bị xóa.</p>
+        <form id="deleteUserForm" th:action="@{/admin/users}" method="post" th:object="${deleteForm}">
+            <input type="hidden" name="confirmed" id="deleteConfirmed" value="false">
+            <input type="hidden" name="keyword" th:value="${query.keyword}">
+            <input type="hidden" name="page" th:value="${users.number}">
+            <input type="hidden" name="size" th:value="${users.size}">
+            <div class="user-actions">
+                <button type="button" class="account-button secondary" id="cancelUserDelete" autofocus>Hủy</button>
+                <button type="submit" class="account-button danger" id="confirmUserDelete" disabled>Xóa người dùng</button>
+            </div>
+        </form>
+    </dialog>
+    <script th:src="@{/js/admin-users.js}" defer></script>
 </main>
 </html>

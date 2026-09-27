@@ -62,11 +62,9 @@ public interface OrderRepository extends JpaRepository<Order, String> {
 
 
     // =========================================================================
-    // 3. NHÓM HÀM CHO CUSTOMER / CHECKOUT
+    // 3. NHÓM HÀM CHO CUSTOMER / CHECKOUT / AUTH
     // =========================================================================
 
-    // ĐÃ FIX: Chuyển o.orderDetails thành o.items để khớp với Entity Order
-    // ĐÃ FIX: Chuyển JOIN FETCH o.user thành LEFT JOIN FETCH để không làm mất đơn hàng của khách vãng lai (không có user)
     @Query("SELECT DISTINCT o FROM Order o " +
             "LEFT JOIN FETCH o.user u " +
             "LEFT JOIN FETCH o.items i " +
@@ -74,4 +72,7 @@ public interface OrderRepository extends JpaRepository<Order, String> {
     Optional<Order> findWithDetailsByOrderCode(@Param("orderCode") String orderCode);
 
     List<Order> findByUserEmailOrderByCreatedAtDesc(String email);
+
+    // TỪ NHÁNH AUTH-LOGIN: Kiểm tra User có đơn hàng không để xử lý ràng buộc khi xóa tài khoản
+    boolean existsByUserId(String userId);
 }
