@@ -9,6 +9,7 @@ import iuh.wwwprogramming.entity.Category;
 import iuh.wwwprogramming.entity.Order;
 import iuh.wwwprogramming.entity.Product;
 import iuh.wwwprogramming.entity.User;
+import iuh.wwwprogramming.repository.OrderItemRepository;
 import iuh.wwwprogramming.repository.OrderRepository;
 import iuh.wwwprogramming.repository.ProductRepository;
 import iuh.wwwprogramming.repository.UserRepository;
@@ -42,6 +43,9 @@ class CartAndCheckoutServiceTest {
     @Mock
     private OrderRepository orderRepository;
 
+    @Mock
+    private OrderItemRepository orderItemRepository;
+
     private CartService cartService;
     private OrderService orderService;
     private MockHttpSession session;
@@ -52,7 +56,7 @@ class CartAndCheckoutServiceTest {
     @BeforeEach
     void setUp() {
         cartService = new CartServiceImpl(productRepository);
-        orderService = new OrderServiceImpl(orderRepository, productRepository, userRepository, cartService);
+        orderService = new OrderServiceImpl(orderRepository, orderItemRepository, productRepository, userRepository, cartService);
         session = new MockHttpSession();
 
         Category category = Category.builder()
@@ -168,7 +172,7 @@ class CartAndCheckoutServiceTest {
         assertNotNull(response);
         assertNotNull(response.getOrderCode());
         assertEquals(new BigDecimal("900000"), response.getTotalAmount());
-        assertEquals("Nguyễn Thu Hà", response.getRecipientName());
+        assertEquals("Nguyễn Thu Hà", response.getCustomerName());
 
         // Kiểm tra tồn kho đã bị trừ (10 - 3 = 7)
         assertEquals(7, testProduct.getStockQuantity());

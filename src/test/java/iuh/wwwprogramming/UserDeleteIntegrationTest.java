@@ -1,6 +1,7 @@
 package iuh.wwwprogramming;
 
 import iuh.wwwprogramming.dto.UserDeleteDTO;
+import iuh.wwwprogramming.entity.OrderStatus;
 import iuh.wwwprogramming.entity.User;
 import iuh.wwwprogramming.entity.Order;
 import iuh.wwwprogramming.repository.*;
@@ -53,8 +54,8 @@ class UserDeleteIntegrationTest {
     void anyOrderStatusPreventsDeletionInService(String status) {
         String id=UUID.randomUUID().toString();
         var order=orders.saveAndFlush(Order.builder().orderCode(id.substring(0,20)).user(customer)
-            .recipientName("Test").recipientPhone("0900000000").shippingAddress("Test address")
-            .totalAmount(BigDecimal.ONE).paymentMethod("COD").status(status).build());
+            .customerName("Test").customerPhone("0900000000").shippingAddress("Test address")
+            .totalAmount(BigDecimal.ONE).paymentMethod("COD").status(OrderStatus.valueOf(status)).build());
         assertThatThrownBy(()->users.delete(customer.getId(),form(),admin.getId()))
             .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("đơn hàng");
         assertThat(repository.existsById(customer.getId())).isTrue();

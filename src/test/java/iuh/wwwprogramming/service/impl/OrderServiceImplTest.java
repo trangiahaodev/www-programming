@@ -13,6 +13,9 @@ import iuh.wwwprogramming.exception.OrderItemNotFoundException;
 import iuh.wwwprogramming.exception.OrderNotFoundException;
 import iuh.wwwprogramming.repository.OrderItemRepository;
 import iuh.wwwprogramming.repository.OrderRepository;
+import iuh.wwwprogramming.repository.ProductRepository;
+import iuh.wwwprogramming.repository.UserRepository;
+import iuh.wwwprogramming.service.CartService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,11 +51,26 @@ class OrderServiceImplTest {
     @Mock
     private OrderItemRepository orderItemRepository;
 
+    @Mock
+    private ProductRepository productRepository;
+
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private CartService cartService;
+
     private OrderServiceImpl orderService;
 
     @BeforeEach
     void setUp() {
-        orderService = new OrderServiceImpl(orderRepository, orderItemRepository);
+        orderService = new OrderServiceImpl(
+                orderRepository,
+                orderItemRepository,
+                productRepository,
+                userRepository,
+                cartService
+        );
     }
 
     @Test

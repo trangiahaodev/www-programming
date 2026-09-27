@@ -1,6 +1,7 @@
 package iuh.wwwprogramming;
 
 import iuh.wwwprogramming.dto.UserRegisterDTO;
+import iuh.wwwprogramming.entity.User;
 import iuh.wwwprogramming.repository.UserRepository;
 import iuh.wwwprogramming.service.RegistrationService;
 import org.junit.jupiter.api.*;
@@ -45,7 +46,7 @@ class RegistrationIntegrationTest {
             .param("email", email.toUpperCase()).param("password", "Password123!")
             .param("confirmPassword", "Password123!").param("role", "ROLE_ADMIN").param("active", "false"))
             .andExpect(redirectedUrl("/login")).andExpect(flash().attributeExists("successMessage"));
-        var user = users.findByEmailIgnoreCase(email).orElseThrow();
+        User user = (User) users.findByEmailIgnoreCase(email).orElseThrow();
         assertThat(user.getRole()).isEqualTo("ROLE_CUSTOMER");
         assertThat(user.getActive()).isTrue();
         assertThat(user.getEmail()).isEqualTo(email);

@@ -1,39 +1,54 @@
-# Usecase: Cập nhật người dùng
+# Usecase: Quản trị viên cập nhật người dùng
 
-| Thành phần | Nội dung |
-| --- | --- |
-| Tên use case | Cập nhật người dùng |
-| Mô tả sơ lược | Sửa hồ sơ và trạng thái; không đổi role/password; email duy nhất; chặn tự khóa và khóa Admin hoạt động cuối cùng. Khóa dòng Admin theo thứ tự trước khi cập nhật. |
-| Actor chính | Admin |
-| Actor phụ | Không |
-| Tiền điều kiện | Đã đăng nhập bằng tài khoản Admin hoạt động |
-| Hậu điều kiện | Thao tác hợp lệ được ghi nhận; nếu thất bại, giữ nguyên dữ liệu và thông báo nguyên nhân. |
+| Thành phần                         | Nội dung                                                                                                                                                                                                                                                                                       |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Tên use case**                   | Quản trị viên cập nhật người dùng                                                                                                                                                                                                                                                              |
+| **Mã use case**                    | `uc007b-admin-update-user`                                                                                                                                                                                                                                                                     |
+| **Mô tả sơ lược**                  | Quản trị viên chỉnh sửa thông tin hồ sơ (Họ tên, Số điện thoại, Địa chỉ) hoặc thay đổi trạng thái hoạt động (Khóa / Mở khóa) của tài khoản người dùng. Hệ thống kiểm tra hợp lệ, ngăn tự khóa tài khoản của chính mình và ngăn chặn khóa tài khoản Quản trị viên hoạt động cuối cùng.           |
+| **Actor chính**                    | Admin                                                                                                                                                                                                                                                                                          |
+| **Actor phụ**                      | Không                                                                                                                                                                                                                                                                                          |
+| **Tiền điều kiện (Pre-condition)** | - Quản trị viên đã đăng nhập thành công vào hệ thống với quyền quản trị viên.<br>- Tài khoản người dùng cần cập nhật đang tồn tại trong hệ thống.                                                                                                                                              |
+| **Hậu điều kiện (Post-condition)** | - Thông tin và trạng thái của tài khoản được cập nhật thành công trong hệ thống.<br>- Hệ thống hiển thị lại màn hình danh sách người dùng kèm thông báo cập nhật thành công.                                                                                                                   |
 
 ### Luồng sự kiện chính (Main flow):
-| Actor | Hệ thống |
-| --- | --- |
-| 1. Mở chức năng cập nhật người dùng. | |
-| | 2. Hiển thị thông tin và thao tác phù hợp. |
-| 3. Nhập hoặc chọn thông tin, xác nhận thao tác. | |
-| | 4. Kiểm tra dữ liệu, quyền truy cập và quy định: Sửa hồ sơ và trạng thái; không đổi role/password; email duy nhất; chặn tự khóa và khóa Admin hoạt động cuối cùng. Khóa dòng Admin theo thứ tự trước khi cập nhật. |
-| | 5. Trả kết quả và thông báo rõ ràng. |
+
+| Actor                                                                                                                                                        | Hệ thống                                                                                                                                     |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1. Quản trị viên nhấn nút "Chỉnh sửa" tại một tài khoản trên trang danh sách người dùng.                                                                     |                                                                                                                                              |
+|                                                                                                                                                              | 2. Hệ thống tải thông tin chi tiết của người dùng đã chọn và hiển thị biểu mẫu chỉnh sửa (Mã người dùng và Email ở chế độ chỉ đọc).        |
+| 3. Quản trị viên chỉnh sửa thông tin hồ sơ (Họ tên, Số điện thoại, Địa chỉ) hoặc thay đổi Trạng thái hoạt động (Hoạt động / Bị khóa) và nhấn nút "Lưu lại". |                                                                                                                                              |
+|                                                                                                                                                              | 4. Hệ thống kiểm tra tính hợp lệ của dữ liệu đầu vào và kiểm tra các quy tắc an toàn tài khoản (chặn tự khóa, chặn khóa Quản trị viên cuối). |
+|                                                                                                                                                              | 5. Hệ thống ghi nhận các thông tin cập nhật vào hệ thống.                                                                                    |
+|                                                                                                                                                              | 6. Hệ thống chuyển sang màn hình danh sách người dùng và hiển thị thông báo thành công: "Cập nhật người dùng thành công!".                   |
 
 ### Luồng sự kiện thay thế (Alternate Flow):
-| Actor | Hệ thống |
-| --- | --- |
-| 3.1. Hủy thao tác hoặc trở lại danh sách. | |
-| | 3.2. Giữ nguyên dữ liệu. |
+
+*Đánh số bắt đầu từ bước rẽ nhánh ở luồng chính, vd: 3.1.*
+
+| Actor                                                        | Hệ thống                                                                                                 |
+| ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| 3.1. Quản trị viên nhấn nút "Hủy bỏ" hoặc quay lại danh sách. |                                                                                                          |
+|                                                              | 3.2. Hệ thống hủy bỏ các thay đổi vừa nhập, giữ nguyên dữ liệu ban đầu và hiển thị lại trang danh sách. |
 
 ### Luồng sự kiện ngoại lệ (Exception Flow):
-| Actor | Hệ thống |
-| --- | --- |
-| 4.1.1. Thông tin không hợp lệ hoặc vi phạm quy định. | |
-| | 4.1.2. Hiển thị lỗi; cho phép sửa hoặc quay lại, không thực hiện thao tác. |
-| 4.2.1. Phiên hết hạn hoặc không có quyền. | |
-| | 4.2.2. Yêu cầu đăng nhập hoặc từ chối truy cập. |
 
-### Hợp đồng triển khai
-- Route: `GET/POST /admin/users/{id}/edit`; xử lý: `update(id, dto, actorId)`.
-- DTO/View fields: Họ tên, email, điện thoại, địa chỉ, hoạt động. Không trả password/hash trong DTO hiển thị.
-- Dữ liệu form dùng Jakarta Validation; logic nghiệp vụ ở Service, ghi dữ liệu có transaction.
-- Thành công dùng PRG; riêng xóa luôn PRG với Flash. Không xóa qua GET.
+*Đánh số cấp 3 dựa trên bước rẽ nhánh, vd: 2.1.1, 4.1.1, 4.2.1, 4.3.1, 5.1.1.*
+
+| Actor                                                                                                                             | Hệ thống                                                                                                                                 |
+| --------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| 2.1.1. Tài khoản cần cập nhật không tồn tại hoặc đã bị xóa khỏi hệ thống.                                                         |                                                                                                                                          |
+|                                                                                                                                   | 2.1.2. Hệ thống chuyển về màn hình danh sách và hiển thị thông báo lỗi: "Không tìm thấy người dùng cần cập nhật!".                      |
+| 2.2.1. Phiên làm việc của Quản trị viên hết hạn hoặc tài khoản không có quyền quản trị.                                           |                                                                                                                                          |
+|                                                                                                                                   | 2.2.2. Hệ thống từ chối truy cập và yêu cầu người dùng đăng nhập lại tài khoản hợp lệ.                                                   |
+| 4.1.1. Dữ liệu nhập vào không hợp lệ (Họ tên bị để trống hoặc vượt quá 100 ký tự; Số điện thoại không đúng định dạng).            |                                                                                                                                          |
+|                                                                                                                                   | 4.1.2. Hệ thống giữ lại dữ liệu vừa nhập và hiển thị thông báo lỗi chi tiết tại từng trường vi phạm.                                     |
+|                                                                                                                                   | 4.1.3. Quay lại bước 3 của luồng chính để Quản trị viên chỉnh sửa.                                                                       |
+| 4.2.1. Quản trị viên thao tác tự khóa tài khoản của chính mình.                                                                   |                                                                                                                                          |
+|                                                                                                                                   | 4.2.2. Hệ thống từ chối thực hiện và hiển thị cảnh báo: "Bạn không thể tự khóa tài khoản của chính mình!".                               |
+|                                                                                                                                   | 4.2.3. Quay lại bước 3 của luồng chính.                                                                                                  |
+| 4.3.1. Thao tác khóa tài khoản dẫn đến việc hệ thống không còn Quản trị viên nào hoạt động.                                       |                                                                                                                                          |
+|                                                                                                                                   | 4.3.2. Hệ thống từ chối thực hiện và hiển thị cảnh báo: "Không thể khóa vì hệ thống phải có ít nhất một Quản trị viên đang hoạt động!". |
+|                                                                                                                                   | 4.3.3. Quay lại bước 3 của luồng chính.                                                                                                  |
+| 5.1.1. Hệ thống gặp sự cố trong quá trình lưu trữ dữ liệu.                                                                        |                                                                                                                                          |
+|                                                                                                                                   | 5.1.2. Hệ thống hủy bỏ thao tác cập nhật và hiển thị thông báo lỗi: "Không thể cập nhật người dùng lúc này. Vui lòng thử lại sau!".      |
+|                                                                                                                                   | 5.1.3. Quay lại bước 3 của luồng chính.                                                                                                  |

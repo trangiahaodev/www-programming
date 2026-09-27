@@ -1,10 +1,13 @@
 package iuh.wwwprogramming.service.impl;
 
+import iuh.wwwprogramming.entity.User;
 import iuh.wwwprogramming.repository.UserRepository;
 import iuh.wwwprogramming.security.ShopPrincipal;
 import java.util.Locale;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.*;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ShopUserDetailsService implements UserDetailsService {
     private final UserRepository users;
     public UserDetails loadUserByUsername(String email) {
-        var user = users.findByEmailIgnoreCase(email.trim().toLowerCase(Locale.ROOT))
+        User user = (User) users.findByEmailIgnoreCase(email.trim().toLowerCase(Locale.ROOT))
             .orElseThrow(() -> new UsernameNotFoundException("Thông tin đăng nhập không hợp lệ"));
         return new ShopPrincipal(user.getId(), user.getEmail(), user.getFullName(), user.getPassword(),
             user.getRole(), Boolean.TRUE.equals(user.getActive()));

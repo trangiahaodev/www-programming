@@ -1,48 +1,42 @@
-# Đặc tả Use Case: Khách hàng tra cứu Cẩm nang Skincare 7 Bước
+# Usecase: Khách hàng xem cẩm nang
 
-**Mã Use Case:** `uc006d-customer-view-handbook`  
-**Tên Use Case:** Khách hàng tra cứu Cẩm nang Skincare 7 Bước Chuẩn Hàn & Test Chẩn đoán loại da  
-**Actor chính:** Khách hàng (Customer), Khách vãng lai (Guest)  
-**Phân hệ:** Customer Storefront (Cẩm nang Skincare PinkyCloud)
+| Thành phần                         | Nội dung                                                                                                                                                                                                                                                |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Tên use case**                   | Khách hàng xem cẩm nang                                                                                                                                                                                                                                 |
+| **Mã use case**                    | `uc006d-customer-view-handbook`                                                                                                                                                                                                                         |
+| **Mô tả sơ lược**                  | Khách hàng truy cập chuyên mục cẩm nang làm đẹp để xem các bài viết hướng dẫn chăm sóc da khoa học, quy trình các bước dưỡng da, thực hiện bài kiểm tra chẩn đoán loại da cá nhân và xem các sản phẩm mỹ phẩm phù hợp được gợi ý.                     |
+| **Actor chính**                    | Customer (Khách hàng / Khách vãng lai)                                                                                                                                                                                                                  |
+| **Actor phụ**                      | Không                                                                                                                                                                                                                                                   |
+| **Tiền điều kiện (Pre-condition)** | Người dùng truy cập vào website của cửa hàng mỹ phẩm.                                                                                                                                                                                                   |
+| **Hậu điều kiện (Post-condition)** | - Nội dung cẩm nang làm đẹp và kết quả chẩn đoán loại da hiển thị đầy đủ, chính xác.<br>- Dữ liệu hệ thống không bị thay đổi.                                                                                                                           |
 
----
+### Luồng sự kiện chính (Main flow):
 
-## 1. Mô tả tóm tắt
-Cung cấp hướng dẫn toàn diện về quy trình dưỡng da 7 bước khoa học theo chuẩn Hàn Quốc, tích hợp công cụ trắc nghiệm tương tác giúp khách hàng tự chẩn đoán loại da cá nhân (Da dầu, Da khô, Da hỗn hợp, Da nhạy cảm), từ đó đưa ra khuyến nghị routine và các sản phẩm mỹ phẩm phù hợp nhất với tình trạng da thực tế.
+| Actor                                                                                            | Hệ thống                                                                                                                                                                               |
+| ------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1. Khách hàng chọn mục "Cẩm nang" trên thanh menu chính của website.                             |                                                                                                                                                                                        |
+|                                                                                                  | 2. Hệ thống truy vấn nội dung cẩm nang làm đẹp, quy trình chăm sóc da và bộ câu hỏi chẩn đoán da.                                                                                      |
+|                                                                                                  | 3. Hệ thống hiển thị giao diện cẩm nang gồm: bài viết hướng dẫn các bước chăm sóc da, công cụ chẩn đoán loại da và danh sách sản phẩm gợi ý phù hợp cho từng bước.                     |
+| 4. Khách hàng xem các bài viết hướng dẫn quy trình chăm sóc da và danh mục mỹ phẩm được khuyên dùng. |                                                                                                                                                                                        |
+| 5. Khách hàng nhấn chọn một sản phẩm khuyên dùng trong cẩm nang để xem thông tin chi tiết.       |                                                                                                                                                                                        |
+|                                                                                                  | 6. Hệ thống chuyển sang màn hình hiển thị chi tiết của sản phẩm được chọn.                                                                                                             |
 
----
+### Luồng sự kiện thay thế (Alternate Flow):
 
-## 2. Tiền điều kiện (Pre-conditions)
-- Ứng dụng PinkyCloud đang hoạt động.
-- Dữ liệu 7 bước Skincare và liên kết danh mục mỹ phẩm đã sẵn sàng.
+*Đánh số bắt đầu từ bước rẽ nhánh ở luồng chính, vd: 4.1, 4.3.*
 
----
+| Actor                                                                                                              | Hệ thống                                                                                                                               |
+| ------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| 4.1. Khách hàng trả lời các câu hỏi trong phần chẩn đoán loại da cá nhân (da dầu, da khô, da hỗn hợp, nhạy cảm). |                                                                                                                                        |
+|                                                                                                                    | 4.2. Hệ thống phân tích kết quả trả lời và hiển thị loại da tương ứng cùng gợi ý quy trình chăm sóc và danh mục mỹ phẩm phù hợp nhất. |
+| 4.3. Khách hàng nhấn nút làm lại bài kiểm tra chẩn đoán loại da.                                                   |                                                                                                                                        |
+|                                                                                                                    | 4.4. Hệ thống đặt lại trạng thái ban đầu và cho phép khách hàng thực hiện lại bài kiểm tra.                                            |
 
-## 3. Hậu điều kiện (Post-conditions)
-- Khách hàng hiểu rõ nguyên lý chăm sóc da và nhận được kết quả chẩn đoán loại da cá nhân.
-- Khách hàng dễ dàng lựa chọn mỹ phẩm phù hợp với chu trình dưỡng da của bản thân.
+### Luồng sự kiện ngoại lệ (Exception Flow):
 
----
+*Đánh số cấp 3 dựa trên bước rẽ nhánh, vd: 2.1.1.*
 
-## 4. Luồng sự kiện chính (Basic Flow)
-1. Khách hàng truy cập đường dẫn `/cam-nang` từ thanh điều hướng hoặc banner trang chủ.
-2. Hệ thống hiển thị giao diện Cẩm nang Skincare chuyên biệt gồm:
-   - Banner Hero giới thiệu Cẩm nang khoa học.
-   - Thanh điều hướng nhanh giữa các chương (Chương 1: Chẩn đoán da, Chương 2: Routine sáng/tối, Chương 3: Chi tiết 7 bước, Chương 4: Tra cứu thành phần).
-   - Công cụ Interactive Quiz: 4 câu hỏi trắc nghiệm kiểm tra độ nhờn, phản ứng thời tiết, lỗ chân lông và độ nhạy cảm của da.
-   - Thẻ hiển thị chi tiết từng bước trong quy trình 7 bước (Tẩy trang ➔ Sữa rửa mặt ➔ Toner ➔ Tinh chất/Serum ➔ Kem mắt ➔ Kem dưỡng ẩm ➔ Kem chống nắng).
-   - Danh sách mỹ phẩm tiêu biểu được kiểm nghiệm khuyên dùng cho từng bước.
-3. Khách hàng thực hiện bài test chẩn đoán da và nhận kết quả phân loại da ngay lập tức.
-4. Khách hàng nhấp vào sản phẩm khuyên dùng để xem thông tin chi tiết và tiến hành mua hàng.
-
----
-
-## 5. Luồng rẽ nhánh (Alternative Flows)
-- **A1. Tra cứu nhanh một bước cụ thể:** Khách hàng nhấp vào thẻ bước (ví dụ: *Bước 4: Serum phục hồi*). Hệ thống cuộn mượt đến thông tin chuyên sâu của bước đó kèm lưu ý cách thoa và thời gian giãn cách giữa các lớp skincare.
-- **A2. Khách hàng làm lại bài test:** Khách hàng có thể nhấn nút "Làm lại bài kiểm tra" bất kỳ lúc nào để chọn lại đáp án.
-
----
-
-## 6. Yêu cầu phi chức năng (Non-functional Requirements)
-- **Giao diện:** Tương thích responsive trên Mobile, Tablet, Desktop; sử dụng icon vector SVG chuyên nghiệp thay vì icon generic; hiệu ứng chuyển động mượt mà.
-- **Tính toán Client-side:** Bài test tính toán điểm số tức thì không cần tải lại trang (Zero-latency interaction).
+| Actor                                                                 | Hệ thống                                                                                                           |
+| --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| 2.1.1. Hệ thống gặp sự cố trong quá trình truy vấn nội dung cẩm nang. |                                                                                                                    |
+|                                                                       | 2.1.2. Hệ thống hiển thị thông báo lỗi: "Không thể tải nội dung cẩm nang lúc này. Vui lòng thử lại sau.".          |

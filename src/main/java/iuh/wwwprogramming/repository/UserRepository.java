@@ -25,4 +25,9 @@ public interface UserRepository extends JpaRepository<User, String> {
     @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
     @org.springframework.data.jpa.repository.Query("select u from User u where u.id = :id")
     Optional<User> findForUpdate(@org.springframework.data.repository.query.Param("id") String id);
+    boolean existsByEmailIgnoreCase(String email);
+
+    Optional<User> findByEmailIgnoreCase(String lowerCase);
+
+    boolean existsByUserCode(String code);
 }
