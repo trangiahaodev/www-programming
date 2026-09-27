@@ -14,14 +14,15 @@
     <div class="users-table-wrap">
         <table class="users-table">
             <caption>Danh sách tài khoản người dùng</caption>
-            <thead><tr><th scope="col">Mã</th><th scope="col">Họ tên</th><th scope="col">Email</th><th scope="col">Điện thoại</th><th scope="col">Vai trò</th><th scope="col">Trạng thái</th></tr></thead>
+            <thead><tr><th scope="col">Mã</th><th scope="col">Họ tên</th><th scope="col">Email</th><th scope="col">Điện thoại</th><th scope="col">Vai trò</th><th scope="col">Trạng thái</th><th scope="col">Thao tác</th></tr></thead>
             <tbody>
             <tr th:each="user : ${users.content}">
                 <td th:text="${user.userCode}"></td><td th:text="${user.fullName}"></td><td th:text="${user.email}"></td>
                 <td th:text="${user.phone}"></td><td th:text="${user.role == 'ROLE_ADMIN' ? 'Admin' : 'Khách hàng'}"></td>
                 <td th:text="${user.active ? 'Hoạt động' : 'Đã khóa'}"></td>
+                <td><a class="account-button secondary" th:href="@{/admin/users/{id}/edit(id=${user.id})}">Sửa</a></td>
             </tr>
-            <tr th:if="${users.empty}"><td colspan="6">Không tìm thấy người dùng. Hãy thử từ khóa khác hoặc xóa bộ lọc.</td></tr>
+            <tr th:if="${users.empty}"><td colspan="7">Không tìm thấy người dùng. Hãy thử từ khóa khác hoặc xóa bộ lọc.</td></tr>
             </tbody>
         </table>
     </div>

@@ -9,6 +9,7 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@org.springframework.validation.annotation.Validated
 @Service @RequiredArgsConstructor @Transactional(readOnly=true)
 public class UserServiceImpl implements UserService {
     private final UserRepository users;
@@ -29,5 +30,31 @@ public class UserServiceImpl implements UserService {
     private UserResponseDTO toResponse(User user) {
         return UserResponseDTO.builder().id(user.getId()).userCode(user.getUserCode()).fullName(user.getFullName())
             .email(user.getEmail()).phone(user.getPhone()).role(user.getRole()).active(user.getActive()).build();
+    }
+
+    @Override
+    public UserUpdateDTO getForEdit(String id) {
+        User user = users.findById(id).orElseThrow(iuh.wwwprogramming.exception.UserNotFoundException::new);
+        return UserUpdateDTO.builder().fullName(user.getFullName()).email(user.getEmail())
+            .phone(user.getPhone()).address(user.getAddress()).active(user.getActive()).build();
+    }
+    @Override @Transactional
+    public void update(String id, UserUpdateDTO dto, String actorId) {
+        var admins = users.lockActiveAdmins();
+        User user = users.findForUpdate(id).orElseThrow(iuh.wwwprogramming.exception.UserNotFoundException::new);
+        if (!dto.getActive()) guardDeactivation(user, actorId, admins.size());
+        String email = dto.getEmail().trim().toLowerCase(java.util.Locale.ROOT);
+        if (users.existsByEmailIgnoreCaseAndIdNot(email, id)) throw new IllegalArgumentException("Email này đã được sử dụng.");
+        user.setFullName(dto.getFullName().trim());
+        user.setEmail(email);
+        user.setPhone(dto.getPhone() == null ? null : dto.getPhone().trim());
+        user.setAddress(dto.getAddress() == null ? null : dto.getAddress().trim());
+        user.setActive(dto.getActive());
+        users.saveAndFlush(user);
+    }
+    private void guardDeactivation(User user, String actorId, int activeAdmins) {
+        if (user.getId().equals(actorId)) throw new IllegalArgumentException("Bạn không thể khóa hoặc xóa chính tài khoản đang dùng.");
+        if ("ROLE_ADMIN".equals(user.getRole()) && Boolean.TRUE.equals(user.getActive()) && activeAdmins <= 1)
+            throw new IllegalArgumentException("Không thể khóa hoặc xóa Admin hoạt động cuối cùng.");
     }
 }
