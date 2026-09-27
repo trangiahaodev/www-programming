@@ -1,0 +1,79 @@
+# Activity — Xem, tìm kiếm và phân trang người dùng
+
+Đặc tả: [uc007d-admin-view-users](../usecases/uc007d-admin-view-users.md).
+
+Các nút hành động giữ số bước của đặc tả; nút quyết định diễn giải điều kiện rẽ nhánh tại bước tương ứng. Đây là bản đối chiếu Mermaid để vẽ lại bằng UML Activity trong Visual Paradigm theo hướng dẫn nhóm.
+
+```mermaid
+flowchart TD
+    subgraph Actor ["Admin"]
+        Start(((Bắt đầu)))
+        n1(["1. Mở mục Người dùng"])
+        n3(["3. Tìm theo mã/tên/email; chọn số<br/>dòng hoặc chuyển trang"])
+        n3_1(["3.1. Tìm với từ khóa trống"])
+        Choice{"Thao tác sau khi xem?"}
+    end
+    subgraph System ["Hệ thống PinkyCloud"]
+        n2(["2. Kiểm tra quyền; hiển thị trang<br/>đầu, 10 dòng, đủ thông tin"])
+        n4(["4. Kiểm tra tiêu chí; tìm không<br/>phân biệt hoa thường; hiển thị kết<br/>quả phân trang"])
+        n3_2(["3.2. Hiển thị tất cả theo trang;<br/>trở lại bước 3"])
+        n4_1(["4.1. Không có kết quả phù hợp"])
+        n4_2(["4.2. Hiển thị danh sách rỗng; trở<br/>lại bước 3"])
+        n4_3(["4.3. Trang yêu cầu vượt trang cuối"])
+        n4_4(["4.4. Điều chỉnh về trang cuối hợp<br/>lệ hoặc trang đầu rỗng"])
+        n2_1_1(["2.1.1. Chưa đăng nhập, tài khoản<br/>hết hiệu lực hoặc thiếu quyền"])
+        n2_1_2(["2.1.2. Yêu cầu đăng nhập lại hoặc<br/>từ chối truy cập"])
+        n4_1_1(["4.1.1. Tiêu chí vượt giới hạn"])
+        n4_1_2(["4.1.2. Báo bộ lọc sai; dùng danh<br/>sách mặc định; trở lại bước 3"])
+        Access{"2. Được phép truy cập?"}
+        Valid{"4. Tiêu chí hợp lệ?"}
+        Page{"4. Trang vượt phạm vi?"}
+        Found{"4. Có kết quả?"}
+        End(((Kết thúc)))
+    end
+    Start --> n1
+    n1 --> Access
+    Access -->|"Có"| n2
+    Access -->|"Không"| n2_1_1
+    n2_1_1 --> n2_1_2
+    n2_1_2 --> End
+    n2 --> Choice
+    Choice -->|"Tra cứu"| n3
+    Choice -->|"Đã xem xong"| End
+    Choice -->|"Bỏ từ khóa"| n3_1
+    n3_1 --> n3_2
+    n3_2 --> n3
+    n3 --> Valid
+    Valid -->|"Không"| n4_1_1
+    n4_1_1 --> n4_1_2
+    n4_1_2 --> n3
+    Valid -->|"Có"| Page
+    Page -->|"Có"| n4_3
+    n4_3 --> n4_4
+    n4_4 --> End
+    Page -->|"Không"| Found
+    Found -->|"Không"| n4_1
+    n4_1 --> n4_2
+    n4_2 --> n3
+    Found -->|"Có"| n4
+    n4 --> End
+```
+
+## Đối chiếu bước
+
+| Bước đặc tả | Nút Activity |
+| --- | --- |
+| 1 | `n1` |
+| 2 | `n2` |
+| 3 | `n3` |
+| 4 | `n4` |
+| 3.1 | `n3_1` |
+| 3.2 | `n3_2` |
+| 4.1 | `n4_1` |
+| 4.2 | `n4_2` |
+| 4.3 | `n4_3` |
+| 4.4 | `n4_4` |
+| 2.1.1 | `n2_1_1` |
+| 2.1.2 | `n2_1_2` |
+| 4.1.1 | `n4_1_1` |
+| 4.1.2 | `n4_1_2` |

@@ -1,10 +1,3 @@
-### 1. System Architecture
-```mermaid
-flowchart LR
- Browser --> MVC[AdminUserController] --> Service[UserService] --> JPA[UserRepository] --> SQL[(SQL Server)]
-```
-### 2. Sequence Diagram
-```mermaid
 sequenceDiagram
     autonumber
     actor A as Admin
@@ -95,17 +88,3 @@ sequenceDiagram
         end
                 end
     end
-```
-### 3. Class Diagram
-```mermaid
-classDiagram
- class User { <<entity>> }
- class UserUpdateDTO { <<DTO>>
- String fullName
- String email
- String phone
- String address
- Boolean active
- }
- UserUpdateDTO ..> User : Service updates allowed fields
-```

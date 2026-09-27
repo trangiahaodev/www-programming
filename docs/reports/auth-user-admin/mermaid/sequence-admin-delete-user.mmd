@@ -1,13 +1,3 @@
-### 1. System Architecture
-```mermaid
-flowchart LR
- Browser[Danh sách + Modal] --> MVC[AdminUserController]
- MVC --> Service[UserService]
- Service --> JPA[UserRepository + OrderRepository]
- JPA --> DB[(SQL Server)]
-```
-### 2. Sequence Diagram
-```mermaid
 sequenceDiagram
     autonumber
     actor A as Admin
@@ -106,24 +96,3 @@ sequenceDiagram
             end
         end
     end
-```
-### 3. Class Diagram
-```mermaid
-classDiagram
- class User { <<entity>>
- String id
- String userCode
- }
- class Order { <<entity>>
- String id
- String status
- }
- class UserDeleteDTO { <<DTO>>
- Boolean confirmed
- String keyword
- int page
- int size
- }
- User "1" -- "0..*" Order : user_id, no delete cascade
- UserDeleteDTO ..> User : Service checks before deletion
-```

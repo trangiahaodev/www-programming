@@ -2,38 +2,43 @@
 
 | Thành phần | Nội dung |
 | --- | --- |
-| Tên use case | Xóa người dùng |
-| Mô tả sơ lược | Xác nhận bằng Modal trên danh sách. Không xóa qua GET. Cấm xóa User có bất kỳ đơn hàng nào kể cả đơn hủy; cấm tự xóa và xóa Admin cuối cùng. Service kiểm tra trong transaction, Controller PRG + Flash. |
-| Actor chính | Admin |
-| Actor phụ | Không |
-| Tiền điều kiện | Đã đăng nhập bằng tài khoản Admin hoạt động |
-| Hậu điều kiện | Thao tác hợp lệ được ghi nhận; nếu thất bại, giữ nguyên dữ liệu và thông báo nguyên nhân. |
+| **Tên use case** | Xóa người dùng |
+| **Mã use case** | uc007c-admin-delete-user |
+| **Mô tả sơ lược** | Admin xóa vĩnh viễn người dùng sau khi xác nhận trong hộp thoại ngay trên danh sách. Cấm xóa người dùng đã có bất kỳ đơn hàng nào, kể cả đơn đã hủy. |
+| **Actor chính** | Admin |
+| **Actor phụ** | Không |
+| **Tiền điều kiện (Pre-condition)** | Admin đã đăng nhập bằng tài khoản đang hoạt động và có quyền quản trị người dùng. Admin đang xem danh sách người dùng. |
+| **Hậu điều kiện (Post-condition)** | Thành công: người dùng bị xóa, danh sách giữ tiêu chí hợp lệ và thông báo kết quả một lần; nếu trang vừa rỗng thì hiển thị trang hợp lệ gần nhất.<br>Hủy hoặc bị từ chối: người dùng và đơn hàng giữ nguyên. Không chuyển sang ẩn tài khoản để vượt quy tắc xóa. |
 
 ### Luồng sự kiện chính (Main flow):
+
 | Actor | Hệ thống |
 | --- | --- |
-| 1. Mở chức năng xóa người dùng. | |
-| | 2. Hiển thị thông tin và thao tác phù hợp. |
-| 3. Nhập hoặc chọn thông tin, xác nhận thao tác. | |
-| | 4. Kiểm tra dữ liệu, quyền truy cập và quy định: Xác nhận bằng Modal trên danh sách. Không xóa qua GET. Cấm xóa User có bất kỳ đơn hàng nào kể cả đơn hủy; cấm tự xóa và xóa Admin cuối cùng. Service kiểm tra trong transaction, Controller PRG + Flash. |
-| | 5. Trả kết quả và thông báo rõ ràng. |
+| 1. Chọn Xóa tại người dùng muốn xóa trong danh sách. |  |
+|  | 2. Hiển thị hộp thoại xác nhận ngay trên danh sách, nêu đúng họ tên và mã người dùng cùng hai nút Hủy và Xóa; chưa thực hiện xóa. |
+| 3. Kiểm tra đúng người dùng và chọn Xóa trong hộp thoại để xác nhận. |  |
+|  | 4. Kiểm tra quyền và xác nhận hợp lệ, người dùng còn tồn tại, không phải tài khoản đang dùng hoặc Admin hoạt động cuối cùng; kiểm tra người dùng chưa có đơn ở mọi trạng thái. Xóa người dùng, hiển thị lại danh sách giữ bộ lọc/số dòng và điều chỉnh trang nếu cần, báo “Đã xóa người dùng.” |
 
 ### Luồng sự kiện thay thế (Alternate Flow):
+
 | Actor | Hệ thống |
 | --- | --- |
-| 3.1. Hủy thao tác hoặc trở lại danh sách. | |
-| | 3.2. Giữ nguyên dữ liệu. |
+| 3.1. Chọn Hủy hoặc nhấn Escape khi hộp thoại đang mở. |  |
+|  | 3.2. Đóng hộp thoại, trả vị trí thao tác về nút đã mở; không gửi yêu cầu xóa. Kết thúc use case. |
+| 3.3. Bấm Xóa lặp lại khi yêu cầu xác nhận đang được xử lý. |  |
+|  | 3.4. Không gửi thêm yêu cầu từ cùng biểu mẫu; tiếp tục chờ kết quả của bước 4. |
 
 ### Luồng sự kiện ngoại lệ (Exception Flow):
+
 | Actor | Hệ thống |
 | --- | --- |
-| 4.1.1. Thông tin không hợp lệ hoặc vi phạm quy định. | |
-| | 4.1.2. Hiển thị lỗi; cho phép sửa hoặc quay lại, không thực hiện thao tác. |
-| 4.2.1. Phiên hết hạn hoặc không có quyền. | |
-| | 4.2.2. Yêu cầu đăng nhập hoặc từ chối truy cập. |
-
-### Hợp đồng triển khai
-- Route: `POST /admin/users/{id}/delete`; xử lý: `delete(id, dto, actorId)`.
-- DTO/View fields: Tên/mã User trong Modal, Hủy và Xóa, xác nhận, bộ lọc/phân trang. Không trả password/hash trong DTO hiển thị.
-- Dữ liệu form dùng Jakarta Validation; logic nghiệp vụ ở Service, ghi dữ liệu có transaction.
-- Thành công dùng PRG; riêng xóa luôn PRG với Flash. Không xóa qua GET.
+|  | 4.1.1. Yêu cầu thiếu xác nhận, bộ lọc gửi kèm vượt giới hạn hoặc không còn được phép thực hiện thao tác. |
+|  | 4.1.2. Không xóa. Nếu xác nhận/bộ lọc sai, trở về danh sách mặc định và báo “Yêu cầu xóa không hợp lệ. Vui lòng mở lại hộp xác nhận.” Nếu chưa đăng nhập hoặc tài khoản hết hiệu lực, yêu cầu đăng nhập lại; nếu thiếu quyền hoặc biểu mẫu không hợp lệ về nguồn gửi thì từ chối truy cập. Kết thúc use case. |
+|  | 4.2.1. Người dùng không còn tồn tại, ví dụ đã bị xóa bởi yêu cầu trước. |
+|  | 4.2.2. Trở về danh sách giữ bộ lọc hợp lệ và báo không tìm thấy người dùng; kết thúc use case. |
+|  | 4.3.1. Đích xóa là chính tài khoản Admin đang dùng hoặc Admin hoạt động cuối cùng. |
+|  | 4.3.2. Không xóa; trở về danh sách giữ bộ lọc và thông báo rõ quy tắc bị vi phạm; kết thúc use case. |
+|  | 4.4.1. Người dùng có ít nhất một đơn hàng, bao gồm đơn đã hủy. |
+|  | 4.4.2. Không xóa; trở về danh sách giữ bộ lọc và báo “Không thể xóa người dùng đã có đơn hàng, kể cả đơn đã hủy.” Kết thúc use case. |
+|  | 4.5.1. Phát sinh dữ liệu liên quan hoặc thao tác cập nhật đồng thời khiến không thể hoàn tất xóa. |
+|  | 4.5.2. Không xóa; trở về danh sách giữ bộ lọc, báo người dùng đang có dữ liệu liên quan hoặc đang được cập nhật và đề nghị tải lại/thử lại. Kết thúc use case. |

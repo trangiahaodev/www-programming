@@ -1,0 +1,39 @@
+# Kiểm tra tài khoản trên các request tiếp theo
+
+Đây là cơ chế hỗ trợ chung cho sáu use case, tương ứng dòng `UC-AUTH-04` trong tài liệu nhóm; không phải một thao tác riêng do người dùng khởi chạy. Sơ đồ chỉ mô tả những request đi tới `ActiveAccountFilter`. Login/logout được các filter xác thực/đăng xuất xử lý trước đó.
+
+```mermaid
+sequenceDiagram
+    actor A as Người dùng
+    participant B as Trình duyệt
+    participant F as ActiveAccountFilter
+    participant U as ShopUserDetailsService
+    participant R as UserRepository
+    participant DB as SQL Server
+    participant S as AuthorizationFilter
+    loop Request tiếp theo đi tới ActiveAccountFilter
+        A->>B: Truy cập một chức năng
+        B->>F: Request cùng thông tin phiên hiện tại
+        alt Authentication chứa ShopPrincipal
+            F->>U: isCurrent(principal)
+            U->>R: findById(principal.id())
+            R->>DB: SELECT User hiện tại
+            DB-->>R: User hoặc không có
+            R-->>U: Optional User
+            U->>U: Kiểm tra active và email/role/password còn khớp
+            U-->>F: boolean
+            alt Đã khóa/xóa hoặc thông tin xác thực thay đổi
+                F->>F: SecurityContextLogoutHandler.logout(...)
+                F-->>B: Redirect /login?expired, không gọi controller
+            else Tài khoản còn hợp lệ
+                F->>S: chain.doFilter(request,response)
+                S-->>B: Cho phép theo quyền hoặc 403
+            end
+        else Khách chưa đăng nhập
+            F->>S: chain.doFilter(request,response)
+            S-->>B: Trang công khai hoặc yêu cầu đăng nhập
+        end
+    end
+```
+
+Tên và điện thoại thay đổi không phải điều kiện hủy phiên trong `isCurrent`. Email thay đổi có thể khiến chính Admin đang sửa hồ sơ của mình phải đăng nhập lại ở request tiếp theo. Không mô tả việc khóa/xóa như một thông báo tức thời gửi tới mọi tab: nó có hiệu lực khi request tiếp theo được kiểm tra.

@@ -1,0 +1,69 @@
+# Activity — Đăng nhập
+
+Đặc tả: [uc005-auth-login](../usecases/uc005-auth-login.md).
+
+Các nút hành động giữ số bước của đặc tả; nút quyết định diễn giải điều kiện rẽ nhánh tại bước tương ứng. Đây là bản đối chiếu Mermaid để vẽ lại bằng UML Activity trong Visual Paradigm theo hướng dẫn nhóm.
+
+```mermaid
+flowchart TD
+    subgraph Actor ["Khách vãng lai có tài khoản"]
+        Start(((Bắt đầu)))
+        n1(["1. Mở Đăng nhập"])
+        n3(["3. Nhập email, mật khẩu; chọn Đăng<br/>nhập"])
+        n3_1(["3.1. Chọn Đăng ký"])
+        Choice{"Chọn thao tác?"}
+    end
+    subgraph System ["Hệ thống PinkyCloud"]
+        n2(["2. Hiển thị email và mật khẩu"])
+        n4(["4. Kiểm tra thông tin và trạng<br/>thái; đăng nhập khách hàng; mở<br/>trang chủ"])
+        n3_2(["3.2. Mở biểu mẫu Đăng ký"])
+        n4_1(["4.1. Tài khoản hợp lệ là Admin"])
+        n4_2(["4.2. Đăng nhập Admin; mở danh sách<br/>User"])
+        n4_1_1(["4.1.1. Email/mật khẩu sai hoặc tài<br/>khoản khóa"])
+        n4_1_2(["4.1.2. Báo lỗi đăng nhập; trở lại<br/>bước 3"])
+        n4_2_1(["4.2.1. Yêu cầu biểu mẫu không hợp<br/>lệ"])
+        n4_2_2(["4.2.2. Từ chối; mở lại từ bước 1"])
+        Request{"4. Yêu cầu hợp lệ?"}
+        Valid{"4. Thông tin đúng và tài<br/>khoản hoạt động?"}
+        Role{"4. Vai trò tài khoản?"}
+        End(((Kết thúc)))
+    end
+    Start --> n1
+    n1 --> n2
+    n2 --> Choice
+    Choice -->|"Đăng nhập"| n3
+    Choice -->|"Đăng ký"| n3_1
+    n3_1 --> n3_2
+    n3_2 --> End
+    n3 --> Request
+    Request -->|"Không"| n4_2_1
+    n4_2_1 --> n4_2_2
+    n4_2_2 --> n1
+    Request -->|"Có"| Valid
+    Valid -->|"Không"| n4_1_1
+    n4_1_1 --> n4_1_2
+    n4_1_2 --> n3
+    Valid -->|"Có"| Role
+    Role -->|"Khách hàng"| n4
+    n4 --> End
+    Role -->|"Admin"| n4_1
+    n4_1 --> n4_2
+    n4_2 --> End
+```
+
+## Đối chiếu bước
+
+| Bước đặc tả | Nút Activity |
+| --- | --- |
+| 1 | `n1` |
+| 2 | `n2` |
+| 3 | `n3` |
+| 4 | `n4` |
+| 3.1 | `n3_1` |
+| 3.2 | `n3_2` |
+| 4.1 | `n4_1` |
+| 4.2 | `n4_2` |
+| 4.1.1 | `n4_1_1` |
+| 4.1.2 | `n4_1_2` |
+| 4.2.1 | `n4_2_1` |
+| 4.2.2 | `n4_2_2` |

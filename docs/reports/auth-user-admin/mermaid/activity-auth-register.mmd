@@ -1,0 +1,58 @@
+flowchart TD
+    subgraph Actor ["Khách vãng lai"]
+        Start(((Bắt đầu)))
+        n1(["1. Chọn Đăng ký"])
+        n3(["3. Nhập bốn trường và chọn Đăng ký"])
+        n3_1(["3.1. Chọn liên kết Đăng nhập"])
+        Choice{"Chọn thao tác?"}
+    end
+    subgraph System ["Hệ thống PinkyCloud"]
+        n2(["2. Hiển thị biểu mẫu đăng ký"])
+        n4(["4. Kiểm tra dữ liệu và email; tạo<br/>tài khoản khách hàng; báo thành<br/>công tại Đăng nhập; gửi thư nền<br/>nếu bật"])
+        n3_2(["3.2. Mở Đăng nhập; không tạo tài<br/>khoản"])
+        n4_1_1(["4.1.1. Dữ liệu đăng ký không hợp<br/>lệ"])
+        n4_1_2(["4.1.2. Báo lỗi; giữ họ tên/email,<br/>xóa mật khẩu; trở lại bước 3"])
+        n4_2_1(["4.2.1. Email đã được sử dụng"])
+        n4_2_2(["4.2.2. Báo trùng email; xóa mật<br/>khẩu; trở lại bước 3"])
+        n4_3_1(["4.3.1. Xung đột khi tạo tài khoản"])
+        n4_3_2(["4.3.2. Không tạo, không gửi thư;<br/>báo lỗi; xóa mật khẩu; trở lại<br/>bước 3"])
+        n4_4_1(["4.4.1. Gửi thư thất bại hoặc quá<br/>tải"])
+        n4_4_2(["4.4.2. Ghi nhận lỗi gửi thư; giữ<br/>tài khoản; không báo đã gửi"])
+        n4_5_1(["4.5.1. Yêu cầu gửi biểu mẫu không<br/>hợp lệ"])
+        n4_5_2(["4.5.2. Từ chối yêu cầu; không lưu<br/>dữ liệu; kết thúc"])
+        Valid{"4. Dữ liệu hợp lệ?"}
+        Unique{"4. Email chưa được dùng?"}
+        Saved{"4. Tạo tài khoản thành công?"}
+        Mail{"4. Kết quả xử lý thư nền?"}
+        Request{"4. Yêu cầu và quyền gửi còn<br/>hợp lệ?"}
+        End(((Kết thúc)))
+    end
+    Start --> n1
+    n1 --> n2
+    n2 --> Choice
+    Choice -->|"Đăng ký"| n3
+    Choice -->|"Đã có tài khoản"| n3_1
+    n3_1 --> n3_2
+    n3_2 --> End
+    n3 --> Request
+    Valid -->|"Không"| n4_1_1
+    n4_1_1 --> n4_1_2
+    n4_1_2 --> n3
+    Valid -->|"Có"| Unique
+    Unique -->|"Không"| n4_2_1
+    n4_2_1 --> n4_2_2
+    n4_2_2 --> n3
+    Unique -->|"Có"| Saved
+    Saved -->|"Không"| n4_3_1
+    n4_3_1 --> n4_3_2
+    n4_3_2 --> n3
+    Saved -->|"Có"| n4
+    n4 --> Mail
+    Mail -->|"Tắt gửi thư hoặc gửi thành công"| End
+    Mail -->|"Thất bại"| n4_4_1
+    n4_4_1 --> n4_4_2
+    n4_4_2 --> End
+    Request -->|"Có"| Valid
+    Request -->|"Không"| n4_5_1
+    n4_5_1 --> n4_5_2
+    n4_5_2 --> End

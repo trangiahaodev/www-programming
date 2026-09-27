@@ -1,39 +1,40 @@
-# Usecase: Xem danh sách người dùng
+# Usecase: Xem, tìm kiếm và phân trang người dùng
 
 | Thành phần | Nội dung |
 | --- | --- |
-| Tên use case | Xem danh sách người dùng |
-| Mô tả sơ lược | Chỉ ADMIN; tìm theo mã, tên, email; phân trang 10 dòng mặc định, tối đa 100; không trả mật khẩu hay tải collection đơn hàng. |
-| Actor chính | Admin |
-| Actor phụ | Không |
-| Tiền điều kiện | Đã đăng nhập bằng tài khoản Admin hoạt động |
-| Hậu điều kiện | Thao tác hợp lệ được ghi nhận; nếu thất bại, giữ nguyên dữ liệu và thông báo nguyên nhân. |
+| **Tên use case** | Xem, tìm kiếm và phân trang người dùng |
+| **Mã use case** | uc007d-admin-view-users |
+| **Mô tả sơ lược** | Admin tra cứu người dùng theo mã, họ tên hoặc email và xem từng trang kết quả. |
+| **Actor chính** | Admin |
+| **Actor phụ** | Không |
+| **Tiền điều kiện (Pre-condition)** | Admin đã đăng nhập bằng tài khoản đang hoạt động và có quyền quản trị người dùng. |
+| **Hậu điều kiện (Post-condition)** | Danh sách hiển thị đúng tiêu chí hợp lệ; không thay đổi thông tin người dùng và không hiển thị mật khẩu. |
 
 ### Luồng sự kiện chính (Main flow):
+
 | Actor | Hệ thống |
 | --- | --- |
-| 1. Mở chức năng xem danh sách người dùng. | |
-| | 2. Hiển thị thông tin và thao tác phù hợp. |
-| 3. Nhập hoặc chọn thông tin, xác nhận thao tác. | |
-| | 4. Kiểm tra dữ liệu, quyền truy cập và quy định: Chỉ ADMIN; tìm theo mã, tên, email; phân trang 10 dòng mặc định, tối đa 100; không trả mật khẩu hay tải collection đơn hàng. |
-| | 5. Trả kết quả và thông báo rõ ràng. |
+| 1. Mở mục Người dùng trong khu vực quản trị. |  |
+|  | 2. Kiểm tra quyền truy cập và hiển thị trang đầu gồm tối đa 10 người dùng, xếp mới nhất trước; mỗi dòng có mã, họ tên, email, điện thoại, vai trò và trạng thái hoạt động. |
+| 3. Nhập từ khóa theo mã, tên hoặc email rồi chọn Tìm kiếm; có thể chọn số dòng mỗi trang hoặc chuyển trang. |  |
+|  | 4. Kiểm tra từ khóa tối đa 100 ký tự, số dòng từ 1 đến 100 và trang không âm; tìm không phân biệt hoa thường, hiển thị danh sách phù hợp cùng điều khiển phân trang. |
 
 ### Luồng sự kiện thay thế (Alternate Flow):
+
 | Actor | Hệ thống |
 | --- | --- |
-| 3.1. Hủy thao tác hoặc trở lại danh sách. | |
-| | 3.2. Giữ nguyên dữ liệu. |
+| 3.1. Để trống từ khóa và chọn Tìm kiếm. |  |
+|  | 3.2. Hiển thị lại tất cả người dùng theo phân trang. Quay lại bước 3 nếu cần tra cứu tiếp. |
+|  | 4.1. Không có người dùng khớp từ khóa. |
+|  | 4.2. Hiển thị danh sách rỗng; Admin có thể đổi tiêu chí ở bước 3. |
+|  | 4.3. Trang yêu cầu không còn dữ liệu, chẳng hạn sau khi xóa dòng cuối của trang. |
+|  | 4.4. Hiển thị trang cuối còn dữ liệu, hoặc trang đầu rỗng nếu không còn kết quả. Kết thúc lần tra cứu. |
 
 ### Luồng sự kiện ngoại lệ (Exception Flow):
+
 | Actor | Hệ thống |
 | --- | --- |
-| 4.1.1. Thông tin không hợp lệ hoặc vi phạm quy định. | |
-| | 4.1.2. Hiển thị lỗi; cho phép sửa hoặc quay lại, không thực hiện thao tác. |
-| 4.2.1. Phiên hết hạn hoặc không có quyền. | |
-| | 4.2.2. Yêu cầu đăng nhập hoặc từ chối truy cập. |
-
-### Hợp đồng triển khai
-- Route: `GET /admin/users`; xử lý: `search(query)`.
-- DTO/View fields: Mã User, tên, email, điện thoại, vai trò, trạng thái; từ khóa và phân trang. Không trả password/hash trong DTO hiển thị.
-- Dữ liệu form dùng Jakarta Validation; logic nghiệp vụ ở Service, ghi dữ liệu có transaction.
-- Thành công dùng PRG; riêng xóa luôn PRG với Flash. Không xóa qua GET.
+|  | 2.1.1. Người truy cập chưa đăng nhập, tài khoản không còn hợp lệ hoặc không có quyền quản trị. |
+|  | 2.1.2. Yêu cầu đăng nhập lại nếu chưa đăng nhập hoặc tài khoản hết hiệu lực; từ chối truy cập nếu đã đăng nhập nhưng không có quyền. Kết thúc use case. |
+|  | 4.1.1. Từ khóa quá dài, số dòng ngoài 1–100 hoặc số trang âm. |
+|  | 4.1.2. Thông báo bộ lọc không hợp lệ và hiển thị dữ liệu với tiêu chí mặc định: từ khóa trống, trang đầu, 10 dòng. Admin sửa tiêu chí ở bước 3. |
