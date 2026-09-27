@@ -1,0 +1,34 @@
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/admin-layout :: layout(~{::main})}">
+<main class="users-page">
+    <h1>NGƯỜI DÙNG</h1>
+    <p th:if="${successMessage}" th:text="${successMessage}" role="status"></p>
+    <p th:if="${errorMessage}" th:text="${errorMessage}" class="account-error" role="alert"></p>
+    <form th:action="@{/admin/users}" method="get" th:object="${query}" class="users-search">
+        <label for="keyword">Tìm theo mã, tên hoặc email</label>
+        <input th:field="*{keyword}" maxlength="100" type="search">
+        <label for="size">Số dòng</label>
+        <select th:field="*{size}"><option value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option></select>
+        <button class="account-button" type="submit">Tìm kiếm</button>
+        <a class="account-button secondary" th:href="@{/admin/users}">Xóa bộ lọc</a>
+    </form>
+    <div class="users-table-wrap">
+        <table class="users-table">
+            <caption>Danh sách tài khoản người dùng</caption>
+            <thead><tr><th scope="col">Mã</th><th scope="col">Họ tên</th><th scope="col">Email</th><th scope="col">Điện thoại</th><th scope="col">Vai trò</th><th scope="col">Trạng thái</th></tr></thead>
+            <tbody>
+            <tr th:each="user : ${users.content}">
+                <td th:text="${user.userCode}"></td><td th:text="${user.fullName}"></td><td th:text="${user.email}"></td>
+                <td th:text="${user.phone}"></td><td th:text="${user.role == 'ROLE_ADMIN' ? 'Admin' : 'Khách hàng'}"></td>
+                <td th:text="${user.active ? 'Hoạt động' : 'Đã khóa'}"></td>
+            </tr>
+            <tr th:if="${users.empty}"><td colspan="6">Không tìm thấy người dùng. Hãy thử từ khóa khác hoặc xóa bộ lọc.</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <nav class="users-pagination" aria-label="Phân trang người dùng" th:if="${!users.empty}">
+        <a th:if="${users.hasPrevious()}" th:href="@{/admin/users(keyword=${query.keyword},page=${users.number - 1},size=${users.size})}">Trang trước</a>
+        <span th:text="|Trang ${users.number + 1} / ${users.totalPages} — ${users.totalElements} tài khoản|"></span>
+        <a th:if="${users.hasNext()}" th:href="@{/admin/users(keyword=${query.keyword},page=${users.number + 1},size=${users.size})}">Trang sau</a>
+    </nav>
+</main>
+</html>
