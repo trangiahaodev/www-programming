@@ -39,6 +39,7 @@ agents/
 AGENTS.md
 agents.rar
 *.rar
+scratch
 
 ### Python Helper Scripts & Logs ###
 *.py
