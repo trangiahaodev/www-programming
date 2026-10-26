@@ -39,7 +39,7 @@ public class Order {
 
     // TÍCH HỢP V2: Liên kết với tài khoản đặt hàng (Cho phép null để hỗ trợ khách vãng lai và DataInitializer)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private User user;

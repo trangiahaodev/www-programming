@@ -6,6 +6,7 @@ import iuh.wwwprogramming.entity.OrderItem;
 import iuh.wwwprogramming.entity.OrderStatus;
 import iuh.wwwprogramming.entity.Product;
 import iuh.wwwprogramming.entity.User;
+import iuh.wwwprogramming.event.OrderPlacedEvent;
 import iuh.wwwprogramming.exception.InvalidOrderItemException;
 import iuh.wwwprogramming.exception.InvalidOrderStatusException;
 import iuh.wwwprogramming.exception.OrderItemNotFoundException;
@@ -17,8 +18,9 @@ import iuh.wwwprogramming.repository.UserRepository;
 import iuh.wwwprogramming.service.CartService;
 import iuh.wwwprogramming.service.OrderService;
 import jakarta.servlet.http.HttpSession;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -35,7 +37,6 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class OrderServiceImpl implements OrderService {
 
@@ -50,6 +51,30 @@ public class OrderServiceImpl implements OrderService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final CartService cartService;
+    private final ApplicationEventPublisher eventPublisher;
+
+    @Autowired
+    public OrderServiceImpl(OrderRepository orderRepository,
+                            OrderItemRepository orderItemRepository,
+                            ProductRepository productRepository,
+                            UserRepository userRepository,
+                            CartService cartService,
+                            ApplicationEventPublisher eventPublisher) {
+        this.orderRepository = orderRepository;
+        this.orderItemRepository = orderItemRepository;
+        this.productRepository = productRepository;
+        this.userRepository = userRepository;
+        this.cartService = cartService;
+        this.eventPublisher = eventPublisher;
+    }
+
+    public OrderServiceImpl(OrderRepository orderRepository,
+                            OrderItemRepository orderItemRepository,
+                            ProductRepository productRepository,
+                            UserRepository userRepository,
+                            CartService cartService) {
+        this(orderRepository, orderItemRepository, productRepository, userRepository, cartService, null);
+    }
 
     // =========================================================================
     // 1. NHÓM HÀM CHO ADMIN (Quản lý đơn hàng)
@@ -168,16 +193,107 @@ public class OrderServiceImpl implements OrderService {
                 }
             }
 
+            int oldQuantity = orderItem.getQuantity() != null ? orderItem.getQuantity() : 0;
+            int delta = newQuantity - oldQuantity;
+
+            // Bù trừ Delta Tồn kho & Cập nhật Sold Count an toàn
+            if (delta != 0) {
+                Product product = orderItem.getProduct();
+                if (product == null && orderItem.getProductId() != null && !orderItem.getProductId().isBlank()) {
+                    product = productRepository.findById(orderItem.getProductId()).orElse(null);
+                }
+                if (product == null && orderItem.getProductCode() != null && !orderItem.getProductCode().isBlank()) {
+                    product = productRepository.findByProductCode(orderItem.getProductCode()).orElse(null);
+                }
+
+                if (product != null) {
+                    int availableStock = product.getStockQuantity() != null ? product.getStockQuantity() : 0;
+                    if (delta > 0) {
+                        // Tăng số lượng mua -> Kiểm tra tồn kho khả dụng
+                        if (availableStock < delta) {
+                            String prodName = (product.getName() != null && !product.getName().isBlank())
+                                    ? product.getName()
+                                    : (orderItem.getProductName() != null ? orderItem.getProductName() : product.getProductCode());
+                            throw new IllegalArgumentException(
+                                    "Số lượng tồn kho của sản phẩm '" + prodName + "' không đủ để tăng thêm (tồn kho hiện tại: "
+                                            + availableStock + ", cần thêm: " + delta + ")!"
+                            );
+                        }
+                        product.setStockQuantity(availableStock - delta);
+                        int currentSold = product.getSoldCount() != null ? product.getSoldCount() : 0;
+                        product.setSoldCount(currentSold + delta);
+                        productRepository.save(product);
+                    } else {
+                        // Giảm số lượng mua -> Hoàn trả tồn kho và giảm soldCount
+                        int release = Math.abs(delta);
+                        product.setStockQuantity(availableStock + release);
+                        int currentSold = product.getSoldCount() != null ? product.getSoldCount() : 0;
+                        product.setSoldCount(Math.max(0, currentSold - release));
+                        productRepository.save(product);
+                    }
+                }
+            }
+
             orderItem.setQuantity(newQuantity);
-            BigDecimal subtotal = orderItem.getUnitPrice().multiply(BigDecimal.valueOf(newQuantity));
+            BigDecimal unitPrice = orderItem.getUnitPrice() != null ? orderItem.getUnitPrice() : BigDecimal.ZERO;
+            BigDecimal subtotal = unitPrice.multiply(BigDecimal.valueOf(newQuantity));
             orderItem.setSubtotal(subtotal);
         }
 
         BigDecimal newTotalAmount = items.stream()
-                .map(OrderItem::getSubtotal)
+                .map(it -> it.getSubtotal() != null ? it.getSubtotal() : BigDecimal.ZERO)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         order.setTotalAmount(newTotalAmount);
 
+        orderRepository.save(order);
+
+        return convertToOrderDetailResponseDTO(order);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public OrderDetailResponseDTO cancelOrder(String orderId) {
+        if (orderId == null || orderId.trim().isEmpty()) {
+            throw new IllegalArgumentException("Mã đơn hàng không được để trống.");
+        }
+
+        Order order = orderRepository.findByIdWithItems(orderId.trim())
+                .orElseThrow(() -> new OrderNotFoundException("Đơn hàng yêu cầu không tồn tại hoặc đã bị xóa khỏi hệ thống: " + orderId));
+
+        if (order.getStatus() == OrderStatus.CANCELLED) {
+            log.info("Đơn hàng {} đã ở trạng thái hủy trước đó, bỏ qua hoàn kho lặp lại.", order.getOrderCode());
+            return convertToOrderDetailResponseDTO(order);
+        }
+
+        if (order.getStatus() == OrderStatus.DELIVERED) {
+            throw new InvalidOrderStatusException("Không thể hủy đơn hàng đã hoàn tất giao hàng.");
+        }
+
+        List<OrderItem> items = order.getItems();
+        if (items != null) {
+            for (OrderItem item : items) {
+                Product product = item.getProduct();
+                if (product == null && item.getProductId() != null && !item.getProductId().isBlank()) {
+                    product = productRepository.findById(item.getProductId()).orElse(null);
+                }
+                if (product == null && item.getProductCode() != null && !item.getProductCode().isBlank()) {
+                    product = productRepository.findByProductCode(item.getProductCode()).orElse(null);
+                }
+
+                if (product != null && item.getQuantity() != null && item.getQuantity() > 0) {
+                    int qty = item.getQuantity();
+                    int currentStock = product.getStockQuantity() != null ? product.getStockQuantity() : 0;
+                    product.setStockQuantity(currentStock + qty);
+
+                    int currentSold = product.getSoldCount() != null ? product.getSoldCount() : 0;
+                    product.setSoldCount(Math.max(0, currentSold - qty));
+
+                    productRepository.save(product);
+                }
+            }
+        }
+
+        order.setStatus(OrderStatus.CANCELLED);
         orderRepository.save(order);
 
         return convertToOrderDetailResponseDTO(order);
@@ -214,15 +330,19 @@ public class OrderServiceImpl implements OrderService {
                 );
             }
 
-            // Trừ tồn kho sản phẩm
+            // Trừ tồn kho sản phẩm & tăng số lượng đã bán (soldCount)
             product.setStockQuantity(product.getStockQuantity() - item.getQuantity());
+            int currentSold = product.getSoldCount() != null ? product.getSoldCount() : 0;
+            product.setSoldCount(currentSold + item.getQuantity());
             productRepository.save(product);
 
             BigDecimal lineSubtotal = product.getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
             computedTotal = computedTotal.add(lineSubtotal);
 
-            // ĐÃ FIX: Chuyển OrderDetail thành OrderItem chuẩn
+            // Bắt buộc lưu productId và liên kết Product vào OrderItem theo quy chuẩn
             OrderItem detail = OrderItem.builder()
+                    .productId(product.getId())
+                    .product(product)
                     .productName(product.getName())
                     .productCode(product.getProductCode())
                     .unitPrice(product.getPrice())
@@ -256,6 +376,18 @@ public class OrderServiceImpl implements OrderService {
 
         Order savedOrder = orderRepository.save(order);
         cartService.clearCart(session);
+
+        // Gửi email xác nhận đơn hàng bất đồng bộ sau khi giao dịch commit thành công
+        if (eventPublisher != null) {
+            eventPublisher.publishEvent(new OrderPlacedEvent(
+                    savedOrder.getId(),
+                    savedOrder.getOrderCode(),
+                    savedOrder.getCustomerName(),
+                    savedOrder.getCustomerPhone(),
+                    userEmail,
+                    savedOrder.getTotalAmount()
+            ));
+        }
 
         return convertToResponseDTO(savedOrder);
     }

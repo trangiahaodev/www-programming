@@ -9,6 +9,7 @@ import iuh.wwwprogramming.dto.ProductVariantDTO;
 import iuh.wwwprogramming.entity.Category;
 import iuh.wwwprogramming.entity.Product;
 import iuh.wwwprogramming.repository.CategoryRepository;
+import iuh.wwwprogramming.repository.OrderItemRepository;
 import iuh.wwwprogramming.repository.ProductRepository;
 import iuh.wwwprogramming.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,7 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final OrderItemRepository orderItemRepository;
 
     // =========================================================================
     // 1. NHÓM HÀM CHO ADMIN (Quản lý CRUD - Dữ liệu thô, không lọc active)
@@ -127,6 +129,7 @@ public class ProductServiceImpl implements ProductService {
         Product product = Product.builder()
                 .productCode(productCode)
                 .name(name)
+                .brand("PinkyCloud")
                 .price(dto.getPrice())
                 .stockQuantity(dto.getStockQuantity())
                 .description(dto.getDescription() != null && !dto.getDescription().trim().isEmpty() ? dto.getDescription().trim() : null)
@@ -148,6 +151,13 @@ public class ProductServiceImpl implements ProductService {
 
         Product product = productRepository.findById(id.trim())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sản phẩm mỹ phẩm cần xóa!"));
+
+        // RÀNG BUỘC JAVA: Kiểm tra nếu sản phẩm đã phát sinh trong bất kỳ đơn hàng nào thì chặn xóa
+        boolean hasOrders = (product.getId() != null && orderItemRepository.existsByProductId(product.getId()))
+                || (product.getProductCode() != null && orderItemRepository.existsByProductCode(product.getProductCode()));
+        if (hasOrders) {
+            throw new IllegalStateException("Không thể xóa sản phẩm vì đã có đơn hàng liên quan đến sản phẩm này! Bạn có thể chuyển trạng thái sản phẩm sang ngưng hoạt động.");
+        }
 
         productRepository.delete(product);
     }

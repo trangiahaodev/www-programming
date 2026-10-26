@@ -23,6 +23,8 @@ public interface OrderService {
 
     OrderDetailResponseDTO updateOrderQuantities(String orderId, OrderQuantityUpdateRequestDTO requestDTO);
 
+    OrderDetailResponseDTO cancelOrder(String orderId);
+
 
     // =========================================================================
     // 2. NHÓM HÀM CHO CUSTOMER (Tiến hành Checkout và tra cứu đơn)

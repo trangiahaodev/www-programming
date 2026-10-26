@@ -50,7 +50,7 @@ class UserDeleteIntegrationTest {
         mvc.perform(get("/").with(user(oldPrincipal))).andExpect(redirectedUrl("/login?expired"));
     }
     @ParameterizedTest
-    @ValueSource(strings={"PENDING","CONFIRMED","SHIPPING","DELIVERED","CANCELLED","CANCELED"})
+    @ValueSource(strings={"PENDING","PROCESSING","SHIPPED","DELIVERED","CANCELLED"})
     void anyOrderStatusPreventsDeletionInService(String status) {
         String id=UUID.randomUUID().toString();
         var order=orders.saveAndFlush(Order.builder().orderCode(id.substring(0,20)).user(customer)

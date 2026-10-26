@@ -45,7 +45,7 @@ public class ProductController {
                 PageRequest.of(pageNumber, pageSize)
         );
 
-        List<CategoryResponseDTO> categories = categoryService.getCategories(null, PageRequest.of(0, 50)).getContent();
+        List<CategoryResponseDTO> categories = categoryService.getActiveCategories();
 
         long totalElements = productPage.getTotalElements();
         long startItem = (totalElements == 0) ? 0 : (long) productPage.getNumber() * pageSize + 1;

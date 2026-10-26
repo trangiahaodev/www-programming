@@ -46,7 +46,7 @@ public class Office {
     private String coupon;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "office_perks", joinColumns = @JoinColumn(name = "office_id"))
+    @CollectionTable(name = "office_perks", joinColumns = @JoinColumn(name = "office_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT)))
     @Column(name = "perk", length = 255)
     private List<String> perks;
 

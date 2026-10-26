@@ -41,8 +41,9 @@ public class Product {
     private String name;
 
     @org.hibernate.annotations.Nationalized
+    @Builder.Default
     @Column(nullable = false, length = 100, columnDefinition = "NVARCHAR(100)")
-    private String brand;
+    private String brand = "PinkyCloud";
 
     @Column(nullable = false, precision = 18, scale = 2)
     private BigDecimal price;
@@ -104,7 +105,7 @@ public class Product {
 
     // 3. Relationships
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", nullable = false)
+    @JoinColumn(name = "category_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Category category;

@@ -44,7 +44,8 @@ public class AdminUserController {
         model.addAttribute("userId", id);
         if (errors.hasErrors()) return "admin/user-edit";
         try {
-            users.update(id, dto, actor.id());
+            String actorId = (actor != null) ? actor.id() : null;
+            users.update(id, dto, actorId);
             flash.addFlashAttribute("successMessage", "Đã cập nhật người dùng.");
             return "redirect:/admin/users";
         } catch (iuh.wwwprogramming.exception.UserNotFoundException ex) {
@@ -71,7 +72,8 @@ public class AdminUserController {
         flash.addAttribute("page", dto.getPage());
         flash.addAttribute("size", dto.getSize());
         try {
-            users.delete(id, dto, actor.id());
+            String actorId = (actor != null) ? actor.id() : null;
+            users.delete(id, dto, actorId);
             flash.addFlashAttribute("successMessage", "Đã xóa người dùng.");
         } catch (IllegalArgumentException ex) {
             flash.addFlashAttribute("errorMessage", ex.getMessage());

@@ -1,50 +1,34 @@
 package iuh.wwwprogramming.config;
 
-import iuh.wwwprogramming.entity.User;
-import iuh.wwwprogramming.repository.UserRepository;
+import iuh.wwwprogramming.security.ActiveAccountFilter;
+import iuh.wwwprogramming.service.impl.ShopUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final UserRepository userRepository;
+    private final ShopUserDetailsService shopUserDetailsService;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // Cơ chế đọc tài khoản từ Database
     @Bean
-    public UserDetailsService userDetailsService() {
-        return email -> {
-            User user = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng với email: " + email));
-
-            String roleName = user.getRole();
-            // Spring Security tự động thêm tiền tố ROLE_, nên ta cần cắt bỏ nếu trong DB đã có sẵn
-            if (roleName.startsWith("ROLE_")) {
-                roleName = roleName.substring(5);
-            }
-
-            return org.springframework.security.core.userdetails.User.builder()
-                    .username(user.getEmail())
-                    .password(user.getPassword())
-                    .roles(roleName)
-                    .disabled(!Boolean.TRUE.equals(user.getActive()))
-                    .build();
-        };
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
     }
 
     @Bean
@@ -61,7 +45,7 @@ public class SecurityConfig {
                                 "/error"
                         ).permitAll()
 
-                        // 2. Các trang công khai ai cũng vào được (Gộp thêm luồng Tin tức, Cẩm nang từ V2)
+                        // 2. Các trang công khai ai cũng vào được
                         .requestMatchers(
                                 "/",
                                 "/trang-chu",
@@ -69,6 +53,7 @@ public class SecurityConfig {
                                 "/san-pham/**",
                                 "/products",
                                 "/products/**",
+                                "/cart",
                                 "/cart/**",
                                 "/tin-tuc",
                                 "/tin-tuc/**",
@@ -76,27 +61,37 @@ public class SecurityConfig {
                                 "/news/**",
                                 "/cam-nang",
                                 "/cam-nang/**",
+                                "/api/vouchers/**",
                                 "/login",
                                 "/register"
                         ).permitAll()
 
                         // 3. Phân quyền nghiêm ngặt
-                        .requestMatchers("/checkout/**").hasRole("CUSTOMER")
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/checkout", "/checkout/**", "/profile", "/profile/**", "/orders", "/orders/**").hasRole("CUSTOMER")
+                        .requestMatchers("/admin", "/admin/**").hasRole("ADMIN")
 
                         // Các đường dẫn khác bắt buộc phải đăng nhập
                         .anyRequest().authenticated()
                 )
-                .formLogin(form -> form
-                        .defaultSuccessUrl("/", false) // Đăng nhập xong đẩy về trang chủ
+                .userDetailsService(shopUserDetailsService)
+                .formLogin(login -> login
+                        .loginPage("/login")
+                        .usernameParameter("email")
+                        .passwordParameter("password")
+                        .successHandler((request, response, authentication) -> {
+                            boolean admin = authentication.getAuthorities().stream()
+                                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+                            response.sendRedirect(request.getContextPath() + (admin ? "/admin/users" : "/"));
+                        })
+                        .failureUrl("/login?error")
                         .permitAll()
                 )
                 .logout(logout -> logout
-                        .logoutSuccessUrl("/")
+                        .logoutSuccessUrl("/login?logout")
                         .permitAll()
                 )
-                // Tắt CSRF tạm thời để các form POST hoạt động mượt mà
-                .csrf(csrf -> csrf.disable())
+                .addFilterBefore(new ActiveAccountFilter(shopUserDetailsService), AuthorizationFilter.class)
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/cart/**", "/checkout/**", "/api/**", "/news/**", "/tin-tuc/**"))
                 .headers(headers -> headers.frameOptions(frame -> frame.disable()));
 
         return http.build();

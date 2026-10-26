@@ -52,9 +52,11 @@ public interface ProductRepository extends JpaRepository<Product, String> {
 
     long countByCategoryId(String categoryId);
 
+    boolean existsByCategoryId(String categoryId);
+
 
     // =========================================================================
-    // 2. NHÓM HÀM CHO CUSTOMER (Bắt buộc kiểm tra active = true)
+    // 2. NHÓM HÀM CHO CUSTOMER (Bắt buộc kiểm tra kép p.active = true AND c.active = true)
     // =========================================================================
 
     // Tránh conflict với hàm search của Admin
@@ -63,6 +65,7 @@ public interface ProductRepository extends JpaRepository<Product, String> {
             SELECT p FROM Product p
             JOIN FETCH p.category c
             WHERE p.active = true
+              AND c.active = true
               AND (:keyword IS NULL OR :keyword = ''
                    OR LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
                    OR LOWER(p.brand) LIKE LOWER(CONCAT('%', :keyword, '%'))
@@ -74,6 +77,7 @@ public interface ProductRepository extends JpaRepository<Product, String> {
             SELECT COUNT(p) FROM Product p
             JOIN p.category c
             WHERE p.active = true
+              AND c.active = true
               AND (:keyword IS NULL OR :keyword = ''
                    OR LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
                    OR LOWER(p.brand) LIKE LOWER(CONCAT('%', :keyword, '%'))
@@ -89,13 +93,13 @@ public interface ProductRepository extends JpaRepository<Product, String> {
     );
 
     // Tránh conflict với hàm findById của Admin
-    @Query("SELECT p FROM Product p JOIN FETCH p.category WHERE p.id = :id AND p.active = true")
+    @Query("SELECT p FROM Product p JOIN FETCH p.category c WHERE p.id = :id AND p.active = true AND c.active = true")
     Optional<Product> findActiveByIdWithCategory(@Param("id") String id);
 
-    @Query("SELECT p FROM Product p JOIN FETCH p.category WHERE p.productCode = :productCode AND p.active = true")
+    @Query("SELECT p FROM Product p JOIN FETCH p.category c WHERE p.productCode = :productCode AND p.active = true AND c.active = true")
     Optional<Product> findByProductCodeWithCategory(@Param("productCode") String productCode);
 
-    @Query("SELECT p FROM Product p JOIN FETCH p.category WHERE UPPER(p.productCode) IN :codes AND p.active = true")
+    @Query("SELECT p FROM Product p JOIN FETCH p.category c WHERE UPPER(p.productCode) IN :codes AND p.active = true AND c.active = true")
     List<Product> findByProductCodeIn(@Param("codes") List<String> codes);
 
     @Query(
@@ -103,6 +107,7 @@ public interface ProductRepository extends JpaRepository<Product, String> {
             SELECT p FROM Product p
             JOIN FETCH p.category c
             WHERE p.active = true
+              AND c.active = true
               AND c.id = :categoryId
               AND p.id <> :excludeProductId
         """
@@ -117,7 +122,7 @@ public interface ProductRepository extends JpaRepository<Product, String> {
             value = """
             SELECT p FROM Product p
             JOIN FETCH p.category c
-            WHERE p.active = true AND (p.isHot = true OR p.discount >= 15)
+            WHERE p.active = true AND c.active = true AND (p.isHot = true OR p.discount >= 15)
         """
     )
     List<Product> findHotProducts(Pageable pageable);
@@ -126,7 +131,7 @@ public interface ProductRepository extends JpaRepository<Product, String> {
             value = """
             SELECT p FROM Product p
             JOIN FETCH p.category c
-            WHERE p.active = true AND p.isNew = true
+            WHERE p.active = true AND c.active = true AND p.isNew = true
         """
     )
     List<Product> findNewProducts(Pageable pageable);
@@ -136,12 +141,13 @@ public interface ProductRepository extends JpaRepository<Product, String> {
             SELECT p FROM Product p
             JOIN FETCH p.category c
             WHERE p.active = true
+              AND c.active = true
               AND p.brand IN ('Anessa', 'Vichy', 'MartiDerm', 'L''Oreal Paris', 'La Roche-Posay', 'Skin1004', 'Cosrx', 'Torriden', 'CeraVe', '3CE', 'Maybelline')
         """
     )
     List<Product> findFeaturedBrandProducts(Pageable pageable);
 
-    @Query("SELECT DISTINCT p.brand FROM Product p WHERE p.active = true ORDER BY p.brand ASC")
+    @Query("SELECT DISTINCT p.brand FROM Product p JOIN p.category c WHERE p.active = true AND c.active = true ORDER BY p.brand ASC")
     List<String> findDistinctBrands();
 
 

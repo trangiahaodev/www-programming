@@ -1,0 +1,47 @@
+# Usecase: Khách hàng thêm sản phẩm vào giỏ hàng
+
+| Thành phần                         | Nội dung                                                                                                                                                                                                                                                                                    |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Tên use case**                   | Khách hàng thêm sản phẩm vào giỏ hàng                                                                                                                                                                                                                                                       |
+| **Mã use case**                    | `uc002a-customer-add-to-cart`                                                                                                                                                                                                                                                               |
+| **Mô tả sơ lược**                  | Khách hàng (bao gồm khách vãng lai và thành viên đã đăng nhập) lựa chọn sản phẩm mỹ phẩm từ trang chi tiết hoặc danh mục sản phẩm, chọn số lượng mua và thực hiện thêm vào giỏ hàng mua sắm tạm thời của phiên làm việc. Hệ thống tự động kiểm tra trạng thái mở bán và tồn kho khả dụng. |
+| **Actor chính**                    | Customer (Khách hàng / Khách vãng lai)                                                                                                                                                                                                                                                      |
+| **Actor phụ**                      | Không                                                                                                                                                                                                                                                                                       |
+| **Tiền điều kiện (Pre-condition)** | Khách hàng đang ở màn hình xem chi tiết sản phẩm hoặc danh sách sản phẩm của cửa hàng PinkyCloud.                                                                                                                                                                                           |
+| **Hậu điều kiện (Post-condition)** | - Sản phẩm được ghi nhận hoặc cộng dồn số lượng vào giỏ hàng tạm thời của phiên làm việc.<br>- Tổng số lượng mặt hàng và tổng tiền tạm tính của giỏ hàng được cập nhật tương ứng.<br>- Tồn kho của sản phẩm trong hệ thống chưa bị trừ.                                                  |
+
+### Luồng sự kiện chính (Main flow):
+
+| Actor                                                                                                                       | Hệ thống                                                                                                                                                   |
+| --------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1. Khách hàng xem thông tin sản phẩm, chọn số lượng mua mong muốn (mặc định là 1) và nhấn nút "Thêm Vào Giỏ".               |                                                                                                                                                            |
+|                                                                                                                             | 2. Hệ thống kiểm tra tính hợp lệ của số lượng yêu cầu (phải là số nguyên lớn hơn hoặc bằng 1).                                                             |
+|                                                                                                                             | 3. Hệ thống kiểm tra thông tin sản phẩm, đảm bảo sản phẩm đang tồn tại và đang mở bán trong hệ thống.                                                      |
+|                                                                                                                             | 4. Hệ thống kiểm tra số lượng tồn kho khả dụng: tổng số lượng yêu cầu mua không vượt quá số lượng hàng còn lại trong kho của sản phẩm.                     |
+|                                                                                                                             | 5. Hệ thống ghi nhận sản phẩm vào giỏ hàng tạm thời của phiên làm việc (cộng dồn nếu đã có trong giỏ), tự động tính lại thành tiền và tổng giá trị giỏ hàng. |
+|                                                                                                                             | 6. Hệ thống giữ khách hàng ở lại trang sản phẩm hiện tại và hiển thị thông báo thành công: "Đã thêm sản phẩm vào giỏ hàng thành công!".                    |
+
+### Luồng sự kiện thay thế (Alternate Flow):
+
+*Đánh số bắt đầu từ bước rẽ nhánh ở luồng chính, vd: 1.1.*
+
+| Actor                                                                                   | Hệ thống                                                                                                                                                                                               |
+| --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1.1. Khách hàng chọn số lượng mua và nhấn nút "Mua Ngay" trên trang chi tiết sản phẩm. |                                                                                                                                                                                                        |
+|                                                                                         | 1.2. Hệ thống kiểm tra sản phẩm và tồn kho tương tự các bước 2 đến 5 của luồng chính, ghi nhận sản phẩm vào giỏ hàng tạm thời, sau đó chuyển hướng trực tiếp khách hàng sang màn hình đặt hàng và thanh toán. |
+
+### Luồng sự kiện ngoại lệ (Exception Flow):
+
+*Đánh số cấp 3 dựa trên bước rẽ nhánh, vd: 2.1.1, 3.1.1, 4.1.1.*
+
+| Actor                                                                                                 | Hệ thống                                                                                                                                           |
+| ----------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2.1.1. Số lượng mua nhập vào không hợp lệ (để trống hoặc nhỏ hơn 1).                                  |                                                                                                                                                    |
+|                                                                                                       | 2.1.2. Hệ thống giữ nguyên trạng thái giỏ hàng và hiển thị thông báo lỗi: "Số lượng mua phải từ 1 trở lên!".                                       |
+|                                                                                                       | 2.1.3. Quay lại bước 1 của luồng chính để Khách hàng điều chỉnh lại số lượng mua.                                                                  |
+| 3.1.1. Sản phẩm yêu cầu không tồn tại trong hệ thống hoặc đã ngừng kinh doanh.                         |                                                                                                                                                    |
+|                                                                                                       | 3.1.2. Hệ thống giữ nguyên trạng thái giỏ hàng và hiển thị thông báo lỗi: "Sản phẩm không tồn tại hoặc đã ngừng kinh doanh!".                     |
+|                                                                                                       | 3.1.3. Quay lại bước 1 của luồng chính để Khách hàng chọn sản phẩm khác.                                                                           |
+| 4.1.1. Tổng số lượng yêu cầu thêm vào giỏ vượt quá số lượng hàng tồn kho khả dụng của sản phẩm.       |                                                                                                                                                    |
+|                                                                                                       | 4.1.2. Hệ thống giữ nguyên trạng thái giỏ hàng và hiển thị thông báo lỗi: "Số lượng yêu cầu vượt quá tồn kho (chỉ còn lại [số lượng] sản phẩm)!". |
+|                                                                                                       | 4.1.3. Quay lại bước 1 của luồng chính để Khách hàng giảm số lượng mua phù hợp với lượng tồn kho.                                                  |

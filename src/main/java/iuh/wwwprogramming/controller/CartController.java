@@ -4,6 +4,7 @@ import iuh.wwwprogramming.dto.AddToCartRequestDTO;
 import iuh.wwwprogramming.dto.CartDTO;
 import iuh.wwwprogramming.dto.UpdateCartItemRequestDTO;
 import iuh.wwwprogramming.service.CartService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,14 +31,21 @@ public class CartController {
     @PostMapping("/add")
     public String addToCart(@Valid @ModelAttribute("addToCartRequest") AddToCartRequestDTO request,
                             BindingResult bindingResult,
+                            @RequestParam(value = "action", required = false) String action,
+                            @RequestParam(value = "redirect", required = false) String redirect,
+                            HttpServletRequest servletRequest,
                             HttpSession session,
                             RedirectAttributes redirectAttributes) {
+
+        String referer = servletRequest.getHeader("Referer");
+        String returnUrl = (referer != null && !referer.isBlank()) ? referer : "/products";
+
         if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute(
                     "errorMessage",
                     bindingResult.getFieldError() != null ? bindingResult.getFieldError().getDefaultMessage() : "Dữ liệu không hợp lệ!"
             );
-            return "redirect:/products";
+            return "redirect:" + returnUrl;
         }
 
         try {
@@ -45,6 +53,21 @@ public class CartController {
             redirectAttributes.addFlashAttribute("successMessage", "Đã thêm sản phẩm vào giỏ hàng thành công!");
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            return "redirect:" + returnUrl;
+        }
+
+        // Nếu bấm "Mua Ngay" -> chuyển hướng thẳng tới checkout
+        if ("buyNow".equalsIgnoreCase(action) || "checkout".equalsIgnoreCase(redirect)) {
+            return "redirect:/checkout";
+        }
+
+        if ("cart".equalsIgnoreCase(redirect) || "cart".equalsIgnoreCase(action)) {
+            return "redirect:/cart";
+        }
+
+        // Mặc định: Giữ người dùng ở lại trang hiện tại (nếu có referer hợp lệ không phải giỏ)
+        if (referer != null && !referer.isBlank() && !referer.contains("/cart")) {
+            return "redirect:" + referer;
         }
 
         return "redirect:/cart";

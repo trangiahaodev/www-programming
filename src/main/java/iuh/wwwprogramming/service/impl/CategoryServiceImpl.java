@@ -107,17 +107,12 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy danh mục mỹ phẩm cần xóa!"));
 
-        // Kiểm tra điều kiện ràng buộc: Nếu danh mục đang chứa sản phẩm thì không cho phép xóa
-        long productCount = countProductsByCategoryId(id);
-        if (productCount > 0) {
-            throw new IllegalStateException("Không thể xóa danh mục '" + category.getName() + "' vì đang có " + productCount + " sản phẩm thuộc danh mục này! Vui lòng xóa hoặc chuyển sản phẩm sang danh mục khác trước.");
+        // RÀNG BUỘC JAVA: Kiểm tra nếu danh mục đang chứa sản phẩm thì không cho phép xóa
+        if (productRepository.existsByCategoryId(id)) {
+            throw new IllegalStateException("Không thể xóa danh mục vì đang có sản phẩm thuộc danh mục này! Vui lòng xóa hoặc chuyển sản phẩm sang danh mục khác trước.");
         }
 
         categoryRepository.delete(category);
-    }
-
-    private long countProductsByCategoryId(String categoryId) {
-        return productRepository.countByCategoryId(categoryId);
     }
 
     @Override

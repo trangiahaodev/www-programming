@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -25,6 +26,7 @@ import java.util.Optional;
 
 @ConditionalOnProperty(name = "app.seed-products", havingValue = "true", matchIfMissing = true)
 @Component
+@Profile("!auth-test")
 @RequiredArgsConstructor
 @Slf4j
 public class DataInitializer implements CommandLineRunner {
@@ -193,6 +195,10 @@ public class DataInitializer implements CommandLineRunner {
             log.info("Initializing sample order data...");
             List<Order> sampleOrders = new ArrayList<>();
 
+            Product p1 = productRepository.findByProductCode("SP26000001").orElse(null);
+            Product p2 = productRepository.findByProductCode("SP26000002").orElse(null);
+            Product p3 = productRepository.findByProductCode("SP26000003").orElse(null);
+
             Order o1 = Order.builder()
                     .orderCode("ORD26000001")
                     .customerName("Nguyễn Thị Lan")
@@ -205,6 +211,8 @@ public class DataInitializer implements CommandLineRunner {
                     .build();
             OrderItem i1 = OrderItem.builder()
                     .order(o1)
+                    .productId(p1 != null ? p1.getId() : null)
+                    .product(p1)
                     .productName("Kem dưỡng ẩm Laneige Water Bank")
                     .productCode("SP26000001")
                     .unitPrice(new BigDecimal("450000.00"))
@@ -213,6 +221,8 @@ public class DataInitializer implements CommandLineRunner {
                     .build();
             OrderItem i2 = OrderItem.builder()
                     .order(o1)
+                    .productId(p2 != null ? p2.getId() : null)
+                    .product(p2)
                     .productName("Sữa rửa mặt Cetaphil Gentle Cleanser")
                     .productCode("SP26000002")
                     .unitPrice(new BigDecimal("200000.00"))
@@ -234,6 +244,8 @@ public class DataInitializer implements CommandLineRunner {
                     .build();
             OrderItem i3 = OrderItem.builder()
                     .order(o2)
+                    .productId(p3 != null ? p3.getId() : null)
+                    .product(p3)
                     .productName("Son dưỡng môi DHC Lip Cream")
                     .productCode("SP26000003")
                     .unitPrice(new BigDecimal("160000.00"))

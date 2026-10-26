@@ -127,7 +127,7 @@ public class AdminProductController {
         try {
             productService.deleteProduct(id);
             redirectAttributes.addFlashAttribute("successMessage", "Xóa sản phẩm mỹ phẩm thành công!");
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | IllegalStateException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Không thể xóa sản phẩm vào lúc này. Vui lòng thử lại sau!");

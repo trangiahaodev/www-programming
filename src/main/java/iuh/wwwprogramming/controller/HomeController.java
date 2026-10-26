@@ -24,7 +24,7 @@ public class HomeController {
     private final iuh.wwwprogramming.service.HomeContentService homeContentService;
 
     // =========================================================================
-    // 1. LUỒNG CUSTOMER (Khách hàng truy cập trang chủ)
+    // LUỒNG CUSTOMER (Khách hàng truy cập trang chủ)
     // =========================================================================
     @GetMapping({"/", "/trang-chu"})
     public String home(
@@ -95,13 +95,5 @@ public class HomeController {
         model.addAttribute("activeMenu", "home");
 
         return "customer/home";
-    }
-
-    // =========================================================================
-    // 2. LUỒNG ADMIN (Chuyển hướng vào trang quản lý đơn hàng mặc định)
-    // =========================================================================
-    @GetMapping({"/admin"}) // ĐÃ XÓA đường dẫn "/" ở đây để tránh conflict
-    public String rootRedirect() {
-        return "redirect:/admin/orders";
     }
 }
