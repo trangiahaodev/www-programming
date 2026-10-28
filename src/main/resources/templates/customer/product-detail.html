@@ -7,7 +7,11 @@
 </head>
 <body>
     <main>
-        <div class="container pd-wrapper">
+        <div class="container pd-wrapper"
+             id="productDetailWrapper"
+             th:data-product-id="${product.id}"
+             th:data-product-name="${product.name}"
+             th:data-product-category="${product.categoryName}">
 
             <!-- Breadcrumbs Bar -->
             <div class="pd-breadcrumbs-bar">
@@ -999,6 +1003,101 @@
                 if (imageCard) ro.observe(imageCard);
             }
             setTimeout(syncReviewsCardHeight, 250);
+
+            // Dwell Time Tracking (Đo thời gian khách dừng lại xem trang chi tiết sản phẩm bằng giây)
+            (function initProductDwellTimeTracker() {
+                const wrapper = document.getElementById('productDetailWrapper');
+                const productId = (wrapper && wrapper.getAttribute('data-product-id')) || window.location.pathname.split('/').pop() || '';
+                const productName = (wrapper && wrapper.getAttribute('data-product-name'))
+                    || (document.querySelector('.pd-title') ? document.querySelector('.pd-title').textContent.trim() : '');
+
+                const enterTimestamp = Date.now();
+                let lastReportedSeconds = 0;
+                let hasSentFinalBeacon = false;
+
+                function getElapsedSeconds() {
+                    return Math.max(1, Math.round((Date.now() - enterTimestamp) / 1000));
+                }
+
+                function recordSessionDwellDelta(deltaSeconds) {
+                    if (deltaSeconds <= 0 || !window.PinkyTracker) return;
+                    const state = window.PinkyTracker.getSessionData();
+                    state.totalDwellSeconds = (state.totalDwellSeconds || 0) + deltaSeconds;
+                    if (productId) state.lastProductId = productId;
+                    if (productName) {
+                        state.lastProductName = productName;
+                        if (!state.viewedProducts.includes(productName)) {
+                            state.viewedProducts.unshift(productName);
+                            if (state.viewedProducts.length > 8) state.viewedProducts.pop();
+                        }
+                    }
+                    window.PinkyTracker.saveSessionData(state);
+                }
+
+                function sendDwellTimeReport(isFinalUnload = false) {
+                    const currentSeconds = getElapsedSeconds();
+                    const deltaSeconds = currentSeconds - lastReportedSeconds;
+                    if (deltaSeconds <= 0) return;
+
+                    lastReportedSeconds = currentSeconds;
+                    recordSessionDwellDelta(deltaSeconds);
+
+                    const payload = {
+                        eventType: 'DWELL_TIME',
+                        action: 'VIEW_PRODUCT_DETAIL',
+                        productId: productId,
+                        productName: productName,
+                        dwellTime: currentSeconds,
+                        dwellTimeSeconds: currentSeconds,
+                        durationSeconds: currentSeconds,
+                        deltaSeconds: deltaSeconds
+                    };
+
+                    if (isFinalUnload && navigator.sendBeacon) {
+                        try {
+                            const blob = new Blob([JSON.stringify({
+                                ...payload,
+                                pageUrl: window.location.pathname,
+                                timestamp: new Date().toISOString()
+                            })], { type: 'application/json' });
+                            navigator.sendBeacon('/api/tracking/event', blob);
+                            return;
+                        } catch (e) {
+                            // Fallback to PinkyTracker.sendEvent
+                        }
+                    }
+
+                    if (window.PinkyTracker) {
+                        window.PinkyTracker.sendEvent(payload, isFinalUnload);
+                    }
+                }
+
+                // 1. Dùng setTimeout ghi nhận mốc thời gian khách dừng lại đọc thông tin sản phẩm (5s, 15s, 30s)
+                setTimeout(() => sendDwellTimeReport(false), 5000);
+                setTimeout(() => sendDwellTimeReport(false), 15000);
+                setTimeout(() => sendDwellTimeReport(false), 30000);
+
+                // 2. Dùng navigator.sendBeacon khi khách rời trang hoặc chuyển tab để chốt tổng thời gian xem (giây)
+                document.addEventListener('visibilitychange', () => {
+                    if (document.visibilityState === 'hidden') {
+                        sendDwellTimeReport(true);
+                    }
+                });
+
+                window.addEventListener('pagehide', () => {
+                    if (!hasSentFinalBeacon) {
+                        hasSentFinalBeacon = true;
+                        sendDwellTimeReport(true);
+                    }
+                });
+
+                window.addEventListener('beforeunload', () => {
+                    if (!hasSentFinalBeacon) {
+                        hasSentFinalBeacon = true;
+                        sendDwellTimeReport(true);
+                    }
+                });
+            })();
         </script>
 
         <!-- Comparison Modal Dialog -->

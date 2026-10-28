@@ -233,6 +233,132 @@
             window.showToast('Thông báo', errorEl.getAttribute('data-msg'), 'error');
         }
     });
+
+    // 5. UI Tracking System (Product Card Clicks & Product Detail Dwell Time)
+    (function initPinkyUiTracking() {
+        const TRACKING_STORAGE_KEY = 'pinky_ui_tracking_session';
+        const TRACKING_ENDPOINT = '/api/tracking/event';
+
+        function getSessionTrackingData() {
+            try {
+                const raw = sessionStorage.getItem(TRACKING_STORAGE_KEY);
+                if (raw) {
+                    return JSON.parse(raw);
+                }
+            } catch (e) {
+                console.warn('Không thể đọc sessionStorage tracking:', e);
+            }
+            return {
+                clickCount: 0,
+                totalDwellSeconds: 0,
+                viewedProducts: [],
+                lastProductName: '',
+                lastProductId: ''
+            };
+        }
+
+        function saveSessionTrackingData(data) {
+            try {
+                sessionStorage.setItem(TRACKING_STORAGE_KEY, JSON.stringify(data));
+                window.dispatchEvent(new CustomEvent('pinky:tracking-updated', { detail: data }));
+            } catch (e) {
+                console.warn('Không thể lưu sessionStorage tracking:', e);
+            }
+        }
+
+        function sendTrackingEvent(payload, preferBeacon = false) {
+            const bodyStr = JSON.stringify({
+                ...payload,
+                pageUrl: window.location.pathname,
+                timestamp: new Date().toISOString()
+            });
+
+            if (preferBeacon && navigator.sendBeacon) {
+                try {
+                    const blob = new Blob([bodyStr], { type: 'application/json' });
+                    const queued = navigator.sendBeacon(TRACKING_ENDPOINT, blob);
+                    if (queued) return;
+                } catch (e) {
+                    // Fallback to fetch keepalive below
+                }
+            }
+
+            fetch(TRACKING_ENDPOINT, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: bodyStr,
+                keepalive: true
+            }).catch(() => {
+                // Silent catch so UI never breaks even if backend endpoint is offline
+            });
+        }
+
+        function extractProductInfoFromCard(cardEl, linkEl) {
+            let productId = cardEl.getAttribute('data-product-id') || (linkEl && linkEl.getAttribute('data-product-id')) || '';
+            const href = (linkEl && linkEl.getAttribute('href')) || cardEl.getAttribute('href') || '';
+            if (!productId && href) {
+                const match = href.match(/\/san-pham\/([^/?#]+)/);
+                if (match && match[1]) {
+                    productId = decodeURIComponent(match[1]);
+                }
+            }
+
+            const nameEl = cardEl.querySelector('.pc-name, .featured-showcase-title, .news-linked-name, h3, h4');
+            const imgEl = cardEl.querySelector('img[alt]');
+            const productName = (nameEl && nameEl.textContent ? nameEl.textContent.trim() : '')
+                || (imgEl && imgEl.getAttribute('alt') ? imgEl.getAttribute('alt').trim() : '')
+                || productId;
+
+            return { productId, productName };
+        }
+
+        // Lắng nghe sự kiện Click vào bất kỳ Product Card nào trên toàn hệ thống
+        document.addEventListener('click', (e) => {
+            const cardEl = e.target.closest('.pc, .featured-showcase-card, .news-linked-item, [data-product-card]');
+            if (!cardEl) return;
+
+            // Bỏ qua nếu khách chỉ bấm nút tăng/giảm số lượng trong form
+            if (e.target.closest('input[type="number"]')) return;
+
+            const linkEl = e.target.closest('a[href*="/san-pham/"]') || cardEl.querySelector('a[href*="/san-pham/"]') || (cardEl.tagName === 'A' ? cardEl : null);
+            const { productId, productName } = extractProductInfoFromCard(cardEl, linkEl);
+            if (!productId && !productName) return;
+
+            const state = getSessionTrackingData();
+            state.clickCount = (state.clickCount || 0) + 1;
+            if (productId) state.lastProductId = productId;
+            if (productName) {
+                state.lastProductName = productName;
+                if (!state.viewedProducts.includes(productName)) {
+                    state.viewedProducts.unshift(productName);
+                    if (state.viewedProducts.length > 8) state.viewedProducts.pop();
+                }
+            }
+            saveSessionTrackingData(state);
+
+            // Gửi request ngầm đếm số lần click vào Product Card
+            sendTrackingEvent({
+                eventType: 'PRODUCT_CLICK',
+                action: 'CLICK_PRODUCT',
+                productId: productId,
+                productName: productName,
+                clickCount: state.clickCount,
+                dwellTime: 0,
+                dwellTimeSeconds: 0,
+                durationSeconds: 0
+            }, true);
+        }, true);
+
+        // Expose API cho trang product-detail.html và home.html sử dụng
+        window.PinkyTracker = {
+            getSessionData: getSessionTrackingData,
+            saveSessionData: saveSessionTrackingData,
+            sendEvent: sendTrackingEvent
+        };
+    })();
 </script>
 </body>
 </html>

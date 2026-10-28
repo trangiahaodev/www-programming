@@ -534,6 +534,100 @@
             <span id="customToastMsg">Thông báo</span>
         </div>
 
+        <!-- FLOATING AI CHATBOT & BACK-TO-TOP DOCK -->
+        <div class="pinky-floating-dock" id="pinkyFloatingDock">
+            <!-- Nút cuộn lên đầu trang -->
+            <button type="button"
+                    class="pinky-float-top-btn"
+                    id="btnBackToTop"
+                    onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"
+                    aria-label="Quay lại đầu trang"
+                    title="Quay lại đầu trang">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="18 15 12 9 6 15"></polyline>
+                </svg>
+            </button>
+
+            <!-- Nút mở hộp thoại Trợ lý AI trôi nổi nhỏ gọn -->
+            <button type="button"
+                    class="pinky-float-chat-btn"
+                    id="btnFloatingAiChat"
+                    onclick="togglePinkyAiChatDialog()"
+                    aria-expanded="false"
+                    aria-controls="pinkyAiChatDialog"
+                    title="Chat bot tư vấn PinkyCloud">
+                <span class="pinky-float-chat-pulse"></span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                </svg>
+                <span class="pinky-float-chat-label">Chat bot</span>
+            </button>
+        </div>
+
+        <!-- HỘP THOẠI CHAT VỚI AI (CHUẨN NEO-BRUTALISM VIỀN 1PX SOLID - TÔNG HỒNG TỰ NHIÊN) -->
+        <section class="pinky-ai-chat-dialog"
+                 id="pinkyAiChatDialog"
+                 aria-label="Hộp thoại Trợ lý AI PinkyCloud"
+                 aria-hidden="true">
+            <!-- Header hộp thoại -->
+            <div class="pinky-ai-chat-header">
+                <div class="pinky-ai-chat-header-info">
+                    <div class="pinky-ai-chat-avatar" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z"></path>
+                            <path d="M17 4a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2"></path>
+                        </svg>
+                        <span class="pinky-ai-online-dot"></span>
+                    </div>
+                    <div class="pinky-ai-chat-title-wrap">
+                        <div class="pinky-ai-chat-name">Trợ lý AI PinkyCloud</div>
+                        <div class="pinky-ai-chat-status">Trợ lý AI PinkyCloud đang phân tích hành vi phiên làm việc của bạn...</div>
+                    </div>
+                </div>
+                <button type="button"
+                        class="pinky-ai-chat-close"
+                        onclick="togglePinkyAiChatDialog(false)"
+                        aria-label="Đóng hộp thoại chat">&times;</button>
+            </div>
+
+            <!-- Danh sách tin nhắn -->
+            <div class="pinky-ai-chat-messages" id="aiChatMessages" role="log" aria-live="polite">
+                <!-- Tin nhắn chào mừng ban đầu được khởi tạo tự động bằng JS -->
+            </div>
+
+            <!-- Các câu gợi ý chat nhanh -->
+            <div class="pinky-ai-quick-prompts" id="aiQuickPrompts">
+                <button type="button" class="pinky-ai-prompt-chip pinky-ai-prompt-chip--primary" id="btnAskAiQuick" onclick="triggerAiQuickPrompt('analyze')">
+                    Phân tích hành vi &amp; Hỏi AI tư vấn nhanh
+                </button>
+                <button type="button" class="pinky-ai-prompt-chip" onclick="triggerAiQuickPrompt('oily-skin')">
+                    Chu trình cho da dầu mụn / nhạy cảm
+                </button>
+                <button type="button" class="pinky-ai-prompt-chip" onclick="triggerAiQuickPrompt('sunscreen')">
+                    Gợi ý kem chống nắng lành tính
+                </button>
+                <button type="button" class="pinky-ai-prompt-chip" onclick="triggerAiQuickPrompt('vouchers')">
+                    Mã giảm giá Hotdeal hôm nay
+                </button>
+            </div>
+
+            <!-- Ô nhập tin nhắn -->
+            <form class="pinky-ai-chat-input-bar" id="aiChatForm" onsubmit="handleAiChatSubmit(event)">
+                <input type="text"
+                       id="aiChatInput"
+                       class="pinky-ai-chat-input"
+                       placeholder="Nhập câu hỏi về làn da hoặc sản phẩm..."
+                       autocomplete="off"
+                       aria-label="Nhập tin nhắn chat với AI">
+                <button type="submit" class="pinky-ai-chat-send-btn" aria-label="Gửi tin nhắn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </form>
+        </section>
+
         <!-- CUSTOM INTERACTIVE JAVASCRIPT (INSIDE MAIN SO THYMELEAF INCLUDES IT) -->
         <script th:inline="javascript">
             // Trạng thái kiểm thử / hồ sơ khách hàng hiện tại
@@ -990,6 +1084,317 @@
                     if (e.target === brandModal) closeBrandModal();
                 });
             }
+
+            // 8. Floating AI Chatbot & Back-to-Top Dock Logic
+            let hasInitializedAiChat = false;
+
+            function isCustomerLoggedIn() {
+                return Boolean(document.querySelector('.account-nav form[action*="/logout"]'));
+            }
+
+            function getCustomerDisplayName() {
+                const nameSpan = document.querySelector('.account-nav span');
+                return (nameSpan && nameSpan.textContent && nameSpan.textContent.trim()) ? nameSpan.textContent.trim() : '';
+            }
+
+            function appendChatMessage(sender, htmlContent) {
+                const container = document.getElementById('aiChatMessages');
+                if (!container) return null;
+
+                const msgRow = document.createElement('div');
+                msgRow.className = `pinky-chat-msg pinky-chat-msg--${sender}`;
+
+                const bubble = document.createElement('div');
+                bubble.className = 'pinky-chat-bubble';
+                bubble.innerHTML = htmlContent;
+
+                msgRow.appendChild(bubble);
+                container.appendChild(msgRow);
+                container.scrollTop = container.scrollHeight;
+                return bubble;
+            }
+
+            function renderAnalysisPillsHtml(state) {
+                const clicks = state.clickCount || 0;
+                const dwell = state.totalDwellSeconds || 0;
+                const lastProd = state.lastProductName
+                    ? (state.lastProductName.length > 28 ? state.lastProductName.substring(0, 28) + '...' : state.lastProductName)
+                    : '';
+
+                return `
+                    <div class="ai-neo-top-meta" style="margin-bottom: 10px;">
+                        <span class="ai-neo-tag">
+                            <span class="ai-neo-pulse-dot"></span>
+                            Gợi ý chu trình riêng cho bạn
+                        </span>
+                        <span class="ai-neo-stat-chip">
+                            Đã xem: <strong>${clicks}</strong> sản phẩm
+                        </span>
+                        <span class="ai-neo-stat-chip">
+                            Thời gian dừng: <strong>${dwell}s</strong>
+                        </span>
+                        ${lastProd ? `<span class="ai-neo-stat-chip ai-neo-stat-chip--product">Quan tâm: <strong>${lastProd}</strong></span>` : ''}
+                    </div>
+                `;
+            }
+
+            function renderGuestLoginNudgeHtml() {
+                return `
+                    <div class="pinky-chat-login-nudge">
+                        <div class="pinky-chat-login-nudge-text">
+                            Bạn đang trải nghiệm chế độ <strong>Khách vãng lai</strong> (chỉ hỗ trợ phân tích cơ bản trong phiên tạm thời). Hãy <strong>Đăng nhập</strong> để AI lưu hồ sơ làn da, tư vấn chuyên sâu 1-1 không giới hạn và mở khóa mã ưu đãi thành viên nhé!
+                        </div>
+                        <div class="pinky-chat-login-actions">
+                            <a href="/login" class="pinky-chat-login-btn">Đăng nhập ngay</a>
+                            <a href="/register" class="pinky-chat-register-btn">Đăng ký tài khoản</a>
+                        </div>
+                    </div>
+                `;
+            }
+
+            function initAiChatWelcome() {
+                if (hasInitializedAiChat) return;
+                hasInitializedAiChat = true;
+
+                const loggedIn = isCustomerLoggedIn();
+                const userName = getCustomerDisplayName();
+
+                if (loggedIn) {
+                    appendChatMessage('bot', `
+                        Xin chào <strong>${userName || 'bạn'}</strong>! Mình là Trợ lý PinkyCloud.<br>
+                        Bạn có thể chọn các câu gợi ý bên dưới để mình <strong>phân tích hành vi phiên làm việc</strong> hoặc tư vấn chu trình chăm sóc da phù hợp nhất nhé!
+                    `);
+                } else {
+                    appendChatMessage('bot', `
+                        Xin chào! Mình là Trợ lý PinkyCloud.<br>
+                        Chọn ngay gợi ý <strong>"Phân tích hành vi..."</strong> bên dưới để xem tổng hợp nhanh phiên dạo shop của bạn, hoặc <strong>Đăng nhập</strong> để mở khóa tư vấn chuyên sâu 1-1 nhé!
+                    `);
+                }
+            }
+
+            function togglePinkyAiChatDialog(forceOpen) {
+                const dialog = document.getElementById('pinkyAiChatDialog');
+                const btn = document.getElementById('btnFloatingAiChat');
+                if (!dialog) return;
+
+                const shouldOpen = (typeof forceOpen === 'boolean') ? forceOpen : !dialog.classList.contains('is-open');
+                if (shouldOpen) {
+                    initAiChatWelcome();
+                    dialog.classList.add('is-open');
+                    dialog.setAttribute('aria-hidden', 'false');
+                    if (btn) btn.setAttribute('aria-expanded', 'true');
+                    setTimeout(() => {
+                        const input = document.getElementById('aiChatInput');
+                        if (input) input.focus();
+                    }, 150);
+                } else {
+                    dialog.classList.remove('is-open');
+                    dialog.setAttribute('aria-hidden', 'true');
+                    if (btn) btn.setAttribute('aria-expanded', 'false');
+                }
+            }
+
+            function buildSessionAnalysisResponse(state, loggedIn, backendAdviceText) {
+                const clicks = state.clickCount || 0;
+                const dwell = state.totalDwellSeconds || 0;
+                const viewed = Array.isArray(state.viewedProducts) ? state.viewedProducts : [];
+                const cartBadge = document.getElementById('headerCartBadge');
+                const cartCount = cartBadge ? (parseInt(cartBadge.textContent) || 0) : 0;
+                const pillsHtml = renderAnalysisPillsHtml(state);
+
+                if (backendAdviceText) {
+                    return pillsHtml + `<div>${backendAdviceText}</div>` + (!loggedIn ? renderGuestLoginNudgeHtml() : '');
+                }
+
+                const focusProduct = state.lastProductName || (viewed.length > 0 ? viewed[0] : 'các dòng mỹ phẩm chính hãng');
+
+                if (!loggedIn) {
+                    // Chế độ chưa đăng nhập: Phân tích cơ bản + gợi ý đăng nhập
+                    const basicSummary = (clicks === 0 && dwell === 0)
+                        ? `Hệ thống ghi nhận bạn vừa bắt đầu phiên xem (<strong>0 sản phẩm đã xem</strong>, <strong>0s dừng trang</strong>). Bạn có thể click vào vài sản phẩm bất kỳ để mình đo mức độ quan tâm nhé.`
+                        : `Phân tích cơ bản phiên hiện tại: Bạn đã xem <strong>${clicks} sản phẩm</strong> với tổng thời gian dừng nghiên cứu là <strong>${dwell} giây</strong>${state.lastProductName ? `, nổi bật là <strong>${focusProduct}</strong>` : ''}.`;
+
+                    return pillsHtml
+                        + `<div>${basicSummary}</div>`
+                        + renderGuestLoginNudgeHtml();
+                }
+
+                // Chế độ đã đăng nhập: Tư vấn đầy đủ, chi tiết
+                if (clicks === 0 && dwell === 0 && cartCount === 0) {
+                    return pillsHtml
+                        + `<div><strong>Tóm tắt phiên hiện tại:</strong> Bạn vừa bắt đầu phiên khám phá tại PinkyCloud.<br>`
+                        + `<strong>Gợi ý chu trình:</strong> Hãy nhấn vào một số sản phẩm bạn quan tâm để mình phân tích sâu hơn về bảng thành phần. Với làn da cần bảo vệ và cấp ẩm hằng ngày, bộ đôi <strong>Sữa chống nắng Anessa</strong> và <strong>Tinh chất Skin1004</strong> đang có ưu đãi rất tốt!</div>`;
+                }
+
+                const engagementLevel = dwell >= 20 ? 'nghiên cứu rất kỹ bảng thành phần và công dụng' : (clicks >= 3 ? 'đang so sánh nhiều dòng sản phẩm khác nhau' : 'đang tìm kiếm nhanh sản phẩm phù hợp');
+
+                return pillsHtml
+                    + `<div><strong>Phân tích hành vi phiên làm việc:</strong> Bạn đã tương tác <strong>${clicks} lần click</strong> vào thẻ sản phẩm, dành <strong>${dwell} giây</strong> dừng lại xem chi tiết và có <strong>${cartCount} sản phẩm</strong> trong giỏ hàng.<br>`
+                    + `<strong>Nhận định:</strong> Bạn ${engagementLevel}, đặc biệt chú ý tới <strong>${focusProduct}</strong>.<br>`
+                    + `<strong>Phác đồ gợi ý:</strong> Kết hợp <strong>${focusProduct}</strong> cùng sữa rửa mặt độ pH 5.5 và kem chống nắng phổ rộng mỗi sáng. Đừng quên áp mã <strong>PINKY15</strong> ở mục Hotdeal khi thanh toán nhé!</div>`;
+            }
+
+            async function handleAnalyzeBehaviorAction() {
+                const state = window.PinkyTracker ? window.PinkyTracker.getSessionData() : { clickCount: 0, totalDwellSeconds: 0, viewedProducts: [] };
+                const loggedIn = isCustomerLoggedIn();
+
+                if (window.PinkyTracker) {
+                    window.PinkyTracker.sendEvent({
+                        eventType: 'ASK_AI_CONSULT',
+                        action: 'ASK_AI_CONSULT',
+                        clickCount: state.clickCount || 0,
+                        dwellTime: state.totalDwellSeconds || 0,
+                        dwellTimeSeconds: state.totalDwellSeconds || 0
+                    }, false);
+                }
+
+                const loadingBubble = appendChatMessage('bot', '<span class="ai-neo-loading">Đang phân tích dữ liệu phiên làm việc của bạn...</span>');
+
+                const candidateEndpoints = ['/api/tracking/ai-advice', '/api/tracking/consult', '/api/ai/consult', '/api/tracking/analyze'];
+                let adviceText = null;
+
+                for (const endpoint of candidateEndpoints) {
+                    try {
+                        const res = await fetch(endpoint, {
+                            method: 'GET',
+                            headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                            redirect: 'manual'
+                        });
+                        if (res.ok && !res.redirected && res.status === 200) {
+                            const contentType = (res.headers.get('content-type') || '').toLowerCase();
+                            if (contentType.includes('text/html')) continue;
+                            if (contentType.includes('application/json')) {
+                                const data = await res.json();
+                                adviceText = data.advice || data.message || data.recommendation || data.result || data.content || null;
+                            } else if (contentType.includes('text/plain')) {
+                                const txt = await res.text();
+                                if (txt && !txt.includes('<html') && !txt.includes('<!DOCTYPE')) {
+                                    adviceText = txt;
+                                }
+                            }
+                            if (adviceText) break;
+                        }
+                    } catch (err) {
+                        // Fallback sang dữ liệu phiên phía client
+                    }
+                }
+
+                const finalHtml = buildSessionAnalysisResponse(state, loggedIn, adviceText);
+                if (loadingBubble) {
+                    loadingBubble.innerHTML = finalHtml;
+                } else {
+                    appendChatMessage('bot', finalHtml);
+                }
+                const container = document.getElementById('aiChatMessages');
+                if (container) container.scrollTop = container.scrollHeight;
+            }
+
+            function triggerAiQuickPrompt(type) {
+                initAiChatWelcome();
+                const loggedIn = isCustomerLoggedIn();
+
+                if (type === 'analyze') {
+                    appendChatMessage('user', 'Phân tích hành vi phiên làm việc & tư vấn cho tôi');
+                    handleAnalyzeBehaviorAction();
+                    return;
+                }
+
+                if (type === 'oily-skin') {
+                    appendChatMessage('user', 'Tư vấn chu trình cho da dầu mụn / nhạy cảm');
+                    if (!loggedIn) {
+                        appendChatMessage('bot', `
+                            <div><strong>Gợi ý cơ bản:</strong> Da dầu mụn nhạy cảm nên ưu tiên làm sạch dịu nhẹ (CeraVe / Cetaphil), phục hồi với chiết xuất rau má (Skin1004) hoặc B5 (La Roche-Posay).</div>
+                            ${renderGuestLoginNudgeHtml()}
+                        `);
+                    } else {
+                        appendChatMessage('bot', `
+                            <div><strong>Chu trình chuẩn 4 bước cho da dầu mụn nhạy cảm:</strong><br>
+                            1. <strong>Làm sạch:</strong> Nước tẩy trang Bioderma hồng + Sữa rửa mặt CeraVe Foaming.<br>
+                            2. <strong>Làm dịu & giảm viêm:</strong> Tinh chất rau má Skin1004 Madagascar Centella.<br>
+                            3. <strong>Phục hồi:</strong> Kem dưỡng La Roche-Posay Cicaplast Baume B5+.<br>
+                            4. <strong>Bảo vệ ban ngày:</strong> Kem chống nắng Anessa Mild Milk cho da nhạy cảm.</div>
+                        `);
+                    }
+                    return;
+                }
+
+                if (type === 'sunscreen') {
+                    appendChatMessage('user', 'Gợi ý kem chống nắng lành tính bán chạy');
+                    if (!loggedIn) {
+                        appendChatMessage('bot', `
+                            <div><strong>Gợi ý cơ bản:</strong> Hiện tại <strong>Anessa Perfect UV Mild Milk</strong> và <strong>La Roche-Posay Anthelios</strong> là 2 dòng chống nắng lành tính được xem nhiều nhất tại shop.</div>
+                            ${renderGuestLoginNudgeHtml()}
+                        `);
+                    } else {
+                        appendChatMessage('bot', `
+                            <div><strong>Top kem chống nắng lành tính tại PinkyCloud:</strong><br>
+                            • <strong>Da nhạy cảm / Trẻ em:</strong> Sữa chống nắng Anessa Mild Milk SPF50+ PA++++ (không cồn, không hương liệu).<br>
+                            • <strong>Da dầu mụn:</strong> La Roche-Posay Anthelios Invisible Fluid kiềm dầu thoáng nhẹ.<br>
+                            • <strong>Nâng tông tự nhiên:</strong> Skin1004 Centella Air-Fit Suncream Plus.</div>
+                        `);
+                    }
+                    return;
+                }
+
+                if (type === 'vouchers') {
+                    appendChatMessage('user', 'Hôm nay có mã giảm giá Hotdeal nào?');
+                    if (!loggedIn) {
+                        appendChatMessage('bot', `
+                            <div><strong>Ưu đãi hiện có:</strong> Đơn hàng từ 299.000₫ được miễn phí vận chuyển toàn quốc. Các mã giảm sâu như <strong>PINKYNEW</strong>, <strong>PINKY15</strong> và <strong>VIPBEAUTY</strong> yêu cầu tài khoản thành viên khi áp dụng thanh toán.</div>
+                            ${renderGuestLoginNudgeHtml()}
+                        `);
+                    } else {
+                        appendChatMessage('bot', `
+                            <div><strong>Mã giảm giá dành cho tài khoản của bạn:</strong><br>
+                            • <strong>PINKYNEW:</strong> Ưu đãi đặc biệt cho đơn hàng đầu tiên.<br>
+                            • <strong>PINKY15:</strong> Giảm 15% cho đơn từ 499.000₫.<br>
+                            • <strong>WEEKEND / VIPBEAUTY:</strong> Ưu đãi cuối tuần & khách hàng thân thiết (bạn có thể bấm nút <em>Hotdeal Ưu Đãi</em> trên Banner để sao chép nhanh).</div>
+                        `);
+                    }
+                }
+            }
+
+            function handleAiChatSubmit(e) {
+                e.preventDefault();
+                const input = document.getElementById('aiChatInput');
+                if (!input || !input.value.trim()) return;
+
+                const text = input.value.trim();
+                input.value = '';
+                initAiChatWelcome();
+                appendChatMessage('user', text);
+
+                const lower = text.toLowerCase();
+                if (lower.includes('phân tích') || lower.includes('hành vi') || lower.includes('dwell') || lower.includes('đã xem')) {
+                    handleAnalyzeBehaviorAction();
+                    return;
+                }
+
+                const loggedIn = isCustomerLoggedIn();
+                if (!loggedIn) {
+                    appendChatMessage('bot', `
+                        <div>Cảm ơn câu hỏi của bạn về <em>"${text}"</em>! Ở chế độ khách vãng lai, mình khuyến nghị bạn chọn sản phẩm chính hãng có nhãn <strong>Chính hãng 100%</strong> phù hợp từng phân loại da.</div>
+                        ${renderGuestLoginNudgeHtml()}
+                    `);
+                } else {
+                    const state = window.PinkyTracker ? window.PinkyTracker.getSessionData() : {};
+                    const focus = state.lastProductName ? ` (đặc biệt khi kết hợp cùng <strong>${state.lastProductName}</strong> mà bạn vừa xem)` : '';
+                    appendChatMessage('bot', `
+                        <div>Với nhu cầu <em>"${text}"</em> của bạn${focus}, chuyên viên AI PinkyCloud gợi ý bạn ưu tiên các dòng có chứa <strong>Hyaluronic Acid, Niacinamide hoặc B5</strong> để vừa cấp ẩm vừa củng cố hàng rào bảo vệ da. Bạn có thể bấm nút <strong>"Phân tích hành vi &amp; Hỏi AI tư vấn nhanh"</strong> bên dưới để mình đối chiếu trực tiếp với các sản phẩm bạn đã xem nhé!</div>
+                    `);
+                }
+            }
+
+            // Hiển thị nút Back-to-Top khi cuộn trang xuống
+            window.addEventListener('scroll', () => {
+                const topBtn = document.getElementById('btnBackToTop');
+                if (!topBtn) return;
+                if (window.scrollY > 320) {
+                    topBtn.classList.add('is-visible');
+                } else {
+                    topBtn.classList.remove('is-visible');
+                }
+            }, { passive: true });
         </script>
     </main>
 </body>

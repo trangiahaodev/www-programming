@@ -5183,3 +5183,513 @@ img {
   }
 }
 
+/* ==========================================================================
+   FLOATING AI CHATBOT & BACK-TO-TOP DOCK (NATURAL PINKYCLOUD 1PX SOLID)
+   ========================================================================== */
+.pinky-floating-dock {
+  position: fixed;
+  bottom: 22px;
+  right: 22px;
+  z-index: 9990;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.pinky-float-top-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(247, 108, 133, 0.25);
+  color: #c93b63;
+  box-shadow: 0 6px 16px rgba(130, 50, 70, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: all 0.25s ease;
+}
+
+.pinky-float-top-btn.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.pinky-float-top-btn:hover {
+  background: #fff0f4;
+  border-color: #e24f76;
+  transform: translateY(-2px);
+}
+
+.pinky-float-chat-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: linear-gradient(135deg, #f76c85 0%, #e24f76 100%);
+  color: #ffffff;
+  font-family: var(--pl-font-sans);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  padding: 9px 15px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+  box-shadow: 0 8px 22px rgba(226, 79, 118, 0.32);
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.pinky-float-chat-btn:hover {
+  background: linear-gradient(135deg, #ff7a92 0%, #d93d66 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 26px rgba(226, 79, 118, 0.4);
+}
+
+.pinky-float-chat-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 6px 14px rgba(226, 79, 118, 0.26);
+}
+
+.pinky-float-chat-pulse {
+  position: absolute;
+  top: -2px;
+  right: -1px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #2ed573;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 0 0 rgba(46, 213, 115, 0.7);
+  animation: aiNeoPulse 2s infinite;
+}
+
+/* Hộp thoại Chat AI trôi nổi (Chuẩn viền 1px solid + khung kính mờ tự nhiên của PinkyCloud) */
+.pinky-ai-chat-dialog {
+  position: fixed;
+  bottom: 72px;
+  right: 22px;
+  width: 370px;
+  max-width: calc(100vw - 32px);
+  max-height: min(540px, calc(100vh - 104px));
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid rgba(247, 108, 133, 0.24);
+  border-radius: 22px;
+  box-shadow:
+    0 20px 50px rgba(130, 50, 70, 0.18),
+    0 4px 14px rgba(130, 50, 70, 0.06);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 9995;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(12px) scale(0.97);
+  transform-origin: bottom right;
+  transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pinky-ai-chat-dialog.is-open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+.pinky-ai-chat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 13px 16px;
+  background: linear-gradient(180deg, #fff5f8 0%, #ffffff 100%);
+  border-bottom: 1px solid rgba(247, 108, 133, 0.14);
+}
+
+.pinky-ai-chat-header-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.pinky-ai-chat-avatar {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fff0f4 0%, #ffe3ec 100%);
+  border: 1px solid rgba(247, 108, 133, 0.25);
+  color: #e24f76;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pinky-ai-online-dot {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #2ed573;
+  border: 1.5px solid #ffffff;
+}
+
+.pinky-ai-chat-title-wrap {
+  min-width: 0;
+}
+
+.pinky-ai-chat-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #2f232c;
+  line-height: 1.25;
+}
+
+.pinky-ai-chat-status {
+  font-size: 0.71rem;
+  color: #8f6b79;
+  font-weight: 500;
+  line-height: 1.3;
+  margin-top: 1px;
+}
+
+.pinky-ai-chat-close {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1px solid transparent;
+  color: #9e6b7e;
+  font-size: 1.2rem;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.pinky-ai-chat-close:hover {
+  background: #fff0f4;
+  color: #d93d66;
+}
+
+.pinky-ai-chat-messages {
+  flex: 1;
+  padding: 14px 15px 10px 15px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 280px;
+  background: #ffffff;
+}
+
+.pinky-ai-chat-messages::-webkit-scrollbar {
+  width: 5px;
+}
+
+.pinky-ai-chat-messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.pinky-ai-chat-messages::-webkit-scrollbar-thumb {
+  background: rgba(242, 184, 198, 0.65);
+  border-radius: 999px;
+}
+
+.pinky-ai-chat-messages::-webkit-scrollbar-thumb:hover {
+  background: rgba(226, 79, 118, 0.55);
+}
+
+.pinky-chat-msg {
+  display: flex;
+  width: 100%;
+}
+
+.pinky-chat-msg--bot {
+  justify-content: flex-start;
+}
+
+.pinky-chat-msg--user {
+  justify-content: flex-end;
+}
+
+.pinky-chat-bubble {
+  max-width: 90%;
+  padding: 10px 13px;
+  border-radius: 16px;
+  font-size: 0.82rem;
+  line-height: 1.52;
+  word-wrap: break-word;
+}
+
+.pinky-chat-msg--bot .pinky-chat-bubble {
+  background: #fdf7f9;
+  color: #46323c;
+  border: 1px solid rgba(247, 108, 133, 0.16);
+  border-bottom-left-radius: 5px;
+}
+
+.pinky-chat-msg--user .pinky-chat-bubble {
+  background: linear-gradient(135deg, #f76c85 0%, #e24f76 100%);
+  color: #ffffff;
+  font-weight: 600;
+  border: 1px solid rgba(209, 61, 100, 0.3);
+  border-bottom-right-radius: 5px;
+  box-shadow: 0 3px 10px rgba(226, 79, 118, 0.16);
+}
+
+/* Các thẻ pill phân tích hiển thị bên trong tin nhắn AI khi bấm Phân tích */
+.ai-neo-top-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 8px;
+}
+
+.ai-neo-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #fff0f4;
+  color: #c93b63;
+  font-size: 0.71rem;
+  font-weight: 700;
+  padding: 3px 9px;
+  border: 1px solid rgba(247, 108, 133, 0.25);
+  border-radius: 999px;
+}
+
+.ai-neo-pulse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #e24f76;
+  box-shadow: 0 0 0 0 rgba(226, 79, 118, 0.55);
+  animation: aiNeoPulse 2s infinite;
+}
+
+@keyframes aiNeoPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(226, 79, 118, 0.55);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(226, 79, 118, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(226, 79, 118, 0);
+  }
+}
+
+.ai-neo-stat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #ffffff;
+  color: #6f5c65;
+  font-size: 0.71rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border: 1px solid rgba(247, 108, 133, 0.18);
+  border-radius: 999px;
+}
+
+.ai-neo-stat-chip strong {
+  color: #d63c66;
+  font-weight: 700;
+}
+
+.ai-neo-stat-chip--product {
+  background: #fff5f8;
+  border-color: rgba(247, 108, 133, 0.24);
+}
+
+/* Khung gợi ý đăng nhập cho khách chưa đăng nhập */
+.pinky-chat-login-nudge {
+  margin-top: 9px;
+  padding: 10px 12px;
+  background: #fff8fa;
+  border: 1px dashed rgba(226, 79, 118, 0.32);
+  border-radius: 12px;
+}
+
+.pinky-chat-login-nudge-text {
+  font-size: 0.76rem;
+  color: #6b3b4e;
+  line-height: 1.45;
+  margin-bottom: 8px;
+}
+
+.pinky-chat-login-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pinky-chat-login-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f76c85 0%, #e24f76 100%);
+  color: #ffffff !important;
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  text-decoration: none;
+  box-shadow: 0 3px 8px rgba(226, 79, 118, 0.2);
+}
+
+.pinky-chat-login-btn:hover {
+  background: linear-gradient(135deg, #ff7a92 0%, #d93d66 100%);
+  transform: translateY(-1px);
+}
+
+.pinky-chat-register-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  color: #c93b63 !important;
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 5px 11px;
+  border-radius: 999px;
+  border: 1px solid rgba(247, 108, 133, 0.28);
+  text-decoration: none;
+}
+
+.pinky-chat-register-btn:hover {
+  background: #fff0f4;
+}
+
+/* Các nút gợi ý câu hỏi nhanh (tự xuống dòng gọn gàng, không có thanh cuộn ngang) */
+.pinky-ai-quick-prompts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 9px 14px;
+  background: #fffafb;
+  border-top: 1px solid rgba(247, 108, 133, 0.12);
+}
+
+.pinky-ai-prompt-chip {
+  background: #ffffff;
+  color: #6e4455;
+  font-family: var(--pl-font-sans);
+  font-size: 0.73rem;
+  font-weight: 600;
+  padding: 5px 10px;
+  border: 1px solid rgba(247, 108, 133, 0.22);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pinky-ai-prompt-chip:hover {
+  background: #fff0f4;
+  border-color: #e24f76;
+  color: #c93b63;
+}
+
+.pinky-ai-prompt-chip--primary {
+  background: #fff0f4;
+  color: #c93b63;
+  border-color: rgba(226, 79, 118, 0.36);
+  font-weight: 700;
+}
+
+/* Thanh nhập tin nhắn */
+.pinky-ai-chat-input-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #ffffff;
+  border-top: 1px solid rgba(247, 108, 133, 0.12);
+}
+
+.pinky-ai-chat-input {
+  flex: 1;
+  border: 1px solid rgba(247, 108, 133, 0.22);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-family: var(--pl-font-sans);
+  font-size: 0.81rem;
+  color: #2f232c;
+  background: #fdf9fa;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.pinky-ai-chat-input:focus {
+  border-color: #e24f76;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(247, 108, 133, 0.1);
+}
+
+.pinky-ai-chat-send-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f76c85 0%, #e24f76 100%);
+  color: #ffffff;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  box-shadow: 0 3px 10px rgba(226, 79, 118, 0.24);
+  transition: all 0.2s ease;
+}
+
+.pinky-ai-chat-send-btn:hover {
+  transform: scale(1.05);
+}
+
+.ai-neo-loading {
+  color: #e24f76;
+  font-weight: 600;
+}
+
+@media (max-width: 576px) {
+  .pinky-floating-dock {
+    bottom: 16px;
+    right: 16px;
+  }
+  .pinky-float-chat-label {
+    display: none;
+  }
+  .pinky-float-chat-btn {
+    width: 46px;
+    height: 46px;
+    padding: 0;
+    justify-content: center;
+  }
+  .pinky-ai-chat-dialog {
+    right: 12px;
+    bottom: 70px;
+    width: calc(100vw - 24px);
+  }
+}
+
+
