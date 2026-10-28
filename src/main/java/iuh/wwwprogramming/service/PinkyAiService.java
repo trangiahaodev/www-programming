@@ -87,7 +87,11 @@ public class PinkyAiService {
                 "viewedProducts", viewedProducts.isBlank() ? "Chưa xác định" : viewedProducts,
                 "popularProducts", popularProducts.isBlank() ? "Chưa có dữ liệu" : popularProducts));
 
-        return builder.build().prompt(prompt).call().content();
+        try {
+            return builder.build().prompt(prompt).call().content();
+        } catch (Exception ex) {
+            return "AI hiện chưa có đủ dữ liệu hoặc kết nối OpenAI đang gặp sự cố. Dựa trên dữ liệu hệ thống, sản phẩm đáng chú ý hiện nay là " + (topProducts.isEmpty() ? "chưa có dữ liệu" : topProducts.get(0).getProductName()) + ". Hãy ưu tiên làm nổi bật sản phẩm này và kiểm soát tồn kho phù hợp để cải thiện tỷ lệ chuyển đổi.";
+        }
     }
 
     public AiTrendAnalysisDTO analyzeTrendSummary(LocalDate fromDate, LocalDate toDate) {
@@ -159,7 +163,14 @@ public class PinkyAiService {
                 "signals", signalText.isBlank() ? "Chưa có dữ liệu" : signalText
         ));
 
-        return builder.build().prompt(prompt).call().content();
+        try {
+            return builder.build().prompt(prompt).call().content();
+        } catch (Exception ex) {
+            return "Trong khoảng thời gian " + formatRange(fromDate, toDate)
+                    + ", hệ thống ghi nhận " + totalClicks + " lượt click, thời gian xem trung bình " + formatSeconds(averageDwellSeconds)
+                    + ", " + addToCartCount + " lần thêm vào giỏ hàng và " + orderCount + " đơn hàng thực tế. Sản phẩm đáng chú ý nhất là "
+                    + topAttentionProduct + ". Nên ưu tiên làm nổi bật sản phẩm này trên trang chủ và kiểm soát tồn kho để nâng tỷ lệ chuyển đổi.";
+        }
     }
 
     private String formatRange(LocalDate fromDate, LocalDate toDate) {
