@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/admin-layout :: layout(~{::main})}"
+      lang="vi">
+<head><title>Thống kê theo đơn hàng - Cosmetic Admin</title></head>
+<body>
+<main class="page-container">
+    <header class="page-header dashboard-header">
+        <div>
+            <nav class="breadcrumb" aria-label="Breadcrumb">
+                <a th:href="@{/admin}">Trang chủ</a><span>/</span>
+                <span class="breadcrumb-current">Thống kê theo đơn hàng</span>
+            </nav>
+            <h1 class="page-title">Thống kê theo đơn hàng</h1>
+            <p class="page-subtitle">Theo dõi hiệu quả bán hàng và sản phẩm nổi bật.</p>
+        </div>
+    </header>
+
+    <section class="card analytics-dashboard-card">
+        <div class="analytics-dashboard-toolbar">
+            <div>
+                <h2 class="card-title">Thống kê theo đơn hàng</h2>
+                <p class="card-subtitle">Top <span th:text="${limit}">5</span> sản phẩm bán chạy, không tính đơn đã hủy</p>
+            </div>
+            <form class="analytics-filter-form" method="get" th:action="@{/admin/order-statistics}">
+                <select name="period" id="analyticsPeriod" class="filter-select">
+                    <option value="month" th:selected="${period == 'month'}">Tháng này</option>
+                    <option value="today" th:selected="${period == 'today'}">Hôm nay</option>
+                    <option value="week" th:selected="${period == 'week'}">Tuần này</option>
+                    <option value="custom" th:selected="${period == 'custom'}">Tùy chỉnh khoảng ngày</option>
+                </select>
+                <select name="limit" class="filter-select" aria-label="Số lượng sản phẩm thống kê">
+                    <option value="5" th:selected="${limit == 5}">Top 5</option>
+                    <option value="10" th:selected="${limit == 10}">Top 10</option>
+                    <option value="15" th:selected="${limit == 15}">Top 15</option>
+                    <option value="20" th:selected="${limit == 20}">Top 20</option>
+                    <option value="30" th:selected="${limit == 30}">Top 30</option>
+                    <option value="50" th:selected="${limit == 50}">Top 50</option>
+                    <option value="100" th:selected="${limit == 100}">Top 100</option>
+                </select>
+                <input type="date" name="fromDate" th:value="${fromDate}" class="filter-date custom-date">
+                <input type="date" name="toDate" th:value="${toDate}" class="filter-date custom-date">
+                <button type="submit" class="btn btn-primary">Áp dụng</button>
+                <a class="btn btn-secondary" th:href="@{/admin/order-statistics/export(period=${period}, fromDate=${fromDate}, toDate=${toDate}, limit=${limit})}">Xuất báo cáo Excel</a>
+            </form>
+        </div>
+
+        <div class="analytics-chart" aria-label="Biểu đồ top 5 sản phẩm bán chạy">
+            <div class="bar-chart" th:if="${!#lists.isEmpty(analytics)}">
+                <div class="bar-column analytics-hover-target"
+                     th:each="item, stat : ${analytics}"
+                     th:attr="data-index=${stat.index},data-full-name=${item.productName}">
+                    <span class="bar-value" th:text="${item.orderedQuantity}">0</span>
+                    <div class="bar" th:style="'height:' + ${item.orderedQuantity * 12 + 24} + 'px'"></div>
+                    <span class="bar-label" th:text="${item.productName}">Sản phẩm</span>
+                </div>
+            </div>
+            <div class="analytics-empty" th:if="${#lists.isEmpty(analytics)}">Chưa có đơn hàng trong kỳ đã chọn.</div>
+        </div>
+
+        <div class="analytics-table-wrapper">
+            <table class="analytics-table analytics-detail-table">
+                <thead><tr>
+                    <th>#</th><th>Hình ảnh</th><th>Sản phẩm &amp; Thương hiệu</th>
+                    <th class="analytics-centered">Tổng số lượng đã đặt</th>
+                    <th class="analytics-centered">Tổng số đơn hàng</th>
+                    <th class="analytics-number">Tổng doanh thu (VNĐ)</th><th>Xu hướng</th>
+                </tr></thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(analytics)}"><td colspan="7" class="analytics-empty">Chưa có dữ liệu.</td></tr>
+                <tr class="analytics-data-row analytics-hover-target"
+                    th:each="item, stat : ${analytics}"
+                    th:attr="data-index=${stat.index}, data-full-name=${item.productName}">
+                    <td th:text="${stat.count}">1</td>
+                    <td>
+                        <button type="button" class="analytics-image-button"
+                                th:if="${item.image != null && !item.image.isBlank()}"
+                                th:data-image-url="@{${item.image}}"
+                                th:data-image-name="${item.productName}"
+                                th:title="'Xem ảnh ' + ${item.productName}"
+                                onclick="openAnalyticsLightbox(this)"
+                                aria-label="Xem ảnh sản phẩm">
+                            <img class="analytics-thumbnail"
+                                 th:src="@{${item.image}}"
+                                 th:alt="${item.productName}">
+                        </button>
+                    </td>
+                    <td class="analytics-product-cell">
+                        <strong class="analytics-product-name analytics-tooltip"
+                                th:attr="aria-label=${item.productName}, data-tooltip=${item.productName}, title=${item.productName}"
+                                th:text="${item.productName}">Sản phẩm</strong>
+                        <small th:text="${item.brand}">PinkyCloud</small>
+                    </td>
+                    <td class="analytics-centered" th:text="${item.orderedQuantity}">0</td>
+                    <td class="analytics-centered" th:text="${item.orderCount}">0</td>
+                    <td class="analytics-number" th:text="${#numbers.formatDecimal(item.revenue, 0, 'POINT', 0, 'COMMA') + ' ₫'}">0 ₫</td>
+                    <td th:class="${item.trendUp ? 'trend-up' : 'trend-down'}" th:text="${(item.trendUp ? '↑ ' : '↓ ') + item.trendPercent + '%'}">↑ 0%</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+<div id="analyticsImageModal" class="analytics-image-modal" aria-hidden="true" role="dialog"
+     aria-modal="true" aria-label="Ảnh sản phẩm phóng to">
+    <button type="button" class="analytics-image-modal-close" aria-label="Đóng">&times;</button>
+    <img id="analyticsLargeImage" class="analytics-large-image" src="" alt="">
+</div>
+<script>
+    document.querySelectorAll('.analytics-hover-target').forEach(function (target) {
+        target.addEventListener('mouseenter', function () {
+            document.querySelectorAll('.analytics-hover-target[data-index="' + target.dataset.index + '"]')
+                .forEach(function (peer) { peer.classList.add('is-hovered'); });
+        });
+        target.addEventListener('mouseleave', function () {
+            document.querySelectorAll('.analytics-hover-target[data-index="' + target.dataset.index + '"]')
+                .forEach(function (peer) { peer.classList.remove('is-hovered'); });
+        });
+    });
+
+    var imageModal = document.getElementById('analyticsImageModal');
+    var largeImage = document.getElementById('analyticsLargeImage');
+
+    function openAnalyticsLightbox(button) {
+        if (!button) return;
+        largeImage.src = button.getAttribute('data-image-url') || '';
+        largeImage.alt = button.getAttribute('data-image-name') || 'Ảnh sản phẩm';
+        imageModal.classList.add('show');
+        imageModal.setAttribute('aria-hidden', 'false');
+        imageModal.style.display = 'flex';
+    }
+
+    function closeImageModal() {
+        imageModal.classList.remove('show');
+        imageModal.setAttribute('aria-hidden', 'true');
+        imageModal.style.display = 'none';
+        largeImage.src = '';
+    }
+
+    document.querySelector('.analytics-image-modal-close').addEventListener('click', closeImageModal);
+    imageModal.addEventListener('click', function (event) {
+        if (event.target === imageModal) closeImageModal();
+    });
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && imageModal.classList.contains('show')) closeImageModal();
+    });
+    imageModal.style.display = 'none';
+</script>
+</body>
+</html>

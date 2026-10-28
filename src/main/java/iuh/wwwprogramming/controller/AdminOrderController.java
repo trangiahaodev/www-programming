@@ -59,6 +59,7 @@ public class AdminOrderController {
 
         model.addAttribute("orderStatuses", Arrays.stream(OrderStatus.values()).toList());
         model.addAttribute("size", pageSize);
+        model.addAttribute("activeMenu", "orders");
 
         if (!bindingResult.hasFieldErrors("fromDate")
                 && !bindingResult.hasFieldErrors("toDate")
@@ -225,4 +226,3 @@ public class AdminOrderController {
         }
     }
 }
-

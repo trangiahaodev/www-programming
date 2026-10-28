@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/admin-layout :: layout(~{::main})}"
+      lang="vi">
+<head>
+    <title>AI phân tích xu hướng - Cosmetic Admin</title>
+</head>
+<body>
+<main class="page-container">
+    <header class="page-header dashboard-header">
+        <div>
+            <nav class="breadcrumb" aria-label="Breadcrumb">
+                <a th:href="@{/admin}">Trang chủ</a>
+                <span>/</span>
+                <span class="breadcrumb-current">AI phân tích xu hướng</span>
+            </nav>
+            <h1 class="page-title">AI phân tích xu hướng</h1>
+            <p class="page-subtitle">Tổng hợp hành vi người dùng và gợi ý kinh doanh theo khoảng thời gian đã chọn.</p>
+        </div>
+    </header>
+
+    <section class="card analytics-dashboard-card">
+        <div class="analytics-dashboard-toolbar">
+            <div>
+                <h2 class="card-title">Phân tích thông minh</h2>
+                <p class="card-subtitle">Đánh giá mức độ tương tác, add-to-cart và đơn hàng thực tế trong giai đoạn được chọn.</p>
+            </div>
+            <form class="analytics-filter-form" method="get" th:action="@{/admin/ai-trends}">
+                <select name="period" id="aiTrendPeriod" class="filter-select">
+                    <option value="month" th:selected="${period == 'month'}">Tháng này</option>
+                    <option value="today" th:selected="${period == 'today'}">Hôm nay</option>
+                    <option value="week" th:selected="${period == 'week'}">Tuần này</option>
+                    <option value="custom" th:selected="${period == 'custom'}">Tùy chỉnh khoảng ngày</option>
+                </select>
+                <input type="date" name="fromDate" th:value="${fromDate}" class="filter-date custom-date">
+                <input type="date" name="toDate" th:value="${toDate}" class="filter-date custom-date">
+                <button type="submit" class="btn btn-primary">Áp dụng</button>
+            </form>
+        </div>
+
+        <div class="ai-metrics-grid">
+            <div class="ai-metric-card">
+                <span class="ai-metric-label">Tổng lượt click</span>
+                <strong class="ai-metric-value" th:text="${#numbers.formatInteger(analysis.totalClicks, 1, 'COMMA')}">0</strong>
+            </div>
+            <div class="ai-metric-card">
+                <span class="ai-metric-label">Thời gian xem TB</span>
+                <strong class="ai-metric-value" th:text="${analysis.averageDwellSeconds >= 60 ? (analysis.averageDwellSeconds / 60) + ' phút' : (analysis.averageDwellSeconds) + ' giây'}">0 giây</strong>
+            </div>
+            <div class="ai-metric-card">
+                <span class="ai-metric-label">Add-to-cart</span>
+                <strong class="ai-metric-value" th:text="${#numbers.formatInteger(analysis.addToCartCount, 1, 'COMMA')}">0</strong>
+            </div>
+            <div class="ai-metric-card accent">
+                <span class="ai-metric-label">Đơn hàng thực tế</span>
+                <strong class="ai-metric-value" th:text="${#numbers.formatInteger(analysis.orderCount, 1, 'COMMA')}">0</strong>
+            </div>
+        </div>
+
+        <div class="ai-summary-panel">
+            <div class="ai-summary-header">
+                <div>
+                    <p class="ai-summary-eyebrow">AI phân tích xu hướng</p>
+                    <h3>Nhận định kinh doanh</h3>
+                </div>
+                <span class="ai-badge" th:text="${#temporals.format(fromDate, 'dd/MM/yyyy') + ' - ' + #temporals.format(toDate, 'dd/MM/yyyy')}">01/01/2026 - 31/01/2026</span>
+            </div>
+            <p class="ai-summary-text" th:text="${analysis.summary}">Đang chờ dữ liệu phân tích...</p>
+        </div>
+
+        <div class="ai-detail-grid">
+            <div class="ai-detail-box">
+                <span class="ai-detail-label">Sản phẩm nhận nhiều sự chú ý nhất</span>
+                <strong th:text="${analysis.topAttentionProduct}">Chưa có dữ liệu</strong>
+            </div>
+            <div class="ai-detail-box">
+                <span class="ai-detail-label">Nhận định xu hướng</span>
+                <strong th:text="${analysis.trendObservation}">Chưa có dữ liệu</strong>
+            </div>
+        </div>
+    </section>
+</main>
+</body>
+</html>

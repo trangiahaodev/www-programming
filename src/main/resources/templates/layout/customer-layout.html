@@ -352,6 +352,22 @@
             }, true);
         }, true);
 
+        // Ghi nhận thao tác thêm sản phẩm vào giỏ mà không làm gián đoạn submit.
+        document.addEventListener('submit', (e) => {
+            const form = e.target.closest('form[action*="/cart/add"]');
+            if (!form) return;
+
+            const productId = form.querySelector('[name="productId"]')?.value || '';
+            const productName = form.closest('[data-product-card]')?.querySelector('.pc-name')?.textContent?.trim() || productId;
+            sendTrackingEvent({
+                eventType: 'ADD_TO_CART',
+                action: 'ADD_TO_CART',
+                productId,
+                productName,
+                addToCartCount: 1
+            }, false);
+        }, true);
+
         // Expose API cho trang product-detail.html và home.html sử dụng
         window.PinkyTracker = {
             getSessionData: getSessionTrackingData,

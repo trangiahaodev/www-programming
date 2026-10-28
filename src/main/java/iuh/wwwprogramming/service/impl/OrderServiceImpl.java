@@ -29,9 +29,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Year;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -119,6 +121,47 @@ public class OrderServiceImpl implements OrderService {
         );
 
         return orderPage.map(this::convertToResponseDTO);
+    }
+
+    @Override
+    public List<TopProductStatDTO> getTopOrderedProducts(int limit) {
+        int safeLimit = Math.min(Math.max(limit, 1), 50);
+        return orderItemRepository.findTopOrderedProducts(PageRequest.of(0, safeLimit))
+                .stream()
+                .map(row -> new TopProductStatDTO(
+                        (String) row[0],
+                        ((Number) row[1]).longValue(),
+                        ((Number) row[2]).longValue()))
+                .limit(safeLimit)
+                .toList();
+    }
+
+    @Override
+    public List<OrderAnalyticsDTO> getOrderAnalytics(LocalDate fromDate, LocalDate toDate) {
+        return getOrderAnalytics(fromDate, toDate, 5);
+    }
+
+    @Override
+    public List<OrderAnalyticsDTO> getOrderAnalytics(LocalDate fromDate, LocalDate toDate, int limit) {
+        if (fromDate == null || toDate == null || fromDate.isAfter(toDate)) {
+            throw new IllegalArgumentException("Khoảng thời gian thống kê không hợp lệ.");
+        }
+        int safeLimit = Math.min(Math.max(limit, 1), 100);
+        LocalDateTime from = fromDate.atStartOfDay();
+        LocalDateTime to = toDate.plusDays(1).atStartOfDay();
+        long days = ChronoUnit.DAYS.between(fromDate, toDate) + 1;
+        LocalDateTime previousFrom = from.minusDays(days);
+        return orderItemRepository.findOrderAnalytics(from, to, previousFrom, from, safeLimit)
+                .stream()
+                .map(row -> new OrderAnalyticsDTO(
+                        (String) row[0],
+                        (String) row[1],
+                        (String) row[2],
+                        ((Number) row[3]).longValue(),
+                        ((Number) row[4]).longValue(),
+                        new BigDecimal(row[5].toString()),
+                        ((Number) row[6]).longValue()))
+                .toList();
     }
 
     @Override

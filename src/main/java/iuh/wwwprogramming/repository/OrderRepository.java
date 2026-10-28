@@ -58,6 +58,8 @@ public interface OrderRepository extends JpaRepository<Order, String> {
 
     Optional<Order> findByOrderCode(String orderCode);
 
+    long countByCreatedAtBetweenAndStatusNot(LocalDateTime start, LocalDateTime end, OrderStatus excludedStatus);
+
     boolean existsByOrderCode(String orderCode);
 
 

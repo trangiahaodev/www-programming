@@ -22,6 +22,11 @@ public class AdminCategoryController {
 
     private final CategoryService categoryService;
 
+    @ModelAttribute("activeMenu")
+    public String activeMenu() {
+        return "categories";
+    }
+
     @GetMapping
     public String listCategories(
             @RequestParam(name = "keyword", required = false) String keyword,
