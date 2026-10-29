@@ -62,6 +62,7 @@ public class SecurityConfig {
                                 "/cam-nang",
                                 "/cam-nang/**",
                                 "/api/vouchers/**",
+                                "/api/tracking/**",
                                 "/login",
                                 "/register"
                         ).permitAll()
