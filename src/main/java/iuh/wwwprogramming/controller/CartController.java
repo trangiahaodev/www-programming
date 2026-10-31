@@ -3,23 +3,30 @@ package iuh.wwwprogramming.controller;
 import iuh.wwwprogramming.dto.AddToCartRequestDTO;
 import iuh.wwwprogramming.dto.CartDTO;
 import iuh.wwwprogramming.dto.UpdateCartItemRequestDTO;
+import iuh.wwwprogramming.entity.User;
+import iuh.wwwprogramming.repository.UserRepository;
 import iuh.wwwprogramming.service.CartService;
+import iuh.wwwprogramming.service.TrackingService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+@Slf4j
 @Controller
 @RequestMapping("/cart")
 @RequiredArgsConstructor
 public class CartController {
 
     private final CartService cartService;
+    private final TrackingService trackingService;
+    private final UserRepository userRepository;
 
     @GetMapping
     public String viewCart(HttpSession session, Model model) {
@@ -51,6 +58,22 @@ public class CartController {
         try {
             cartService.addToCart(session, request);
             redirectAttributes.addFlashAttribute("successMessage", "Đã thêm sản phẩm vào giỏ hàng thành công!");
+
+            // HOOK NGẦM (Phân công Member DƯƠNG):
+            // Mỗi khi khách bấm "Thêm vào giỏ" (/cart/add) hoặc bấm "Mua ngay",
+            // hệ thống tự động lưu lại sự kiện ADD_TO_CART vào bảng log hành vi.
+            try {
+                User currentUser = null;
+                if (servletRequest.getUserPrincipal() != null) {
+                    currentUser = userRepository.findByEmail(servletRequest.getUserPrincipal().getName()).orElse(null);
+                }
+                boolean isBuyNow = "buyNow".equalsIgnoreCase(action) || "checkout".equalsIgnoreCase(redirect);
+                int quantity = (request.getQuantity() != null && request.getQuantity() > 0) ? request.getQuantity() : 1;
+                trackingService.recordCartEvent(session.getId(), request.getProductId(), quantity, isBuyNow, currentUser);
+            } catch (Exception trackingEx) {
+                log.warn("Không thể ghi log hành vi giỏ hàng ngầm: {}", trackingEx.getMessage());
+            }
+
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
             return "redirect:" + returnUrl;
