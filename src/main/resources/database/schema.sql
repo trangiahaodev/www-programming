@@ -1,6 +1,7 @@
 -- =============================================================================
 -- Database Schema for MariaDB (Single Source of Truth - SSOT)
 -- Project: PinkyCloud Cosmetic Shop
+-- Architectural Rule: Dual-Key Strategy (Surrogate Key UUID 36 chars + Business Key)
 -- Character Set: utf8mb4 / utf8mb4_unicode_ci
 -- =============================================================================
 
@@ -21,7 +22,7 @@ DROP TABLE IF EXISTS `users`;
 DROP TABLE IF EXISTS `roles`;
 
 -- -----------------------------------------------------------------------------
--- 1. Table: roles (Phân quyền người dùng)
+-- 1. Table: roles (Phân quyền người dùng hệ thống)
 -- -----------------------------------------------------------------------------
 CREATE TABLE `roles` (
     `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -31,6 +32,8 @@ CREATE TABLE `roles` (
 
 -- -----------------------------------------------------------------------------
 -- 2. Table: users (Tài khoản người dùng: Quản trị viên & Khách hàng)
+-- Surrogate Key: id VARCHAR(36) - UUID chuẩn
+-- Business Key:  user_code VARCHAR(20) - Mã hiển thị duy nhất (AD26..., KH26...)
 -- -----------------------------------------------------------------------------
 CREATE TABLE `users` (
     `id` VARCHAR(36) NOT NULL PRIMARY KEY,
@@ -50,6 +53,8 @@ CREATE TABLE `users` (
 
 -- -----------------------------------------------------------------------------
 -- 3. Table: categories (Danh mục sản phẩm mỹ phẩm)
+-- Surrogate Key: id VARCHAR(36) - UUID chuẩn
+-- Business Key:  category_code VARCHAR(20) - Mã hiển thị duy nhất (CAT001, CAT002...)
 -- -----------------------------------------------------------------------------
 CREATE TABLE `categories` (
     `id` VARCHAR(36) NOT NULL PRIMARY KEY,
@@ -65,7 +70,9 @@ CREATE TABLE `categories` (
 
 -- -----------------------------------------------------------------------------
 -- 4. Table: products (Sản phẩm mỹ phẩm)
--- Lưu ý: Quan hệ category_id dùng ConstraintMode.NO_CONSTRAINT trong JPA
+-- Surrogate Key: id VARCHAR(36) - UUID chuẩn
+-- Business Key:  product_code VARCHAR(30) - Mã hiển thị duy nhất (SP26000001...)
+-- Foreign Key:   category_id VARCHAR(36) - Trỏ tới categories(id) chuẩn UUID
 -- -----------------------------------------------------------------------------
 CREATE TABLE `products` (
     `id` VARCHAR(36) NOT NULL PRIMARY KEY,
@@ -99,7 +106,9 @@ CREATE TABLE `products` (
 
 -- -----------------------------------------------------------------------------
 -- 5. Table: orders (Đơn đặt hàng)
--- Lưu ý: user_id cho phép NULL (khách vãng lai), ConstraintMode.NO_CONSTRAINT
+-- Surrogate Key: id VARCHAR(36) - UUID chuẩn
+-- Business Key:  order_code VARCHAR(20) - Mã hiển thị duy nhất (ORD26000001...)
+-- Foreign Key:   user_id VARCHAR(36) NULL - Trỏ tới users(id) chuẩn UUID (hỗ trợ khách vãng lai)
 -- -----------------------------------------------------------------------------
 CREATE TABLE `orders` (
     `id` VARCHAR(36) NOT NULL PRIMARY KEY,
@@ -122,7 +131,9 @@ CREATE TABLE `orders` (
 
 -- -----------------------------------------------------------------------------
 -- 6. Table: order_items (Chi tiết từng mục trong đơn hàng)
--- Lưu ý: order_id và product_id dùng ConstraintMode.NO_CONSTRAINT
+-- Surrogate Key: id VARCHAR(36) - UUID chuẩn
+-- Foreign Key:   order_id VARCHAR(36) - Trỏ tới orders(id) chuẩn UUID
+--                product_id VARCHAR(36) NULL - Trỏ tới products(id) chuẩn UUID
 -- -----------------------------------------------------------------------------
 CREATE TABLE `order_items` (
     `id` VARCHAR(36) NOT NULL PRIMARY KEY,
@@ -139,8 +150,9 @@ CREATE TABLE `order_items` (
 
 -- -----------------------------------------------------------------------------
 -- 7. Table: user_activity_logs (Nhật ký hành vi người dùng & phân tích AI)
--- Khóa chính UUID VARCHAR(36), ConstraintMode.NO_CONSTRAINT tới users & products
--- Đầy đủ 4 index phục vụ truy vấn tối ưu
+-- Surrogate Key: id VARCHAR(36) - UUID chuẩn
+-- Foreign Key:   user_id VARCHAR(36) NULL - Trỏ tới users(id) chuẩn UUID
+--                product_id VARCHAR(36) NULL - Trỏ tới products(id) chuẩn UUID
 -- -----------------------------------------------------------------------------
 CREATE TABLE `user_activity_logs` (
     `id` VARCHAR(36) NOT NULL PRIMARY KEY,
@@ -190,9 +202,10 @@ CREATE TABLE `news_articles` (
 
 -- -----------------------------------------------------------------------------
 -- 9. Table: offices (Hệ thống chi nhánh / showroom)
+-- Surrogate Key: id VARCHAR(36) - UUID chuẩn
 -- -----------------------------------------------------------------------------
 CREATE TABLE `offices` (
-    `id` VARCHAR(50) NOT NULL PRIMARY KEY,
+    `id` VARCHAR(36) NOT NULL PRIMARY KEY,
     `title` VARCHAR(255) NOT NULL,
     `address` VARCHAR(500) NULL,
     `description` LONGTEXT NULL,
@@ -208,15 +221,17 @@ CREATE TABLE `offices` (
 
 -- -----------------------------------------------------------------------------
 -- 10. Table: office_perks (Đặc quyền / tiện ích tại chi nhánh)
+-- Foreign Key: office_id VARCHAR(36) - Trỏ tới offices(id) chuẩn UUID
 -- -----------------------------------------------------------------------------
 CREATE TABLE `office_perks` (
-    `office_id` VARCHAR(50) NOT NULL,
+    `office_id` VARCHAR(36) NOT NULL,
     `perk` VARCHAR(255) NOT NULL,
     INDEX `idx_office_perks_office_id` (`office_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------------------------------
 -- 11. Table: vouchers (Mã ưu đãi / khuyến mãi)
+-- Business Key: code VARCHAR(50) - Mã hiển thị duy nhất (WELCOME10, PINKY50K...)
 -- -----------------------------------------------------------------------------
 CREATE TABLE `vouchers` (
     `id` BIGINT AUTO_INCREMENT PRIMARY KEY,

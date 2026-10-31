@@ -14,8 +14,10 @@ import java.util.List;
 @Builder
 public class Office {
 
+    // 1. Surrogate Key
     @Id
-    @Column(name = "id", length = 50)
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(length = 36, updatable = false, nullable = false)
     private String id;
 
     @Column(name = "title", nullable = false, length = 255)
@@ -24,7 +26,7 @@ public class Office {
     @Column(name = "address", length = 500)
     private String address;
 
-    @Column(name = "description", columnDefinition = "NVARCHAR(MAX)")
+    @Column(name = "description", columnDefinition = "LONGTEXT")
     private String description;
 
     @Column(name = "city", length = 100)
