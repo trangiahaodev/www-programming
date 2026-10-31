@@ -17,7 +17,7 @@ public class TrackingAiController {
 
     private final AiAdvisorService aiAdvisorService;
 
-    @GetMapping("/ai-advice")
+    @GetMapping(value = "/ai-advice-quick", produces = "application/json;charset=UTF-8")
     public ResponseEntity<Map<String, String>> advice(
             @RequestParam(defaultValue = "0") int clickCount,
             @RequestParam(defaultValue = "0") int dwellTimeSeconds,

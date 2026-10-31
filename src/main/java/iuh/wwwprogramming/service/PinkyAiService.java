@@ -6,6 +6,7 @@ import iuh.wwwprogramming.entity.OrderStatus;
 import iuh.wwwprogramming.entity.UserActivityLog;
 import iuh.wwwprogramming.repository.OrderRepository;
 import iuh.wwwprogramming.repository.UserActivityLogRepository;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
@@ -26,13 +27,16 @@ public class PinkyAiService {
 
     private final UserActivityLogRepository activityRepository;
     private final OrderRepository orderRepository;
+    private final OrderService orderService;
     private final ObjectProvider<ChatClient.Builder> chatClientBuilder;
 
     public PinkyAiService(UserActivityLogRepository activityRepository,
                           OrderRepository orderRepository,
+                          OrderService orderService,
                           ObjectProvider<ChatClient.Builder> chatClientBuilder) {
         this.activityRepository = activityRepository;
         this.orderRepository = orderRepository;
+        this.orderService = orderService;
         this.chatClientBuilder = chatClientBuilder;
     }
 
@@ -40,6 +44,14 @@ public class PinkyAiService {
     public void recordActivity(String sessionId, UserActivityLog activity) {
         activity.setSessionId(sessionId);
         activityRepository.save(activity);
+    }
+
+    public String analyzeSession(HttpSession session) {
+        String sessionId = (session != null) ? session.getId() : "";
+        List<TopProductStatDTO> topProducts = (orderService != null)
+                ? orderService.getTopOrderedProducts(5)
+                : List.of();
+        return analyzeSession(sessionId, topProducts);
     }
 
     public String analyzeSession(String sessionId, List<TopProductStatDTO> topProducts) {
@@ -62,7 +74,8 @@ public class PinkyAiService {
                 .distinct()
                 .limit(10)
                 .collect(Collectors.joining(", "));
-        String popularProducts = topProducts.stream()
+        List<TopProductStatDTO> safeTopProducts = (topProducts != null) ? topProducts : List.of();
+        String popularProducts = safeTopProducts.stream()
                 .map(product -> product.getProductName() + " (" + product.getOrderedQuantity() + " lượt đặt)")
                 .collect(Collectors.joining(", "));
 
@@ -90,7 +103,7 @@ public class PinkyAiService {
         try {
             return builder.build().prompt(prompt).call().content();
         } catch (Exception ex) {
-            return "AI hiện chưa có đủ dữ liệu hoặc kết nối OpenAI đang gặp sự cố. Dựa trên dữ liệu hệ thống, sản phẩm đáng chú ý hiện nay là " + (topProducts.isEmpty() ? "chưa có dữ liệu" : topProducts.get(0).getProductName()) + ". Hãy ưu tiên làm nổi bật sản phẩm này và kiểm soát tồn kho phù hợp để cải thiện tỷ lệ chuyển đổi.";
+            return "AI hiện chưa có đủ dữ liệu hoặc kết nối OpenAI đang gặp sự cố. Dựa trên dữ liệu hệ thống, sản phẩm đáng chú ý hiện nay là " + (safeTopProducts.isEmpty() ? "chưa có dữ liệu" : safeTopProducts.get(0).getProductName()) + ". Hãy ưu tiên làm nổi bật sản phẩm này và kiểm soát tồn kho phù hợp để cải thiện tỷ lệ chuyển đổi.";
         }
     }
 

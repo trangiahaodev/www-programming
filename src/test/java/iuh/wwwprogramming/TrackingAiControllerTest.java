@@ -27,4 +27,15 @@ class TrackingAiControllerTest {
                 .andExpect(content().contentTypeCompatibleWith("application/json"))
                 .andExpect(jsonPath("$.advice").isString());
     }
+
+    @Test
+    void anonymousTrackingQuickAdviceReturnsMockResponseWithoutApiKeys() throws Exception {
+        mockMvc.perform(get("/api/tracking/ai-advice-quick")
+                        .param("clickCount", "3")
+                        .param("dwellTimeSeconds", "15")
+                        .param("lastProductName", "Kem Chống Nắng"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith("application/json"))
+                .andExpect(jsonPath("$.advice").isString());
+    }
 }

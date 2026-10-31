@@ -290,6 +290,7 @@
                     'X-Requested-With': 'XMLHttpRequest'
                 },
                 body: bodyStr,
+                credentials: 'include',
                 keepalive: true
             }).catch(() => {
                 // Silent catch so UI never breaks even if backend endpoint is offline

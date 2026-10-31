@@ -598,7 +598,7 @@
             <!-- Các câu gợi ý chat nhanh -->
             <div class="pinky-ai-quick-prompts" id="aiQuickPrompts">
                 <button type="button" class="pinky-ai-prompt-chip pinky-ai-prompt-chip--primary" id="btnAskAiQuick" onclick="triggerAiQuickPrompt('analyze')">
-                    Phân tích hành vi &amp; Hỏi AI tư vấn nhanh
+                    Tư vấn cho gu của bạn
                 </button>
                 <button type="button" class="pinky-ai-prompt-chip" onclick="triggerAiQuickPrompt('oily-skin')">
                     Chu trình cho da dầu mụn / nhạy cảm
@@ -1167,7 +1167,7 @@
                 } else {
                     appendChatMessage('bot', `
                         Xin chào! Mình là Trợ lý PinkyCloud.<br>
-                        Chọn ngay gợi ý <strong>"Phân tích hành vi..."</strong> bên dưới để xem tổng hợp nhanh phiên dạo shop của bạn, hoặc <strong>Đăng nhập</strong> để mở khóa tư vấn chuyên sâu 1-1 nhé!
+                        Chọn ngay gợi ý <strong>"Tư vấn cho gu của bạn"</strong> bên dưới để xem tổng hợp nhanh phiên dạo shop của bạn, hoặc <strong>Đăng nhập</strong> để mở khóa tư vấn chuyên sâu 1-1 nhé!
                     `);
                 }
             }
@@ -1194,6 +1194,26 @@
                 }
             }
 
+            function renderAiAdviceMarkdown(text) {
+                if (!text) return '';
+                let safe = text
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;');
+                safe = safe.replace(/^###\s+(.+)$/gm, '<h5 style="margin: 8px 0 4px; font-weight: 700;">$1</h5>');
+                safe = safe.replace(/^##\s+(.+)$/gm, '<h4 style="margin: 8px 0 4px; font-weight: 700;">$1</h4>');
+                safe = safe.replace(/^#\s+(.+)$/gm, '<h3 style="margin: 8px 0 4px; font-weight: 700;">$1</h3>');
+                safe = safe.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                safe = safe.replace(/__(.*?)__/g, '<strong>$1</strong>');
+                safe = safe.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+                safe = safe.replace(/_([^_]+)_/g, '<em>$1</em>');
+                safe = safe.replace(/(?:^|\n)[-•*]\s+(.+)/g, '<br>• $1');
+                safe = safe.replace(/(?:^|\n)(\d+)\.\s+(.+)/g, '<br>$1. $2');
+                safe = safe.replace(/\n\n+/g, '<br><br>');
+                safe = safe.replace(/\n/g, '<br>');
+                return safe.replace(/^(<br>)+/, '');
+            }
+
             function buildSessionAnalysisResponse(state, loggedIn, backendAdviceText) {
                 const clicks = state.clickCount || 0;
                 const dwell = state.totalDwellSeconds || 0;
@@ -1203,7 +1223,8 @@
                 const pillsHtml = renderAnalysisPillsHtml(state);
 
                 if (backendAdviceText) {
-                    return pillsHtml + `<div>${backendAdviceText}</div>` + (!loggedIn ? renderGuestLoginNudgeHtml() : '');
+                    const formattedAdvice = renderAiAdviceMarkdown(backendAdviceText);
+                    return pillsHtml + `<div class="pinky-ai-advice-body" style="line-height: 1.6; font-size: 0.95rem;">${formattedAdvice}</div>` + (!loggedIn ? renderGuestLoginNudgeHtml() : '');
                 }
 
                 const focusProduct = state.lastProductName || (viewed.length > 0 ? viewed[0] : 'các dòng mỹ phẩm chính hãng');
@@ -1250,32 +1271,55 @@
 
                 const loadingBubble = appendChatMessage('bot', '<span class="ai-neo-loading">Đang phân tích dữ liệu phiên làm việc của bạn...</span>');
 
-                const candidateEndpoints = ['/api/tracking/ai-advice', '/api/tracking/consult', '/api/ai/consult', '/api/tracking/analyze'];
+
                 let adviceText = null;
 
-                for (const endpoint of candidateEndpoints) {
-                    try {
-                        const res = await fetch(endpoint, {
-                            method: 'GET',
-                            headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-                            redirect: 'manual'
-                        });
-                        if (res.ok && !res.redirected && res.status === 200) {
-                            const contentType = (res.headers.get('content-type') || '').toLowerCase();
-                            if (contentType.includes('text/html')) continue;
-                            if (contentType.includes('application/json')) {
-                                const data = await res.json();
-                                adviceText = data.advice || data.message || data.recommendation || data.result || data.content || null;
-                            } else if (contentType.includes('text/plain')) {
-                                const txt = await res.text();
-                                if (txt && !txt.includes('<html') && !txt.includes('<!DOCTYPE')) {
-                                    adviceText = txt;
-                                }
+                // 1. Endpoint chính: Context-rich AI consultation theo session logs & top bán chạy
+                try {
+                    const res = await fetch('/api/tracking/ai-advice', {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json;charset=UTF-8',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        credentials: 'include'
+                    });
+                    if (res.ok && res.status === 200) {
+                        const contentType = (res.headers.get('content-type') || '').toLowerCase();
+                        if (contentType.includes('application/json')) {
+                            const data = await res.json();
+                            if (data && data.advice) {
+                                adviceText = data.advice;
                             }
-                            if (adviceText) break;
                         }
-                    } catch (err) {
-                        // Fallback sang dữ liệu phiên phía client
+                    }
+                } catch (err) {
+                    console.warn('Lỗi khi gọi /api/tracking/ai-advice:', err);
+                }
+                // 2. Endpoint phụ / fallback: Quick query param advice nếu endpoint chính chưa có kết quả
+                if (!adviceText) {
+                    const clickCount = state.clickCount || 0;
+                    const dwellTimeSeconds = state.totalDwellSeconds || 0;
+                    const lastProductName = state.lastProductName || (Array.isArray(state.viewedProducts) && state.viewedProducts.length > 0 ? state.viewedProducts[0] : '');
+                    const quickAdviceEndpoint = `/api/tracking/ai-advice-quick?clickCount=${encodeURIComponent(clickCount)}&dwellTimeSeconds=${encodeURIComponent(dwellTimeSeconds)}&lastProductName=${encodeURIComponent(lastProductName)}`;
+
+                    try {
+                        const fbRes = await fetch(quickAdviceEndpoint, {
+                            method: 'GET',
+                            headers: {
+                                'Accept': 'application/json;charset=UTF-8',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            credentials: 'include'
+                        });
+                        if (fbRes.ok && fbRes.status === 200) {
+                            const fbData = await fbRes.json();
+                            if (fbData && fbData.advice) {
+                                adviceText = fbData.advice;
+                            }
+                        }
+                    } catch (fbErr) {
+                        console.warn('Fallback /api/tracking/ai-advice-quick không khả dụng:', fbErr);
                     }
                 }
 
@@ -1294,7 +1338,7 @@
                 const loggedIn = isCustomerLoggedIn();
 
                 if (type === 'analyze') {
-                    appendChatMessage('user', 'Phân tích hành vi phiên làm việc & tư vấn cho tôi');
+                    appendChatMessage('user', 'Tư vấn cho gu của bạn');
                     handleAnalyzeBehaviorAction();
                     return;
                 }
@@ -1380,7 +1424,7 @@
                     const state = window.PinkyTracker ? window.PinkyTracker.getSessionData() : {};
                     const focus = state.lastProductName ? ` (đặc biệt khi kết hợp cùng <strong>${state.lastProductName}</strong> mà bạn vừa xem)` : '';
                     appendChatMessage('bot', `
-                        <div>Với nhu cầu <em>"${text}"</em> của bạn${focus}, chuyên viên AI PinkyCloud gợi ý bạn ưu tiên các dòng có chứa <strong>Hyaluronic Acid, Niacinamide hoặc B5</strong> để vừa cấp ẩm vừa củng cố hàng rào bảo vệ da. Bạn có thể bấm nút <strong>"Phân tích hành vi &amp; Hỏi AI tư vấn nhanh"</strong> bên dưới để mình đối chiếu trực tiếp với các sản phẩm bạn đã xem nhé!</div>
+                        <div>Với nhu cầu <em>"${text}"</em> của bạn${focus}, chuyên viên AI PinkyCloud gợi ý bạn ưu tiên các dòng có chứa <strong>Hyaluronic Acid, Niacinamide hoặc B5</strong> để vừa cấp ẩm vừa củng cố hàng rào bảo vệ da. Bạn có thể bấm nút <strong>"Tư vấn cho gu của bạn"</strong> bên dưới để mình đối chiếu trực tiếp với các sản phẩm bạn đã xem nhé!</div>
                     `);
                 }
             }
