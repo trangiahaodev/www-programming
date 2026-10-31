@@ -69,7 +69,7 @@ public class SecurityConfig {
 
                         // 3. Phân quyền nghiêm ngặt
                         .requestMatchers("/checkout", "/checkout/**", "/profile", "/profile/**", "/orders", "/orders/**").hasRole("CUSTOMER")
-                        .requestMatchers("/admin", "/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/admin", "/admin/**", "/api/analytics/**").hasRole("ADMIN")
 
                         // Các đường dẫn khác bắt buộc phải đăng nhập
                         .anyRequest().authenticated()

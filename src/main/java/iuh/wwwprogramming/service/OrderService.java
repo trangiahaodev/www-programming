@@ -5,9 +5,14 @@ import iuh.wwwprogramming.dto.OrderDetailResponseDTO;
 import iuh.wwwprogramming.dto.OrderFilterDTO;
 import iuh.wwwprogramming.dto.OrderQuantityUpdateRequestDTO;
 import iuh.wwwprogramming.dto.OrderResponseDTO;
+import iuh.wwwprogramming.dto.TopProductStatDTO;
+import iuh.wwwprogramming.dto.OrderAnalyticsDTO;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
+import java.util.List;
+import java.time.LocalDate;
 
 public interface OrderService {
 
@@ -16,6 +21,12 @@ public interface OrderService {
     // =========================================================================
 
     Page<OrderResponseDTO> getOrders(OrderFilterDTO filterDTO, Pageable pageable);
+
+    List<TopProductStatDTO> getTopOrderedProducts(int limit);
+
+    List<OrderAnalyticsDTO> getOrderAnalytics(LocalDate fromDate, LocalDate toDate);
+
+    List<OrderAnalyticsDTO> getOrderAnalytics(LocalDate fromDate, LocalDate toDate, int limit);
 
     OrderResponseDTO getOrderById(String id);
 

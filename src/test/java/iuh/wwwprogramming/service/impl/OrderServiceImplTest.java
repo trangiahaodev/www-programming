@@ -4,6 +4,7 @@ import iuh.wwwprogramming.dto.OrderDetailResponseDTO;
 import iuh.wwwprogramming.dto.OrderFilterDTO;
 import iuh.wwwprogramming.dto.OrderItemQuantityUpdateDTO;
 import iuh.wwwprogramming.dto.OrderQuantityUpdateRequestDTO;
+import iuh.wwwprogramming.dto.TopProductStatDTO;
 import iuh.wwwprogramming.entity.Order;
 import iuh.wwwprogramming.entity.OrderItem;
 import iuh.wwwprogramming.entity.OrderStatus;
@@ -137,6 +138,24 @@ class OrderServiceImplTest {
         assertThat(pageable.getSort().getOrderFor("createdAt").isDescending()).isTrue();
         assertThat(pageable.getSort().getOrderFor("id")).isNotNull();
         assertThat(pageable.getSort().getOrderFor("id").isDescending()).isTrue();
+    }
+
+    @Test
+    void shouldMapTopOrderedProductsAndCapRequestedLimit() {
+        when(orderItemRepository.findTopOrderedProducts(any(Pageable.class)))
+                .thenReturn(List.of(
+                        new Object[]{"Kem chống nắng", 12L, 5L},
+                        new Object[]{"Sữa rửa mặt", 8L, 4L}
+                ));
+
+        List<TopProductStatDTO> result = orderService.getTopOrderedProducts(100);
+
+        assertThat(result).extracting(TopProductStatDTO::getProductName)
+                .containsExactly("Kem chống nắng", "Sữa rửa mặt");
+        assertThat(result.get(0).getOrderedQuantity()).isEqualTo(12);
+        ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+        verify(orderItemRepository).findTopOrderedProducts(pageableCaptor.capture());
+        assertThat(pageableCaptor.getValue().getPageSize()).isEqualTo(50);
     }
 
     @Test
