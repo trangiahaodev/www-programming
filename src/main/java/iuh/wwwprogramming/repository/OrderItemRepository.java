@@ -26,7 +26,7 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, String> {
     List<Object[]> findTopOrderedProducts(org.springframework.data.domain.Pageable pageable);
 
     @Query(value = """
-            SELECT TOP (:limit)
+            SELECT
                 oi.product_name,
                 COALESCE(p.brand, ''),
                 COALESCE(p.image_url, ''),
@@ -45,6 +45,7 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, String> {
             ORDER BY
                 SUM(CASE WHEN o.created_at >= :fromDate AND o.created_at < :toDate THEN oi.quantity ELSE 0 END) DESC,
                 COALESCE(SUM(CASE WHEN o.created_at >= :fromDate AND o.created_at < :toDate THEN oi.subtotal ELSE 0 END), 0) DESC
+            LIMIT :limit
             """, nativeQuery = true)
     List<Object[]> findOrderAnalytics(
             @Param("fromDate") LocalDateTime fromDate,
