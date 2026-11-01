@@ -95,7 +95,7 @@ public class TrackingServiceImpl implements TrackingService {
                 .action(action)
                 .productId(productId)
                 .productName(productName)
-                .clickCount(1)
+                .clickCount(0)
                 .dwellSeconds(0)
                 .addToCartCount(safeQuantity)
                 .pageUrl(isBuyNow ? "/checkout" : "/cart")
@@ -139,6 +139,9 @@ public class TrackingServiceImpl implements TrackingService {
     }
 
     private int resolveClickCount(TrackingEventDTO dto, String eventType) {
+        if ("ASK_AI_CONSULT".equalsIgnoreCase(eventType) || "PAGE_VIEW".equalsIgnoreCase(eventType)) {
+            return 0;
+        }
         if (dto.getClickCount() != null) {
             return Math.max(0, dto.getClickCount());
         }
