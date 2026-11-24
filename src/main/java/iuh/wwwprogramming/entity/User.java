@@ -14,7 +14,8 @@ import java.util.List;
     name = "users",
     indexes = {
         @Index(name = "idx_users_code", columnList = "user_code"),
-        @Index(name = "idx_users_email", columnList = "email")
+        @Index(name = "idx_users_email", columnList = "email"),
+        @Index(name = "idx_users_is_deleted", columnList = "is_deleted")
     }
 )
 @NoArgsConstructor
@@ -56,6 +57,10 @@ public class User {
     @Builder.Default
     @Column(nullable = false)
     private Boolean active = true;
+
+    @Builder.Default
+    @Column(name = "is_deleted", nullable = false)
+    private Boolean isDeleted = false;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     @ToString.Exclude

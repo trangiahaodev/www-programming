@@ -242,12 +242,12 @@ public class HomeContentServiceImpl implements HomeContentService {
 
     @Override
     public long getTotalActiveProducts() {
-        return productRepository.count();
+        return productRepository.countByIsDeletedFalse();
     }
 
     @Override
     public long getTotalCategories() {
-        return categoryRepository.count();
+        return categoryRepository.countByIsDeletedFalse();
     }
 
     private List<ProductCardDTO> findLinkedProducts(List<String> productIds) {
@@ -255,7 +255,9 @@ public class HomeContentServiceImpl implements HomeContentService {
             return List.of();
         }
 
-        List<Product> products = productRepository.findAllById(productIds);
+        List<Product> products = productRepository.findAllById(productIds).stream()
+                .filter(p -> !Boolean.TRUE.equals(p.getIsDeleted()))
+                .toList();
         if (products.isEmpty()) {
             // Fallback to any 2 active products if IDs do not match
             products = productRepository.findAll(PageRequest.of(0, 2)).getContent();

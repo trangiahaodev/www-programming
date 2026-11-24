@@ -20,7 +20,7 @@
                 <span>/</span>
                 <span class="breadcrumb-current">Thêm mới</span>
             </nav>
-            <h1 class="page-title">Thêm mới sản phẩm mỹ phẩm</h1>
+            <h1 class="page-title">Thêm mới sản phẩm</h1>
             <p class="page-subtitle">Nhập thông tin chi tiết và phân loại danh mục cho sản phẩm mới trong cửa hàng</p>
         </div>
         <div>
@@ -66,9 +66,7 @@
                                    placeholder="VD: SP260001"
                                    style="text-transform: uppercase;"
                                    autofocus
-                                   required
-                                   aria-describedby="productCodeHelp productCodeError">
-                            <p class="form-help-text" id="productCodeHelp">Mã duy nhất nhận diện sản phẩm trong kho (từ 3 đến 20 ký tự).</p>
+                                   required>
                             <p th:if="${#fields.hasErrors('productCode')}" th:errors="*{productCode}" class="form-error-text" id="productCodeError"></p>
                         </div>
 
@@ -83,9 +81,7 @@
                                    class="form-control"
                                    th:errorclass="is-invalid"
                                    placeholder="VD: Serum Dưỡng Ẩm Phục Hồi Da B5"
-                                   required
-                                   aria-describedby="nameHelp nameError">
-                            <p class="form-help-text" id="nameHelp">Tên đầy đủ của sản phẩm mỹ phẩm hiển thị cho khách hàng (2 - 150 ký tự).</p>
+                                   required>
                             <p th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="form-error-text" id="nameError"></p>
                         </div>
 
@@ -94,7 +90,7 @@
                             <!-- Field: Price -->
                             <div class="form-group">
                                 <label for="price" class="form-label">
-                                    Giá bán (VNĐ) <span class="required-mark">*</span>
+                                    Giá bán <span class="required-mark">*</span>
                                 </label>
                                 <div class="input-addon-wrapper">
                                     <input type="number"
@@ -105,8 +101,7 @@
                                            class="form-control"
                                            th:errorclass="is-invalid"
                                            placeholder="0"
-                                           required
-                                           aria-describedby="priceError">
+                                           required>
                                     <span class="input-addon">₫</span>
                                 </div>
                                 <p th:if="${#fields.hasErrors('price')}" th:errors="*{price}" class="form-error-text" id="priceError"></p>
@@ -124,8 +119,7 @@
                                        class="form-control"
                                        th:errorclass="is-invalid"
                                        placeholder="0"
-                                       required
-                                       aria-describedby="stockQuantityError">
+                                       required>
                                 <p th:if="${#fields.hasErrors('stockQuantity')}" th:errors="*{stockQuantity}" class="form-error-text" id="stockQuantityError"></p>
                             </div>
                         </div>
@@ -151,8 +145,7 @@
                                       rows="6"
                                       maxlength="2000"
                                       placeholder="Mô tả chi tiết về sản phẩm, công dụng chính, thành phần nổi bật và hướng dẫn sử dụng..."
-                                      oninput="updateCharCount(this)"
-                                      aria-describedby="descriptionError"></textarea>
+                                      oninput="updateCharCount(this)"></textarea>
                             <p th:if="${#fields.hasErrors('description')}" th:errors="*{description}" class="form-error-text" id="descriptionError"></p>
                         </div>
                     </div>
@@ -171,20 +164,18 @@
                     <div class="card-body form-layout">
                         <div class="form-group">
                             <label for="categoryId" class="form-label">
-                                Danh mục mỹ phẩm <span class="required-mark">*</span>
+                                Danh mục sản phẩm <span class="required-mark">*</span>
                             </label>
                             <select id="categoryId"
                                     th:field="*{categoryId}"
                                     class="form-control"
                                     th:errorclass="is-invalid"
-                                    required
-                                    aria-describedby="categoryIdHelp categoryIdError">
-                                <option value="" disabled selected>-- Chọn danh mục phù hợp --</option>
+                                    required>
+                                <option value="" disabled selected>-- Chọn danh mục --</option>
                                 <option th:each="cat : ${categories}"
                                         th:value="${cat.id}"
                                         th:text="${cat.name}">Chăm sóc da mặt</option>
                             </select>
-                            <p class="form-help-text" id="categoryIdHelp">Gán sản phẩm vào danh mục chính để hiển thị trên website.</p>
                             <p th:if="${#fields.hasErrors('categoryId')}" th:errors="*{categoryId}" class="form-error-text" id="categoryIdError"></p>
                         </div>
                     </div>
@@ -204,15 +195,13 @@
                                    class="form-control"
                                    th:errorclass="is-invalid"
                                    placeholder="VD: /images/products/serum-b5.jpg"
-                                   oninput="updateImagePreview(this.value)"
-                                   aria-describedby="imageUrlHelp imageUrlError">
-                            <p class="form-help-text" id="imageUrlHelp">Nhập đường dẫn tĩnh hoặc URL ảnh sản phẩm.</p>
+                                   oninput="updateImagePreview(this.value)">
                             <p th:if="${#fields.hasErrors('imageUrl')}" th:errors="*{imageUrl}" class="form-error-text" id="imageUrlError"></p>
                         </div>
 
                         <!-- Live Preview Box -->
                         <div class="image-preview-container">
-                            <label class="form-label" style="font-size: 13px; color: var(--color-text-muted);">Xem trước hình ảnh:</label>
+                            <label class="form-label" style="font-size: 13px; color: var(--color-text-secondary);">Xem trước hình ảnh</label>
                             <div class="image-preview-box">
                                 <img id="previewImg" src="" alt="Xem trước ảnh sản phẩm" onerror="handleImageError()">
                                 <div id="previewPlaceholder" class="image-preview-placeholder">
@@ -229,16 +218,15 @@
                 <!-- Card 5: Visibility Status -->
                 <div class="card" style="margin-bottom: 0;">
                     <div class="card-header">
-                        <h2 class="card-title">Trạng thái phát hành</h2>
+                        <h2 class="card-title">Trạng thái kinh doanh</h2>
                     </div>
                     <div class="card-body form-layout">
-                        <label class="checkbox-card" for="activeCheckbox">
-                            <input type="checkbox" id="activeCheckbox" th:field="*{active}">
-                            <div class="checkbox-card-content">
-                                <span class="checkbox-card-title">Kích hoạt sản phẩm</span>
-                                <span class="checkbox-card-desc">Hiển thị sản phẩm này ngay trên cửa hàng để khách hàng có thể tìm kiếm và đặt mua.</span>
-                            </div>
-                        </label>
+                        <div class="form-check" style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="activeCheckbox" th:field="*{active}" style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--color-primary);">
+                            <label class="form-check-label" for="activeCheckbox" style="font-size: 14px; font-weight: 500; cursor: pointer; user-select: none;">
+                                Kích hoạt kinh doanh (Hiển thị sản phẩm trên cửa hàng)
+                            </label>
+                        </div>
                     </div>
                 </div>
 
@@ -277,9 +265,11 @@
     function updateImagePreview(url) {
         const previewImg = document.getElementById('previewImg');
         const placeholder = document.getElementById('previewPlaceholder');
+        if (!previewImg || !placeholder) return;
 
-        if (url && url.trim() !== '') {
-            previewImg.src = url.trim();
+        const trimmed = url ? url.trim() : '';
+        if (trimmed) {
+            previewImg.src = trimmed;
             previewImg.style.display = 'block';
             placeholder.style.display = 'none';
         } else {
@@ -292,8 +282,10 @@
     function handleImageError() {
         const previewImg = document.getElementById('previewImg');
         const placeholder = document.getElementById('previewPlaceholder');
-        previewImg.style.display = 'none';
-        placeholder.style.display = 'flex';
+        if (previewImg && placeholder) {
+            previewImg.style.display = 'none';
+            placeholder.style.display = 'flex';
+        }
     }
 
     document.addEventListener('DOMContentLoaded', function () {

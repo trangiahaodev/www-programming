@@ -139,7 +139,7 @@
                 </div>
 
                 <!-- Search form on Hero Banner -->
-                <form th:action="@{/san-pham}" method="GET" class="pl-hero-search hero-banner-search-form" style="max-width: 580px; margin: 0;">
+                <form th:action="@{/san-pham}" method="GET" class="pl-hero-search hero-banner-search-form">
                     <input type="text"
                            name="keyword"
                            placeholder="Tìm sản phẩm, thương hiệu (Anessa, Serum, Retinol)..."
@@ -257,17 +257,17 @@
             <!-- Hot Deals Grid (6 products per row) -->
             <div class="flash-deals-grid">
                 <div th:each="prod, iter : ${hotProducts}" class="flash-deal-item-shell">
-                    <div class="pc" style="box-shadow: none; border: none; background: transparent;">
-                        <a th:href="@{/san-pham/{id}(id=${prod.id})}" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; flex: 1;">
-                            <div class="pc-img-wrap" style="background: transparent;">
+                    <div class="pc pc--flash">
+                        <a th:href="@{/san-pham/{id}(id=${prod.id})}" class="pc-link">
+                            <div class="pc-img-wrap">
                                 <img th:src="@{${prod.image}}" th:alt="${prod.name}" class="pc-img" loading="lazy">
                                 <span th:if="${prod.discount != null and prod.discount > 0}" class="pc-badge pc-badge--sale" th:text="'⚡ -' + ${prod.discount} + '%'">-20%</span>
                             </div>
-                            <div class="pc-body" style="padding: 10px 4px 4px 4px;">
+                            <div class="pc-body">
                                 <div class="pc-meta" th:text="${prod.brand}">Thương hiệu</div>
-                                <h3 class="pc-name" style="font-size: 0.9rem; height: 2.7em;" th:text="${prod.name}">Tên sản phẩm</h3>
-                                <div class="pc-price-row" style="margin-bottom: 4px;">
-                                    <span class="pc-price" style="color: #e24f76;" th:text="${prod.formattedPrice}">350.000₫</span>
+                                <h3 class="pc-name" th:text="${prod.name}">Tên sản phẩm</h3>
+                                <div class="pc-price-row">
+                                    <span class="pc-price" th:text="${prod.formattedPrice}">350.000₫</span>
                                     <span class="pc-old" th:if="${prod.formattedOriginalPrice != null}" th:text="${prod.formattedOriginalPrice}">450.000₫</span>
                                 </div>
                             </div>

@@ -28,7 +28,6 @@
         </div>
 
         <nav class="sidebar-nav" aria-label="Admin Navigation">
-<a class="nav-link" th:href="@{/admin/users}">Người dùng</a>
             <div class="nav-section-title">Tổng quan</div>
             <a th:href="@{/admin}" class="nav-link"
                th:classappend="${activeMenu == 'dashboard'} ? ' active' : ''">
@@ -65,6 +64,17 @@
                 </svg>
                 <span>Đơn hàng</span>
             </a>
+
+            <a th:href="@{/admin/users}"
+               class="nav-link"
+               th:classappend="${activeMenu == 'users'} ? ' active' : ''">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                </svg>
+                <span>Người dùng</span>
+            </a>
+
+
 
             <a th:href="@{/admin/order-statistics}"
                class="nav-link"

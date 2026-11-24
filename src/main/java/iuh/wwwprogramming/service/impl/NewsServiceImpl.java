@@ -532,7 +532,9 @@ public class NewsServiceImpl implements NewsService {
             return List.of();
         }
 
-        List<Product> products = productRepository.findAllById(productIds);
+        List<Product> products = productRepository.findAllById(productIds).stream()
+                .filter(p -> !Boolean.TRUE.equals(p.getIsDeleted()))
+                .toList();
         if (products.isEmpty()) {
             List<String> upperCodes = productIds.stream().map(String::toUpperCase).collect(Collectors.toList());
             products = productRepository.findByProductCodeIn(upperCodes);

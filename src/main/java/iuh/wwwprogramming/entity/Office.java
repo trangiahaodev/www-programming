@@ -6,7 +6,12 @@ import lombok.*;
 import java.util.List;
 
 @Entity
-@Table(name = "offices")
+@Table(
+    name = "offices",
+    indexes = {
+        @Index(name = "idx_offices_is_deleted", columnList = "is_deleted")
+    }
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -58,4 +63,8 @@ public class Office {
     @Column(name = "active")
     @Builder.Default
     private boolean active = true;
+
+    @Builder.Default
+    @Column(name = "is_deleted", nullable = false)
+    private Boolean isDeleted = false;
 }

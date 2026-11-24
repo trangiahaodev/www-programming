@@ -15,21 +15,23 @@ import java.util.Optional;
 public interface ProductRepository extends JpaRepository<Product, String> {
 
     // =========================================================================
-    // 1. NHÓM HÀM CHO ADMIN (Bao gồm tất cả trạng thái, dùng cho CRUD)
+    // 1. NHÓM HÀM CHO ADMIN (Bao gồm tất cả trạng thái, dùng cho CRUD, lọc Soft Delete)
     // =========================================================================
 
     @Query(
             value = """
             SELECT p FROM Product p
             JOIN FETCH p.category c
-            WHERE (:keyword IS NULL OR :keyword = ''
+            WHERE (p.isDeleted = false OR p.isDeleted IS NULL)
+              AND (:keyword IS NULL OR :keyword = ''
                    OR LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
                    OR LOWER(p.productCode) LIKE LOWER(CONCAT('%', :keyword, '%')))
               AND (:categoryId IS NULL OR :categoryId = '' OR c.id = :categoryId)
         """,
             countQuery = """
             SELECT COUNT(p) FROM Product p
-            WHERE (:keyword IS NULL OR :keyword = ''
+            WHERE (p.isDeleted = false OR p.isDeleted IS NULL)
+              AND (:keyword IS NULL OR :keyword = ''
                    OR LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
                    OR LOWER(p.productCode) LIKE LOWER(CONCAT('%', :keyword, '%')))
               AND (:categoryId IS NULL OR :categoryId = '' OR p.category.id = :categoryId)
@@ -41,30 +43,45 @@ public interface ProductRepository extends JpaRepository<Product, String> {
             Pageable pageable
     );
 
-    @Query("SELECT p FROM Product p JOIN FETCH p.category c WHERE p.id = :id")
+    @Query("SELECT p FROM Product p JOIN FETCH p.category c WHERE p.id = :id AND (p.isDeleted = false OR p.isDeleted IS NULL)")
     Optional<Product> findByIdWithCategory(@Param("id") String id);
+
+    Optional<Product> findByIdAndIsDeletedFalse(String id);
 
     boolean existsByProductCode(String productCode);
 
+    boolean existsByProductCodeAndIsDeletedFalse(String productCode);
+
     boolean existsByName(String name);
+
+    boolean existsByNameAndIsDeletedFalse(String name);
 
     boolean existsByNameAndIdNot(String name, String id);
 
+    boolean existsByNameAndIdNotAndIsDeletedFalse(String name, String id);
+
     long countByCategoryId(String categoryId);
+
+    long countByCategoryIdAndIsDeletedFalse(String categoryId);
 
     boolean existsByCategoryId(String categoryId);
 
+    boolean existsByCategoryIdAndIsDeletedFalse(String categoryId);
+
+    long countByIsDeletedFalse();
+
 
     // =========================================================================
-    // 2. NHÓM HÀM CHO CUSTOMER (Bắt buộc kiểm tra kép p.active = true AND c.active = true)
+    // 2. NHÓM HÀM CHO CUSTOMER (Bắt buộc kiểm tra kép p.active = true AND c.active = true, lọc Soft Delete)
     // =========================================================================
 
-    // Tránh conflict với hàm search của Admin
     @Query(
             value = """
             SELECT p FROM Product p
             JOIN FETCH p.category c
-            WHERE p.active = true
+            WHERE (p.isDeleted = false OR p.isDeleted IS NULL)
+              AND (c.isDeleted = false OR c.isDeleted IS NULL)
+              AND p.active = true
               AND c.active = true
               AND (:keyword IS NULL OR :keyword = ''
                    OR LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
@@ -76,7 +93,9 @@ public interface ProductRepository extends JpaRepository<Product, String> {
             countQuery = """
             SELECT COUNT(p) FROM Product p
             JOIN p.category c
-            WHERE p.active = true
+            WHERE (p.isDeleted = false OR p.isDeleted IS NULL)
+              AND (c.isDeleted = false OR c.isDeleted IS NULL)
+              AND p.active = true
               AND c.active = true
               AND (:keyword IS NULL OR :keyword = ''
                    OR LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
@@ -92,21 +111,22 @@ public interface ProductRepository extends JpaRepository<Product, String> {
             Pageable pageable
     );
 
-    // Tránh conflict với hàm findById của Admin
-    @Query("SELECT p FROM Product p JOIN FETCH p.category c WHERE p.id = :id AND p.active = true AND c.active = true")
+    @Query("SELECT p FROM Product p JOIN FETCH p.category c WHERE p.id = :id AND (p.isDeleted = false OR p.isDeleted IS NULL) AND (c.isDeleted = false OR c.isDeleted IS NULL) AND p.active = true AND c.active = true")
     Optional<Product> findActiveByIdWithCategory(@Param("id") String id);
 
-    @Query("SELECT p FROM Product p JOIN FETCH p.category c WHERE p.productCode = :productCode AND p.active = true AND c.active = true")
+    @Query("SELECT p FROM Product p JOIN FETCH p.category c WHERE p.productCode = :productCode AND (p.isDeleted = false OR p.isDeleted IS NULL) AND (c.isDeleted = false OR c.isDeleted IS NULL) AND p.active = true AND c.active = true")
     Optional<Product> findByProductCodeWithCategory(@Param("productCode") String productCode);
 
-    @Query("SELECT p FROM Product p JOIN FETCH p.category c WHERE UPPER(p.productCode) IN :codes AND p.active = true AND c.active = true")
+    @Query("SELECT p FROM Product p JOIN FETCH p.category c WHERE UPPER(p.productCode) IN :codes AND (p.isDeleted = false OR p.isDeleted IS NULL) AND (c.isDeleted = false OR c.isDeleted IS NULL) AND p.active = true AND c.active = true")
     List<Product> findByProductCodeIn(@Param("codes") List<String> codes);
 
     @Query(
             value = """
             SELECT p FROM Product p
             JOIN FETCH p.category c
-            WHERE p.active = true
+            WHERE (p.isDeleted = false OR p.isDeleted IS NULL)
+              AND (c.isDeleted = false OR c.isDeleted IS NULL)
+              AND p.active = true
               AND c.active = true
               AND c.id = :categoryId
               AND p.id <> :excludeProductId
@@ -122,7 +142,9 @@ public interface ProductRepository extends JpaRepository<Product, String> {
             value = """
             SELECT p FROM Product p
             JOIN FETCH p.category c
-            WHERE p.active = true AND c.active = true AND (p.isHot = true OR p.discount >= 15)
+            WHERE (p.isDeleted = false OR p.isDeleted IS NULL)
+              AND (c.isDeleted = false OR c.isDeleted IS NULL)
+              AND p.active = true AND c.active = true AND (p.isHot = true OR p.discount >= 15)
         """
     )
     List<Product> findHotProducts(Pageable pageable);
@@ -131,7 +153,9 @@ public interface ProductRepository extends JpaRepository<Product, String> {
             value = """
             SELECT p FROM Product p
             JOIN FETCH p.category c
-            WHERE p.active = true AND c.active = true AND p.isNew = true
+            WHERE (p.isDeleted = false OR p.isDeleted IS NULL)
+              AND (c.isDeleted = false OR c.isDeleted IS NULL)
+              AND p.active = true AND c.active = true AND p.isNew = true
         """
     )
     List<Product> findNewProducts(Pageable pageable);
@@ -140,23 +164,30 @@ public interface ProductRepository extends JpaRepository<Product, String> {
             value = """
             SELECT p FROM Product p
             JOIN FETCH p.category c
-            WHERE p.active = true
+            WHERE (p.isDeleted = false OR p.isDeleted IS NULL)
+              AND (c.isDeleted = false OR c.isDeleted IS NULL)
+              AND p.active = true
               AND c.active = true
               AND p.brand IN ('Anessa', 'Vichy', 'MartiDerm', 'L''Oreal Paris', 'La Roche-Posay', 'Skin1004', 'Cosrx', 'Torriden', 'CeraVe', '3CE', 'Maybelline')
         """
     )
     List<Product> findFeaturedBrandProducts(Pageable pageable);
 
-    @Query("SELECT DISTINCT p.brand FROM Product p JOIN p.category c WHERE p.active = true AND c.active = true ORDER BY p.brand ASC")
+    @Query("SELECT DISTINCT p.brand FROM Product p JOIN p.category c WHERE (p.isDeleted = false OR p.isDeleted IS NULL) AND (c.isDeleted = false OR c.isDeleted IS NULL) AND p.active = true AND c.active = true ORDER BY p.brand ASC")
     List<String> findDistinctBrands();
 
 
     // =========================================================================
-    // 3. NHÓM HÀM CHO CHECKOUT & CART (Bổ sung từ nhánh V2)
+    // 3. NHÓM HÀM CHO CHECKOUT & CART
     // =========================================================================
 
-    // Tích hợp từ V2: Hàm này cực kỳ quan trọng để OrderServiceImpl trừ số lượng tồn kho khi chốt đơn
-    Optional<Product> findByIdAndActiveTrue(String id);
+    @Query("SELECT p FROM Product p WHERE p.id = :id AND p.active = true AND (p.isDeleted = false OR p.isDeleted IS NULL)")
+    Optional<Product> findByIdAndActiveTrue(@Param("id") String id);
 
-    Optional<Product> findByProductCode(String productCode);
+    Optional<Product> findByIdAndActiveTrueAndIsDeletedFalse(String id);
+
+    @Query("SELECT p FROM Product p WHERE p.productCode = :productCode AND (p.isDeleted = false OR p.isDeleted IS NULL)")
+    Optional<Product> findByProductCode(@Param("productCode") String productCode);
+
+    Optional<Product> findByProductCodeAndIsDeletedFalse(String productCode);
 }

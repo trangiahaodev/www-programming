@@ -11,6 +11,11 @@ import org.springframework.web.bind.annotation.*;
 
 @Controller @RequiredArgsConstructor @RequestMapping("/admin/users")
 public class AdminUserController {
+    @ModelAttribute("activeMenu")
+    public String activeMenu() {
+        return "users";
+    }
+
     private final UserService users;
     @GetMapping
     public String list(@Valid @ModelAttribute("query") UserSearchDTO query, BindingResult errors, Model model) {

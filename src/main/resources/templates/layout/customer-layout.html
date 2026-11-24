@@ -104,8 +104,8 @@
 <div class="pl-toast-container" id="toastContainer" aria-live="polite" aria-atomic="true"></div>
 
 <!-- Hidden Flash Message Carriers for JS Toast Initialization -->
-<div th:if="${successMessage}" id="flashSuccessMsg" th:data-msg="${successMessage}" style="display:none;"></div>
-<div th:if="${errorMessage}" id="flashErrorMsg" th:data-msg="${errorMessage}" style="display:none;"></div>
+<div th:if="${successMessage}" id="flashSuccessMsg" th:data-msg="${successMessage}" class="d-none"></div>
+<div th:if="${errorMessage}" id="flashErrorMsg" th:data-msg="${errorMessage}" class="d-none"></div>
 
 <!-- Content slot for child pages -->
 <main th:replace="${content}">
@@ -117,11 +117,11 @@
     <div class="container">
         <div class="footer-grid">
             <div class="footer-col">
-                <div class="header-brand" style="margin-bottom: 14px;">
+                <div class="header-brand footer-brand-wrap">
                     <img th:src="@{/IMG/logo.jpg}" alt="PinkyCloud Logo" class="header-logo">
                     <span>Pinky<span class="brand-text-pink">Cloud</span></span>
                 </div>
-                <p style="color: var(--pl-text-body); max-width: 340px; margin-bottom: 16px;">
+                <p class="footer-desc">
                     PinkyCloud – Thiên đường mỹ phẩm chính hãng và liệu trình chăm sóc da khoa học, nâng niu làn da rạng rỡ của bạn mỗi ngày.
                 </p>
                 <div class="footer-social-list">
@@ -152,9 +152,9 @@
             </div>
             <div class="footer-col">
                 <h5>Liên hệ hỗ trợ</h5>
-                <p style="margin-bottom: 6px;">📍 12 Nguyễn Văn Bảo, Phường 4, Gò Vấp, TP.HCM</p>
-                <p style="margin-bottom: 6px;">📞 Hotline: 1900 6868 (8:00 - 22:00)</p>
-                <p style="margin-bottom: 6px;">✉️ Email: support@pinkycloud.vn</p>
+                <p class="footer-contact-item">📍 12 Nguyễn Văn Bảo, Phường 4, Gò Vấp, TP.HCM</p>
+                <p class="footer-contact-item">📞 Hotline: 1900 6868 (8:00 - 22:00)</p>
+                <p class="footer-contact-item">✉️ Email: support@pinkycloud.vn</p>
             </div>
         </div>
         <div class="footer-bottom">

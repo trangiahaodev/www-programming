@@ -17,7 +17,8 @@ import java.util.List;
         indexes = {
                 @Index(name = "idx_orders_code", columnList = "order_code"),
                 @Index(name = "idx_orders_status", columnList = "status"),
-                @Index(name = "idx_orders_created_at", columnList = "created_at")
+                @Index(name = "idx_orders_created_at", columnList = "created_at"),
+                @Index(name = "idx_orders_is_deleted", columnList = "is_deleted")
         }
 )
 @NoArgsConstructor
@@ -73,6 +74,10 @@ public class Order {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 30)
     private OrderStatus status;
+
+    @Builder.Default
+    @Column(name = "is_deleted", nullable = false)
+    private Boolean isDeleted = false;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

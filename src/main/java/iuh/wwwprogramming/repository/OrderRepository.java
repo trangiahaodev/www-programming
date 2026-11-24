@@ -21,7 +21,8 @@ public interface OrderRepository extends JpaRepository<Order, String> {
     @Query(
             value = """
             SELECT o FROM Order o
-            WHERE (:keyword IS NULL OR :keyword = ''
+            WHERE (o.isDeleted = false OR o.isDeleted IS NULL)
+              AND (:keyword IS NULL OR :keyword = ''
                    OR LOWER(o.orderCode) LIKE LOWER(CONCAT('%', :keyword, '%'))
                    OR LOWER(o.customerName) LIKE LOWER(CONCAT('%', :keyword, '%'))
                    OR o.customerPhone LIKE CONCAT('%', :keyword, '%'))
@@ -31,7 +32,8 @@ public interface OrderRepository extends JpaRepository<Order, String> {
         """,
             countQuery = """
             SELECT COUNT(o) FROM Order o
-            WHERE (:keyword IS NULL OR :keyword = ''
+            WHERE (o.isDeleted = false OR o.isDeleted IS NULL)
+              AND (:keyword IS NULL OR :keyword = ''
                    OR LOWER(o.orderCode) LIKE LOWER(CONCAT('%', :keyword, '%'))
                    OR LOWER(o.customerName) LIKE LOWER(CONCAT('%', :keyword, '%'))
                    OR o.customerPhone LIKE CONCAT('%', :keyword, '%'))
@@ -48,19 +50,26 @@ public interface OrderRepository extends JpaRepository<Order, String> {
             Pageable pageable
     );
 
-    @Query("SELECT o FROM Order o LEFT JOIN FETCH o.items WHERE o.id = :id")
+    @Query("SELECT o FROM Order o LEFT JOIN FETCH o.items WHERE o.id = :id AND (o.isDeleted = false OR o.isDeleted IS NULL)")
     Optional<Order> findByIdWithItems(@Param("id") String id);
+
+    Optional<Order> findByIdAndIsDeletedFalse(String id);
 
 
     // =========================================================================
     // 2. NHÓM HÀM DÙNG CHUNG
     // =========================================================================
 
-    Optional<Order> findByOrderCode(String orderCode);
+    @Query("SELECT o FROM Order o WHERE o.orderCode = :orderCode AND (o.isDeleted = false OR o.isDeleted IS NULL)")
+    Optional<Order> findByOrderCode(@Param("orderCode") String orderCode);
+
+    Optional<Order> findByOrderCodeAndIsDeletedFalse(String orderCode);
 
     long countByCreatedAtBetweenAndStatusNot(LocalDateTime start, LocalDateTime end, OrderStatus excludedStatus);
 
     boolean existsByOrderCode(String orderCode);
+
+    boolean existsByOrderCodeAndIsDeletedFalse(String orderCode);
 
 
     // =========================================================================
@@ -70,11 +79,14 @@ public interface OrderRepository extends JpaRepository<Order, String> {
     @Query("SELECT DISTINCT o FROM Order o " +
             "LEFT JOIN FETCH o.user u " +
             "LEFT JOIN FETCH o.items i " +
-            "WHERE o.orderCode = :orderCode")
+            "WHERE o.orderCode = :orderCode AND (o.isDeleted = false OR o.isDeleted IS NULL)")
     Optional<Order> findWithDetailsByOrderCode(@Param("orderCode") String orderCode);
 
-    List<Order> findByUserEmailOrderByCreatedAtDesc(String email);
+    @Query("SELECT o FROM Order o WHERE o.user.email = :email AND (o.isDeleted = false OR o.isDeleted IS NULL) ORDER BY o.createdAt DESC")
+    List<Order> findByUserEmailOrderByCreatedAtDesc(@Param("email") String email);
 
     // TỪ NHÁNH AUTH-LOGIN: Kiểm tra User có đơn hàng không để xử lý ràng buộc khi xóa tài khoản
     boolean existsByUserId(String userId);
+
+    boolean existsByUserIdAndIsDeletedFalse(String userId);
 }

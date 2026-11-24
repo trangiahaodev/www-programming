@@ -31,7 +31,12 @@ class UserDeleteIntegrationTest {
     @Autowired UserService users;
     @Autowired ShopUserDetailsService details;
     User admin, customer;
-    @BeforeEach void setup() { admin=account("ROLE_ADMIN"); customer=account("ROLE_CUSTOMER"); }
+    @BeforeEach void setup() {
+        orders.deleteAll();
+        repository.deleteAll();
+        admin=account("ROLE_ADMIN");
+        customer=account("ROLE_CUSTOMER");
+    }
     User account(String role) {
         String id=UUID.randomUUID().toString();
         return repository.saveAndFlush(User.builder().email(id+"@example.test").userCode(id.substring(0,20))
@@ -46,7 +51,8 @@ class UserDeleteIntegrationTest {
             .param("keyword","sample").param("page","2").param("size","10"))
             .andExpect(redirectedUrl("/admin/users?keyword=sample&page=2&size=10"))
             .andExpect(flash().attributeExists("successMessage"));
-        assertThat(repository.existsById(customer.getId())).isFalse();
+        assertThat(repository.findByIdAndIsDeletedFalse(customer.getId())).isEmpty();
+        assertThat(repository.findById(customer.getId()).orElseThrow().getIsDeleted()).isTrue();
         mvc.perform(get("/").with(user(oldPrincipal))).andExpect(redirectedUrl("/login?expired"));
     }
     @ParameterizedTest

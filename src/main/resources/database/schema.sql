@@ -45,10 +45,12 @@ CREATE TABLE `users` (
     `address` VARCHAR(255) NULL,
     `role` VARCHAR(30) NOT NULL DEFAULT 'ROLE_CUSTOMER',
     `active` BOOLEAN NOT NULL DEFAULT TRUE,
+    `is_deleted` BOOLEAN NOT NULL DEFAULT FALSE,
     `created_at` DATETIME(6) NULL DEFAULT CURRENT_TIMESTAMP(6),
     `updated_at` DATETIME(6) NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
     INDEX `idx_users_code` (`user_code`),
-    INDEX `idx_users_email` (`email`)
+    INDEX `idx_users_email` (`email`),
+    INDEX `idx_users_is_deleted` (`is_deleted`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------------------------------
@@ -62,10 +64,12 @@ CREATE TABLE `categories` (
     `name` VARCHAR(150) NOT NULL,
     `description` VARCHAR(500) NULL,
     `active` BOOLEAN NOT NULL DEFAULT TRUE,
+    `is_deleted` BOOLEAN NOT NULL DEFAULT FALSE,
     `created_at` DATETIME(6) NULL DEFAULT CURRENT_TIMESTAMP(6),
     `updated_at` DATETIME(6) NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
     INDEX `idx_categories_code` (`category_code`),
-    INDEX `idx_categories_name` (`name`)
+    INDEX `idx_categories_name` (`name`),
+    INDEX `idx_categories_is_deleted` (`is_deleted`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------------------------------
@@ -90,6 +94,7 @@ CREATE TABLE `products` (
     `usage_instructions` LONGTEXT NULL,
     `barcode` VARCHAR(50) NULL,
     `is_active` BOOLEAN NOT NULL DEFAULT TRUE,
+    `is_deleted` BOOLEAN NOT NULL DEFAULT FALSE,
     `is_hot` BOOLEAN NOT NULL DEFAULT FALSE,
     `is_new` BOOLEAN NOT NULL DEFAULT FALSE,
     `rating` DOUBLE NOT NULL DEFAULT 5.0,
@@ -101,7 +106,8 @@ CREATE TABLE `products` (
     INDEX `idx_products_code` (`product_code`),
     INDEX `idx_products_name` (`name`),
     INDEX `idx_products_brand` (`brand`),
-    INDEX `idx_products_category` (`category_id`)
+    INDEX `idx_products_category` (`category_id`),
+    INDEX `idx_products_is_deleted` (`is_deleted`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------------------------------
@@ -122,11 +128,13 @@ CREATE TABLE `orders` (
     `payment_method` VARCHAR(50) NOT NULL DEFAULT 'COD',
     `payment_status` VARCHAR(30) NOT NULL DEFAULT 'UNPAID',
     `status` VARCHAR(30) NOT NULL,
+    `is_deleted` BOOLEAN NOT NULL DEFAULT FALSE,
     `created_at` DATETIME(6) NULL DEFAULT CURRENT_TIMESTAMP(6),
     `updated_at` DATETIME(6) NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
     INDEX `idx_orders_code` (`order_code`),
     INDEX `idx_orders_status` (`status`),
-    INDEX `idx_orders_created_at` (`created_at`)
+    INDEX `idx_orders_created_at` (`created_at`),
+    INDEX `idx_orders_is_deleted` (`is_deleted`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------------------------------
@@ -193,11 +201,13 @@ CREATE TABLE `news_articles` (
     `views_count` BIGINT NOT NULL DEFAULT 0,
     `is_featured` BOOLEAN NOT NULL DEFAULT FALSE,
     `active` BOOLEAN NOT NULL DEFAULT TRUE,
+    `is_deleted` BOOLEAN NOT NULL DEFAULT FALSE,
     `created_at` DATETIME(6) NULL DEFAULT CURRENT_TIMESTAMP(6),
     `updated_at` DATETIME(6) NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
     INDEX `idx_articles_slug` (`slug`),
     INDEX `idx_articles_category` (`category`),
-    INDEX `idx_articles_active` (`active`)
+    INDEX `idx_articles_active` (`active`),
+    INDEX `idx_articles_is_deleted` (`is_deleted`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------------------------------
@@ -216,7 +226,9 @@ CREATE TABLE `offices` (
     `support_type` VARCHAR(100) NULL,
     `coupon` VARCHAR(50) NULL,
     `image` VARCHAR(500) NULL,
-    `active` BOOLEAN NOT NULL DEFAULT TRUE
+    `active` BOOLEAN NOT NULL DEFAULT TRUE,
+    `is_deleted` BOOLEAN NOT NULL DEFAULT FALSE,
+    INDEX `idx_offices_is_deleted` (`is_deleted`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------------------------------
@@ -249,11 +261,13 @@ CREATE TABLE `vouchers` (
     `badge_text` VARCHAR(100) NULL,
     `priority` INT NOT NULL DEFAULT 50,
     `active` BOOLEAN NOT NULL DEFAULT TRUE,
+    `is_deleted` BOOLEAN NOT NULL DEFAULT FALSE,
     `created_at` DATETIME(6) NULL DEFAULT CURRENT_TIMESTAMP(6),
     `updated_at` DATETIME(6) NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
     INDEX `idx_vouchers_code` (`code`),
     INDEX `idx_vouchers_status` (`status`),
-    INDEX `idx_vouchers_active` (`active`)
+    INDEX `idx_vouchers_active` (`active`),
+    INDEX `idx_vouchers_is_deleted` (`is_deleted`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 SET FOREIGN_KEY_CHECKS = 1;

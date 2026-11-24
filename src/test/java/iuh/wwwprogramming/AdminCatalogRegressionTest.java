@@ -39,7 +39,9 @@ class AdminCatalogRegressionTest {
         var categoryEdit=categories.getCategoryForUpdate(category.getId()); categoryEdit.setName("Updated " + code);
         categories.updateCategory(category.getId(),categoryEdit);
         categories.deleteCategory(category.getId()); categoryRepository.flush();
-        assertThat(productRepository.existsById(created.getId())).isFalse();
-        assertThat(categoryRepository.existsById(category.getId())).isFalse();
+        assertThat(productRepository.findByIdAndIsDeletedFalse(created.getId())).isEmpty();
+        assertThat(productRepository.findById(created.getId()).orElseThrow().getIsDeleted()).isTrue();
+        assertThat(categoryRepository.findByIdAndIsDeletedFalse(category.getId())).isEmpty();
+        assertThat(categoryRepository.findById(category.getId()).orElseThrow().getIsDeleted()).isTrue();
     }
 }

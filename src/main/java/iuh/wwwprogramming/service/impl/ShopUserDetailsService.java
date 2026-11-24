@@ -18,12 +18,14 @@ public class ShopUserDetailsService implements UserDetailsService {
     private final UserRepository users;
     public UserDetails loadUserByUsername(String email) {
         User user = (User) users.findByEmailIgnoreCase(email.trim().toLowerCase(Locale.ROOT))
+            .filter(u -> !Boolean.TRUE.equals(u.getIsDeleted()))
             .orElseThrow(() -> new UsernameNotFoundException("Thông tin đăng nhập không hợp lệ"));
         return new ShopPrincipal(user.getId(), user.getEmail(), user.getFullName(), user.getPassword(),
             user.getRole(), Boolean.TRUE.equals(user.getActive()));
     }
     public boolean isCurrent(ShopPrincipal principal) {
         return users.findById(principal.id()).filter(u -> Boolean.TRUE.equals(u.getActive())
+            && !Boolean.TRUE.equals(u.getIsDeleted())
             && u.getEmail().equals(principal.email()) && u.getRole().equals(principal.role())
             && u.getPassword().equals(principal.password())).isPresent();
     }

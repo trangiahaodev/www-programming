@@ -13,7 +13,8 @@ import java.time.LocalDateTime;
     indexes = {
         @Index(name = "idx_articles_slug", columnList = "slug"),
         @Index(name = "idx_articles_category", columnList = "category"),
-        @Index(name = "idx_articles_active", columnList = "active")
+        @Index(name = "idx_articles_active", columnList = "active"),
+        @Index(name = "idx_articles_is_deleted", columnList = "is_deleted")
     }
 )
 @NoArgsConstructor
@@ -80,6 +81,10 @@ public class NewsArticle {
     @Builder.Default
     @Column(nullable = false)
     private Boolean active = true;
+
+    @Builder.Default
+    @Column(name = "is_deleted", nullable = false)
+    private Boolean isDeleted = false;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

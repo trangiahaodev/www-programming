@@ -12,7 +12,8 @@ import java.time.LocalDateTime;
     name = "categories",
     indexes = {
             @Index(name = "idx_categories_code", columnList = "category_code"),
-            @Index(name = "idx_categories_name", columnList = "name")
+            @Index(name = "idx_categories_name", columnList = "name"),
+            @Index(name = "idx_categories_is_deleted", columnList = "is_deleted")
     }
 )
 @NoArgsConstructor
@@ -43,6 +44,10 @@ public class Category {
     @Builder.Default
     @Column(nullable = false)
     private Boolean active = true;
+
+    @Builder.Default
+    @Column(name = "is_deleted", nullable = false)
+    private Boolean isDeleted = false;
 
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
     @ToString.Exclude

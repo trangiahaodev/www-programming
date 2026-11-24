@@ -47,11 +47,11 @@ public class CategoryServiceImpl implements CategoryService {
         String categoryCode = dto.getCategoryCode() != null ? dto.getCategoryCode().trim() : "";
         String name = dto.getName() != null ? dto.getName().trim() : "";
 
-        if (categoryRepository.existsByCategoryCode(categoryCode)) {
+        if (categoryRepository.existsByCategoryCodeAndIsDeletedFalse(categoryCode)) {
             throw new IllegalArgumentException("Mã danh mục '" + categoryCode + "' đã tồn tại trong hệ thống!");
         }
 
-        if (categoryRepository.existsByName(name)) {
+        if (categoryRepository.existsByNameAndIsDeletedFalse(name)) {
             throw new IllegalArgumentException("Tên danh mục '" + name + "' đã tồn tại trong hệ thống!");
         }
 
@@ -68,7 +68,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryUpdateDTO getCategoryForUpdate(String id) {
-        Category category = categoryRepository.findById(id)
+        Category category = categoryRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy danh mục mỹ phẩm cần cập nhật!"));
 
         return CategoryUpdateDTO.builder()
@@ -83,12 +83,12 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public CategoryResponseDTO updateCategory(String id, CategoryUpdateDTO dto) {
-        Category category = categoryRepository.findById(id)
+        Category category = categoryRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy danh mục mỹ phẩm cần cập nhật!"));
 
         String name = dto.getName() != null ? dto.getName().trim() : "";
 
-        if (categoryRepository.existsByNameAndIdNot(name, id)) {
+        if (categoryRepository.existsByNameAndIdNotAndIsDeletedFalse(name, id)) {
             throw new IllegalArgumentException("Tên danh mục '" + name + "' đã tồn tại trong hệ thống! Vui lòng chọn tên khác.");
         }
 
@@ -104,15 +104,16 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public void deleteCategory(String id) {
-        Category category = categoryRepository.findById(id)
+        Category category = categoryRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy danh mục mỹ phẩm cần xóa!"));
 
-        // RÀNG BUỘC JAVA: Kiểm tra nếu danh mục đang chứa sản phẩm thì không cho phép xóa
-        if (productRepository.existsByCategoryId(id)) {
+        // RÀNG BUỘC JAVA: Kiểm tra nếu danh mục đang chứa sản phẩm chưa bị xóa thì không cho phép xóa
+        if (productRepository.existsByCategoryIdAndIsDeletedFalse(id)) {
             throw new IllegalStateException("Không thể xóa danh mục vì đang có sản phẩm thuộc danh mục này! Vui lòng xóa hoặc chuyển sản phẩm sang danh mục khác trước.");
         }
 
-        categoryRepository.delete(category);
+        category.setIsDeleted(true);
+        categoryRepository.save(category);
     }
 
     @Override
@@ -124,7 +125,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     private CategoryResponseDTO convertToResponseDTO(Category category) {
-        long count = productRepository.countByCategoryId(category.getId());
+        long count = productRepository.countByCategoryIdAndIsDeletedFalse(category.getId());
         return CategoryResponseDTO.builder()
                 .id(category.getId())
                 .categoryCode(category.getCategoryCode())

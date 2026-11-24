@@ -14,7 +14,8 @@ import java.time.LocalDateTime;
     indexes = {
         @Index(name = "idx_vouchers_code", columnList = "code"),
         @Index(name = "idx_vouchers_status", columnList = "status"),
-        @Index(name = "idx_vouchers_active", columnList = "active")
+        @Index(name = "idx_vouchers_active", columnList = "active"),
+        @Index(name = "idx_vouchers_is_deleted", columnList = "is_deleted")
     }
 )
 @NoArgsConstructor
@@ -78,6 +79,10 @@ public class Voucher {
     @Builder.Default
     @Column(nullable = false)
     private Boolean active = true;
+
+    @Builder.Default
+    @Column(name = "is_deleted", nullable = false)
+    private Boolean isDeleted = false;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

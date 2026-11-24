@@ -84,16 +84,16 @@ public class ProductServiceImpl implements ProductService {
         String categoryId = dto.getCategoryId() != null ? dto.getCategoryId().trim() : "";
 
         // 1. Tìm sản phẩm hiện tại trong CSDL
-        Product product = productRepository.findById(cleanId)
+        Product product = productRepository.findByIdAndIsDeletedFalse(cleanId)
                 .orElseThrow(() -> new IllegalArgumentException("Sản phẩm mỹ phẩm không tồn tại trong hệ thống!"));
 
         // 2. Kiểm tra trùng tên sản phẩm với các sản phẩm khác (loại trừ chính nó)
-        if (productRepository.existsByNameAndIdNot(name, cleanId)) {
+        if (productRepository.existsByNameAndIdNotAndIsDeletedFalse(name, cleanId)) {
             throw new IllegalArgumentException("Tên sản phẩm '" + name + "' đã được sử dụng bởi sản phẩm khác!");
         }
 
         // 3. Kiểm tra danh mục mới có tồn tại trong CSDL
-        Category category = categoryRepository.findById(categoryId)
+        Category category = categoryRepository.findByIdAndIsDeletedFalse(categoryId)
                 .orElseThrow(() -> new IllegalArgumentException("Danh mục mỹ phẩm được chọn không tồn tại trong hệ thống!"));
 
         // 4. Cập nhật các trường thông tin
@@ -116,14 +116,14 @@ public class ProductServiceImpl implements ProductService {
         String name = dto.getName() != null ? dto.getName().trim() : "";
         String categoryId = dto.getCategoryId() != null ? dto.getCategoryId().trim() : "";
 
-        if (productRepository.existsByProductCode(productCode)) {
+        if (productRepository.existsByProductCodeAndIsDeletedFalse(productCode)) {
             throw new IllegalArgumentException("Mã sản phẩm '" + productCode + "' đã tồn tại trong hệ thống!");
         }
-        if (productRepository.existsByName(name)) {
+        if (productRepository.existsByNameAndIsDeletedFalse(name)) {
             throw new IllegalArgumentException("Tên sản phẩm '" + name + "' đã tồn tại trong hệ thống!");
         }
 
-        Category category = categoryRepository.findById(categoryId)
+        Category category = categoryRepository.findByIdAndIsDeletedFalse(categoryId)
                 .orElseThrow(() -> new IllegalArgumentException("Danh mục mỹ phẩm được chọn không tồn tại trong hệ thống!"));
 
         Product product = Product.builder()
@@ -149,17 +149,12 @@ public class ProductServiceImpl implements ProductService {
             throw new IllegalArgumentException("Mã định danh sản phẩm không hợp lệ!");
         }
 
-        Product product = productRepository.findById(id.trim())
+        Product product = productRepository.findByIdAndIsDeletedFalse(id.trim())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sản phẩm mỹ phẩm cần xóa!"));
 
-        // RÀNG BUỘC JAVA: Kiểm tra nếu sản phẩm đã phát sinh trong bất kỳ đơn hàng nào thì chặn xóa
-        boolean hasOrders = (product.getId() != null && orderItemRepository.existsByProductId(product.getId()))
-                || (product.getProductCode() != null && orderItemRepository.existsByProductCode(product.getProductCode()));
-        if (hasOrders) {
-            throw new IllegalStateException("Không thể xóa sản phẩm vì đã có đơn hàng liên quan đến sản phẩm này! Bạn có thể chuyển trạng thái sản phẩm sang ngưng hoạt động.");
-        }
-
-        productRepository.delete(product);
+        // Với Soft Delete, bản ghi không bị xóa vật lý khỏi CSDL nên an toàn với dữ liệu lịch sử đơn hàng.
+        product.setIsDeleted(true);
+        productRepository.save(product);
     }
 
 
