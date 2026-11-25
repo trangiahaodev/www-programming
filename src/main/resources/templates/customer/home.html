@@ -113,7 +113,7 @@
             <!-- Left Foreground Content Column -->
             <div class="hero-content-col">
                 <div class="hero-badge">
-                    🌸 PinkyCloud Office &bull; Beauty &amp; Skincare
+                    PinkyCloud &bull; Mỹ Phẩm Chính Hãng &amp; Skincare
                 </div>
 
                 <h1 class="hero-title">
@@ -148,11 +148,11 @@
                 </form>
             </div>
 
-            <!-- Bottom Navigation Bar Pinned to Banner (Matching React) -->
+            <!-- Bottom Navigation Bar Pinned to Banner -->
             <div class="banner-bottom-nav-container">
                 <a th:href="@{/cam-nang}" class="banner-bottom-nav-item">CẨM NANG</a>
-                <a href="#about" class="banner-bottom-nav-item">VỀ CHÚNG TÔI</a>
-                <a href="#office" class="banner-bottom-nav-item">LIÊN HỆ</a>
+                <a th:href="@{/tin-tuc}" class="banner-bottom-nav-item">TIN TỨC</a>
+                <a href="#site-footer" class="banner-bottom-nav-item">LIÊN HỆ</a>
             </div>
         </section>
 
@@ -286,75 +286,7 @@
             </div>
         </section>
 
-        <!-- 4. PINKYCLOUD OFFICES & SHOWROOM BRANCHES (CHI NHÁNH) -->
-        <section id="office">
-            <div class="section-head-wrap">
-                <div>
-                    <h2 class="section-title">Hệ Thống Chi Nhánh &amp; Văn Phòng PinkyCloud</h2>
-                    <div class="section-subtitle">
-                        Xem thông tin liên hệ, trải nghiệm soi da AI miễn phí và đặt lịch hẹn tư vấn mua sắm trực tiếp tại showroom.
-                    </div>
-                </div>
-            </div>
-
-            <div class="office-grid">
-                <div th:each="office : ${offices}" class="office-card">
-                    <div>
-                        <div class="office-image-wrap">
-                            <img th:src="@{${office.image}}" th:alt="${office.title}" class="office-image" loading="lazy">
-                            <div class="office-image-overlay"></div>
-                            <div class="office-chip">Beauty Office</div>
-                        </div>
-
-                        <div class="office-body pb-0">
-                            <div class="office-meta">Hệ thống PinkyCloud</div>
-                            <h3 class="office-title" th:text="${office.title}">Văn phòng chính</h3>
-                            <p class="office-description" th:text="${office.description}">Địa chỉ chi nhánh...</p>
-
-                            <!-- Perks at counter -->
-                            <div class="office-perks-section">
-                                <div class="office-perks-heading">✨ Gói trải nghiệm tại quầy:</div>
-                                <ul class="office-perks-list">
-                                    <li th:each="perk : ${office.perks}" class="office-perk-item" th:text="${perk}">🔍 Soi da miễn phí</li>
-                                </ul>
-                            </div>
-
-                            <!-- Coupon code with copy button -->
-                            <div class="office-coupon-box">
-                                <div style="display: flex; flex-direction: column;">
-                                    <span class="office-coupon-label">Mã ưu đãi chi nhánh:</span>
-                                    <span class="office-coupon-code" th:text="${office.coupon}">PINKY_GOVAP</span>
-                                </div>
-                                <button type="button"
-                                        class="office-copy-btn"
-                                        th:attr="data-code=${office.coupon}"
-                                        onclick="copyCode(this.getAttribute('data-code'), this)">
-                                    Sao chép
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Contact & Booking action -->
-                    <div class="office-body pt-0">
-                        <div class="office-contact-info">
-                            <div>✉️ Email: <strong th:text="${office.email}">support@pinkycloud.vn</strong></div>
-                            <div>📞 Hotline: <strong th:text="${office.phone}">1900 633 950</strong></div>
-                            <div>⏰ Giờ mở cửa: <span th:text="${office.workingHours}">08:00 - 21:00</span></div>
-                        </div>
-
-                        <button type="button"
-                                class="office-action-btn"
-                                th:attr="data-branch=${office.title}"
-                                onclick="openBookingModal(this.getAttribute('data-branch'))">
-                            📅 Đặt hẹn tư vấn và mua sắm
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 5. FEATURED ARTICLES & BEAUTY NEWS (BÀI VIẾT NỔI BẬT) -->
+        <!-- 4. FEATURED ARTICLES & BEAUTY NEWS (BÀI VIẾT NỔI BẬT) -->
         <section id="news">
             <div class="section-head-wrap">
                 <div>
@@ -364,8 +296,9 @@
                     </div>
                 </div>
                 <div>
-                    <a th:href="@{/tin-tuc}" class="hero-secondary-btn" style="padding: 8px 18px; font-size: 0.9rem;">
-                        Xem tất cả tin tức &rarr;
+                    <a th:href="@{/tin-tuc}" class="flash-deals-viewall">
+                        Xem tất cả tin tức
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
                     </a>
                 </div>
             </div>
@@ -380,7 +313,7 @@
                         </a>
 
                         <div class="news-card-body pb-0">
-                            <div class="news-date" th:text="'📅 ' + ${news.date} + ' &bull; ' + ${news.readTime}">12/04/2026</div>
+                            <div class="news-date" th:text="${news.date} + ' • ' + ${news.readTime}">12/04/2026</div>
                             <a th:href="@{/tin-tuc/{slug}(slug=${news.slug})}">
                                 <h3 class="news-title" th:text="${news.title}">Tiêu đề bài viết</h3>
                             </a>
@@ -389,9 +322,9 @@
                     </div>
 
                     <div class="news-card-body pt-0 mt-auto">
-                        <!-- Linked products inside article (Matching React commercialization) -->
+                        <!-- Linked products inside article -->
                         <div class="news-linked-products" th:if="${news.linkedProducts != null and !news.linkedProducts.isEmpty()}">
-                            <div class="news-linked-title">🛍️ Mua sản phẩm trong bài:</div>
+                            <div class="news-linked-title">Sản phẩm gợi ý trong bài:</div>
                             <div class="news-linked-list">
                                 <a th:each="p : ${news.linkedProducts}"
                                    th:href="@{/san-pham/{id}(id=${p.id})}"
@@ -401,13 +334,13 @@
                                         <div class="news-linked-name" th:text="${p.name}">Tên sản phẩm</div>
                                         <div class="news-linked-price" th:text="${p.formattedPrice}">350.000₫</div>
                                     </div>
-                                    <span style="font-size: 13px; color: #f76c85; font-weight: bold; margin-left: 6px;">Xem &rarr;</span>
+                                    <span class="news-linked-cta">Xem &rarr;</span>
                                 </a>
                             </div>
                         </div>
 
                         <a th:href="@{/tin-tuc/{slug}(slug=${news.slug})}" class="news-btn">
-                            Xem chi tiết bài viết &rarr;
+                            Xem chi tiết bài viết
                         </a>
                     </div>
                 </div>
@@ -418,87 +351,24 @@
                         <div class="news-image-wrap">
                             <img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=700&q=80" alt="Chuyên đề làm đẹp sắp ra mắt" class="news-image" loading="lazy">
                             <div class="news-image-overlay"></div>
-                            <div class="news-category-tag" style="background: linear-gradient(135deg, #f76c85, #ff8fa3); color: #fff;">
-                                ✨ Sắp ra mắt
-                            </div>
+                            <div class="news-category-tag">Sắp ra mắt</div>
                         </div>
 
                         <div class="news-card-body pb-0">
-                            <div class="news-date">📅 Kỳ tiếp theo &bull; 5 phút đọc</div>
+                            <div class="news-date">Kỳ tiếp theo &bull; 5 phút đọc</div>
                             <h3 class="news-title">Xu Hướng Dưỡng Trắng &amp; Phục Hồi Hàng Rào Ẩm Mùa Hè 2026</h3>
                             <p class="news-excerpt">Chuyên đề đặc biệt sắp phát hành từ Ban biên tập PinkyCloud kết hợp cùng chuyên gia da liễu. Hướng dẫn chọn hoạt chất an toàn cho ngày nắng.</p>
                         </div>
                     </div>
 
                     <div class="news-card-body pt-0 mt-auto">
-                        <a th:href="@{/tin-tuc}" class="news-btn" style="background: linear-gradient(135deg, #f76c85 0%, #e14966 100%); color: #fff; text-align: center; border-radius: 50px;">
-                            💌 Khám phá thêm tin tức &rarr;
+                        <a th:href="@{/tin-tuc}" class="news-btn">
+                            Khám phá thêm tin tức
                         </a>
                     </div>
                 </div>
             </div>
         </section>
-
-        <!-- BOOKING APPOINTMENT MODAL -->
-        <div class="ob-modal-overlay" id="bookingModal">
-            <div class="ob-modal-content">
-                <button type="button" class="ob-modal-close" onclick="closeBookingModal()">&times;</button>
-                <div style="font-size: 1.25rem; font-weight: 800; color: #f76c85; margin-bottom: 6px;">
-                    📅 Đặt Hẹn Tư Vấn &amp; Soi Da Miễn Phí
-                </div>
-                <p style="font-size: 0.88rem; color: #666; margin-bottom: 20px;">
-                    Điền thông tin bên dưới để PinkyCloud chuẩn bị sẵn quà tặng check-in và chuyên viên đồng hành cùng bạn.
-                </p>
-
-                <form id="bookingForm" onsubmit="handleBookingSubmit(event)">
-                    <div class="ob-form-group">
-                        <label for="bookingBranch">Chi nhánh trải nghiệm:</label>
-                        <select id="bookingBranch" required>
-                            <option value="Văn phòng chính (Showroom TP. HCM)">Văn phòng chính (Showroom Gò Vấp - TP. HCM)</option>
-                            <option value="Chi nhánh Hà Nội (Showroom Hoàn Kiếm)">Chi nhánh Hà Nội (Showroom Hàng Bài - Hoàn Kiếm)</option>
-                            <option value="Trung tâm CSKH & Tư vấn Trực Tuyến">Tư vấn trực tuyến qua Video/Hotline 1:1</option>
-                        </select>
-                    </div>
-
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
-                        <div class="ob-form-group">
-                            <label for="bookingName">Họ và tên của bạn:</label>
-                            <input type="text" id="bookingName" placeholder="Nguyễn Văn A" required>
-                        </div>
-                        <div class="ob-form-group">
-                            <label for="bookingPhone">Số điện thoại:</label>
-                            <input type="tel" id="bookingPhone" placeholder="0901 234 567" required>
-                        </div>
-                    </div>
-
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
-                        <div class="ob-form-group">
-                            <label for="bookingDate">Ngày hẹn:</label>
-                            <input type="date" id="bookingDate" required>
-                        </div>
-                        <div class="ob-form-group">
-                            <label for="bookingTime">Khung giờ:</label>
-                            <select id="bookingTime">
-                                <option value="09:00 - 11:00">09:00 - 11:00</option>
-                                <option value="11:00 - 13:00">11:00 - 13:00</option>
-                                <option value="14:00 - 16:00" selected>14:00 - 16:00</option>
-                                <option value="16:00 - 18:00">16:00 - 18:00</option>
-                                <option value="18:00 - 20:00">18:00 - 20:00</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="ob-form-group">
-                        <label for="bookingNotes">Tình trạng da / Yêu cầu thêm (nếu có):</label>
-                        <textarea id="bookingNotes" rows="2" placeholder="Ví dụ: Da dầu mụn nhạy cảm, muốn tư vấn kem chống nắng và serum..."></textarea>
-                    </div>
-
-                    <button type="submit" class="office-action-btn" style="margin-top: 10px;">
-                        ✨ Xác Nhận Đặt Hẹn Ngay
-                    </button>
-                </form>
-            </div>
-        </div>
 
         <!-- BRAND DIRECTORY MODAL (A-Z) -->
         <div class="brand-modal-backdrop" id="brandModal">
@@ -927,51 +797,7 @@
                 }, 1000);
             })();
 
-            // 6. Booking Modal Handlers
-            const bookingModal = document.getElementById('bookingModal');
-            const bookingBranch = document.getElementById('bookingBranch');
-
-            function openBookingModal(branchName) {
-                if (bookingModal) {
-                    if (branchName && bookingBranch) {
-                        for (let opt of bookingBranch.options) {
-                            if (opt.value.includes(branchName) || branchName.includes(opt.value)) {
-                                bookingBranch.value = opt.value;
-                                break;
-                            }
-                        }
-                    }
-                    // Set default date to tomorrow
-                    const tomorrow = new Date();
-                    tomorrow.setDate(tomorrow.getDate() + 1);
-                    const dateEl = document.getElementById('bookingDate');
-                    if (dateEl) {
-                        dateEl.value = tomorrow.toISOString().split('T')[0];
-                    }
-                    bookingModal.classList.add('show');
-                }
-            }
-
-            function closeBookingModal() {
-                if (bookingModal) {
-                    bookingModal.classList.remove('show');
-                }
-            }
-
-            if (bookingModal) {
-                bookingModal.addEventListener('click', (e) => {
-                    if (e.target === bookingModal) closeBookingModal();
-                });
-            }
-
-            function handleBookingSubmit(e) {
-                e.preventDefault();
-                closeBookingModal();
-                showToast('🎉 Đặt hẹn thành công! PinkyCloud đã ghi nhận lịch hẹn của bạn.');
-                document.getElementById('bookingForm').reset();
-            }
-
-            // 7. Brand Pills Scroll Controls (Prev, Next, Wheel, Drag) & Directory Modal
+            // 6. Brand Pills Scroll Controls (Prev, Next, Wheel, Drag) & Directory Modal
             const brandPillsTrack = document.getElementById('brandPillsTrack');
             const brandPrevBtn = document.getElementById('brandPrevBtn');
             const brandNextBtn = document.getElementById('brandNextBtn');
