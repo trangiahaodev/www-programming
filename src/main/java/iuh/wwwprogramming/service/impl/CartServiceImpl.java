@@ -40,10 +40,11 @@ public class CartServiceImpl implements CartService {
             currentQuantityInCart = cart.getItems().get(product.getId()).getQuantity();
         }
 
+        int availableStock = product.getStockQuantity() != null ? product.getStockQuantity() : 0;
         int totalRequestedQuantity = currentQuantityInCart + request.getQuantity();
-        if (totalRequestedQuantity > product.getStockQuantity()) {
+        if (totalRequestedQuantity > availableStock) {
             throw new IllegalArgumentException(
-                    "Số lượng yêu cầu vượt quá tồn kho (chỉ còn lại " + product.getStockQuantity() + " sản phẩm)!"
+                    "Số lượng yêu cầu vượt quá tồn kho (chỉ còn lại " + availableStock + " sản phẩm)!"
             );
         }
 
@@ -54,7 +55,7 @@ public class CartServiceImpl implements CartService {
                 .imageUrl(product.getImage())
                 .unitPrice(product.getPrice())
                 .quantity(request.getQuantity())
-                .stockQuantity(product.getStockQuantity())
+                .stockQuantity(availableStock)
                 .build();
 
         cart.addItem(item);
@@ -71,9 +72,10 @@ public class CartServiceImpl implements CartService {
         Product product = productRepository.findByIdAndActiveTrue(request.getProductId())
                 .orElseThrow(() -> new IllegalArgumentException("Sản phẩm không tồn tại hoặc đã ngừng kinh doanh!"));
 
-        if (request.getQuantity() > product.getStockQuantity()) {
+        int availableStock = product.getStockQuantity() != null ? product.getStockQuantity() : 0;
+        if (request.getQuantity() > availableStock) {
             throw new IllegalArgumentException(
-                    "Số lượng cập nhật vượt quá tồn kho (chỉ còn lại " + product.getStockQuantity() + " sản phẩm)!"
+                    "Số lượng cập nhật vượt quá tồn kho (chỉ còn lại " + availableStock + " sản phẩm)!"
             );
         }
 
@@ -90,8 +92,10 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public void clearCart(HttpSession session) {
-        CartDTO cart = getCart(session);
-        cart.clear();
-        session.setAttribute(CART_SESSION_KEY, cart);
+        CartDTO cart = (CartDTO) session.getAttribute(CART_SESSION_KEY);
+        if (cart != null) {
+            cart.clear();
+        }
+        session.removeAttribute(CART_SESSION_KEY);
     }
 }

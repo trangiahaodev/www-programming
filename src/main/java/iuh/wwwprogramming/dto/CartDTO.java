@@ -33,6 +33,8 @@ public class CartDTO implements Serializable {
             CartItemDTO existing = items.get(item.getProductId());
             int newQuantity = existing.getQuantity() + item.getQuantity();
             existing.setQuantity(newQuantity);
+            existing.setUnitPrice(item.getUnitPrice());
+            existing.setStockQuantity(item.getStockQuantity());
             existing.setSubtotal(existing.getSubtotal());
         } else {
             item.setSubtotal(item.getSubtotal());
