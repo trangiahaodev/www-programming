@@ -1,6 +1,8 @@
 package iuh.wwwprogramming.repository;
 
 import iuh.wwwprogramming.entity.NewsArticle;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -32,7 +34,11 @@ public interface NewsArticleRepository extends JpaRepository<NewsArticle, Long> 
     List<NewsArticle> findByCategoryIgnoreCaseAndActiveTrue(@Param("category") String category);
 
     @Query("SELECT a FROM NewsArticle a WHERE a.isFeatured = true AND a.active = true AND (a.isDeleted = false OR a.isDeleted IS NULL) ORDER BY a.id ASC")
-    Optional<NewsArticle> findFirstByIsFeaturedTrueAndActiveTrue();
+    List<NewsArticle> findFeaturedActiveArticles(Pageable pageable);
+
+    default Optional<NewsArticle> findFirstByIsFeaturedTrueAndActiveTrue() {
+        return findFeaturedActiveArticles(PageRequest.of(0, 1)).stream().findFirst();
+    }
 
     Optional<NewsArticle> findFirstByIsFeaturedTrueAndActiveTrueAndIsDeletedFalse();
 

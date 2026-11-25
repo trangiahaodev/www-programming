@@ -69,8 +69,7 @@ public class HomeController {
         List<ProductCardDTO> newProducts = productService.getNewProducts(6);
         List<CategoryResponseDTO> categories = categoryService.getCategories(null, PageRequest.of(0, 20)).getContent();
 
-        // 4. Offices, News, Hot Vouchers, and Statistics
-        var offices = homeContentService.getOffices();
+        // 4. News, Hot Vouchers, and Statistics
         var newsList = homeContentService.getFeaturedNews(3);
         DayOfWeek dow = LocalDate.now().getDayOfWeek();
         boolean isWeekend = (weekend != null) ? weekend : (dow == DayOfWeek.SATURDAY || dow == DayOfWeek.SUNDAY);
@@ -84,7 +83,6 @@ public class HomeController {
         model.addAttribute("categories", categories);
         model.addAttribute("hotProducts", hotProducts);
         model.addAttribute("newProducts", newProducts);
-        model.addAttribute("offices", offices);
         model.addAttribute("newsList", newsList);
         model.addAttribute("hotVouchers", hotVouchers);
         model.addAttribute("isWeekend", isWeekend);

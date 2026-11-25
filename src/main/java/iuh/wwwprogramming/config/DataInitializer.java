@@ -361,6 +361,11 @@ public class DataInitializer implements CommandLineRunner {
     // =========================================================================
     private void seedOffices() {
         try {
+            if (officeRepository.count() > 0) {
+                log.info("Dữ liệu chi nhánh đã tồn tại ({}), bỏ qua bước seed.", officeRepository.count());
+                return;
+            }
+
             ClassPathResource resource = new ClassPathResource("data/offices.json");
             if (!resource.exists()) {
                 log.warn("Không tìm thấy file data/offices.json trên classpath.");
@@ -373,36 +378,33 @@ public class DataInitializer implements CommandLineRunner {
                 if (root.isArray()) {
                     int seededOfficeCount = 0;
                     for (JsonNode node : root) {
-                        String id = node.has("id") ? node.get("id").asText().trim() : null;
-                        if (id == null) continue;
-
-                        Optional<Office> existing = officeRepository.findById(id);
-                        Office office = existing.orElse(new Office());
-                        office.setId(id);
-                        office.setTitle(node.has("title") ? node.get("title").asText() : "");
-                        office.setAddress(node.has("address") ? node.get("address").asText() : "");
-                        office.setDescription(node.has("description") ? node.get("description").asText() : "");
-                        office.setCity(node.has("city") ? node.get("city").asText() : "");
-                        office.setPhone(node.has("phone") ? node.get("phone").asText() : "");
-                        office.setEmail(node.has("email") ? node.get("email").asText() : "");
-                        office.setWorkingHours(node.has("workingHours") ? node.get("workingHours").asText() : "");
-                        office.setSupportType(node.has("supportType") ? node.get("supportType").asText() : "");
-                        office.setCoupon(node.has("coupon") ? node.get("coupon").asText() : "");
-                        office.setImage(node.has("image") ? node.get("image").asText() : "");
-                        office.setActive(node.has("active") ? node.get("active").asBoolean() : true);
-
                         List<String> perks = new ArrayList<>();
                         if (node.has("perks") && node.get("perks").isArray()) {
                             for (JsonNode p : node.get("perks")) {
                                 perks.add(p.asText());
                             }
                         }
-                        office.setPerks(perks);
+
+                        Office office = Office.builder()
+                                .title(node.has("title") ? node.get("title").asText() : "")
+                                .address(node.has("address") ? node.get("address").asText() : "")
+                                .description(node.has("description") ? node.get("description").asText() : "")
+                                .city(node.has("city") ? node.get("city").asText() : "")
+                                .phone(node.has("phone") ? node.get("phone").asText() : "")
+                                .email(node.has("email") ? node.get("email").asText() : "")
+                                .workingHours(node.has("workingHours") ? node.get("workingHours").asText() : "")
+                                .supportType(node.has("supportType") ? node.get("supportType").asText() : "")
+                                .coupon(node.has("coupon") ? node.get("coupon").asText() : "")
+                                .image(node.has("image") ? node.get("image").asText() : "")
+                                .active(node.has("active") ? node.get("active").asBoolean() : true)
+                                .isDeleted(false)
+                                .perks(perks)
+                                .build();
 
                         officeRepository.save(office);
-                        if (existing.isEmpty()) seededOfficeCount++;
+                        seededOfficeCount++;
                     }
-                    log.info("Initialized/Updated {} showrooms/offices from JSON into SQL Server.", seededOfficeCount);
+                    log.info("Initialized {} showrooms/offices from JSON.", seededOfficeCount);
                 }
             }
         } catch (Exception e) {
