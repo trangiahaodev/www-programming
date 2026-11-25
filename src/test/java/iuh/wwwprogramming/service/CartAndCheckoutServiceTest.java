@@ -9,19 +9,25 @@ import iuh.wwwprogramming.entity.Category;
 import iuh.wwwprogramming.entity.Order;
 import iuh.wwwprogramming.entity.Product;
 import iuh.wwwprogramming.entity.User;
+import iuh.wwwprogramming.event.OrderPlacedEvent;
 import iuh.wwwprogramming.repository.OrderItemRepository;
 import iuh.wwwprogramming.repository.OrderRepository;
 import iuh.wwwprogramming.repository.ProductRepository;
 import iuh.wwwprogramming.repository.UserRepository;
 import iuh.wwwprogramming.service.impl.CartServiceImpl;
+import iuh.wwwprogramming.service.impl.OrderMailService;
 import iuh.wwwprogramming.service.impl.OrderServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mock.web.MockHttpSession;
 
 import java.math.BigDecimal;
@@ -46,6 +52,9 @@ class CartAndCheckoutServiceTest {
     @Mock
     private OrderItemRepository orderItemRepository;
 
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
+
     private CartService cartService;
     private OrderService orderService;
     private MockHttpSession session;
@@ -56,7 +65,7 @@ class CartAndCheckoutServiceTest {
     @BeforeEach
     void setUp() {
         cartService = new CartServiceImpl(productRepository);
-        orderService = new OrderServiceImpl(orderRepository, orderItemRepository, productRepository, userRepository, cartService);
+        orderService = new OrderServiceImpl(orderRepository, orderItemRepository, productRepository, userRepository, cartService, eventPublisher);
         session = new MockHttpSession();
 
         Category category = Category.builder()
@@ -182,7 +191,15 @@ class CartAndCheckoutServiceTest {
         verify(orderRepository, times(1)).save(any(Order.class));
 
         // Kiểm tra giỏ hàng trên Session đã được làm sạch hoàn toàn
+        assertNull(session.getAttribute(CartService.CART_SESSION_KEY));
         assertTrue(cartService.getCart(session).isEmpty());
+
+        // Kiểm tra sự kiện gửi email xác nhận đơn hàng được phát hành
+        ArgumentCaptor<OrderPlacedEvent> eventCaptor = ArgumentCaptor.forClass(OrderPlacedEvent.class);
+        verify(eventPublisher, times(1)).publishEvent(eventCaptor.capture());
+        assertEquals(response.getOrderCode(), eventCaptor.getValue().orderCode());
+        assertEquals("khachhang@pinkycloud.com", eventCaptor.getValue().customerEmail());
+        assertEquals(new BigDecimal("900000"), eventCaptor.getValue().totalAmount());
     }
 
     @Test
@@ -200,5 +217,34 @@ class CartAndCheckoutServiceTest {
         });
 
         assertTrue(exception.getMessage().contains("Giỏ hàng của bạn đang trống"));
+        verifyNoInteractions(eventPublisher);
+    }
+
+    @Test
+    @DisplayName("Test 6: OrderMailService gửi email xác nhận đơn hàng khi bật app.mail.enabled")
+    @SuppressWarnings("unchecked")
+    void testOrderMailService_SendsConfirmationEmail() {
+        JavaMailSender mailSender = mock(JavaMailSender.class);
+        ObjectProvider<JavaMailSender> provider = mock(ObjectProvider.class);
+        when(provider.getIfAvailable()).thenReturn(mailSender);
+
+        OrderMailService mailService = new OrderMailService(provider, true, "no-reply@pinkycloud.com");
+        OrderPlacedEvent event = new OrderPlacedEvent(
+                "order-uuid-99",
+                "ORD26123456",
+                "Nguyễn Thu Hà",
+                "0912345678",
+                "khachhang@pinkycloud.com",
+                new BigDecimal("900000")
+        );
+
+        mailService.sendOrderConfirmation(event);
+
+        ArgumentCaptor<SimpleMailMessage> msgCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+        verify(mailSender, times(1)).send(msgCaptor.capture());
+        SimpleMailMessage sent = msgCaptor.getValue();
+        assertArrayEquals(new String[]{"khachhang@pinkycloud.com"}, sent.getTo());
+        assertTrue(sent.getSubject().contains("ORD26123456"));
+        assertTrue(sent.getText().contains("ORD26123456"));
     }
 }

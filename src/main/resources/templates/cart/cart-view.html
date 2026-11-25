@@ -1,150 +1,173 @@
 <!DOCTYPE html>
-<html th:replace="~{layout/store-layout :: layout(~{::main})}" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/customer-layout :: layout(~{::main})}"
+      lang="vi">
 <main>
+    <div class="container pd-wrapper">
 
-    <!-- Page Header & Breadcrumbs -->
-    <div class="page-header-box">
-        <h1 class="page-title">Giỏ Hàng Của Bạn</h1>
-        <div class="breadcrumb-trail">
-            <a th:href="@{/products}">Trang chủ</a>
-            <span>/</span>
-            <span>Giỏ hàng</span>
-        </div>
-    </div>
-
-    <!-- Flash Alert Messages -->
-    <div th:if="${successMessage}" class="alert-box alert-success">
-        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-        </svg>
-        <span th:text="${successMessage}">Thao tác thành công!</span>
-    </div>
-
-    <div th:if="${errorMessage}" class="alert-box alert-error">
-        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-        <span th:text="${errorMessage}">Đã xảy ra lỗi!</span>
-    </div>
-
-    <!-- Empty State: When Cart is Empty -->
-    <div th:if="${cart == null || cart.isEmpty()}" class="store-card empty-state-box">
-        <svg class="empty-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-        </svg>
-        <h2 class="empty-title">Giỏ hàng của bạn đang trống!</h2>
-        <p class="empty-desc">Hãy khám phá bộ sưu tập mỹ phẩm chính hãng và chọn cho mình sản phẩm ưng ý nhé.</p>
-        <a th:href="@{/products}" class="btn-primary-block" style="display: inline-flex; width: auto; padding: 12px 28px;">
-            Khám phá sản phẩm ngay
-        </a>
-    </div>
-
-    <!-- Active Cart: Two Column Grid -->
-    <div th:if="${cart != null && !cart.isEmpty()}" class="checkout-grid">
-
-        <!-- Left Column: Cart Items Table -->
-        <div class="store-card" style="padding: 0; overflow: hidden;">
-            <div style="padding: 20px 24px 16px 24px; border-bottom: 1px solid var(--slate-100); display: flex; justify-content: space-between; align-items: center;">
-                <h2 style="font-size: 18px; font-weight: 700; margin: 0; color: var(--slate-900);">
-                    Danh sách sản phẩm (<span th:text="${cart.totalQuantity}">0</span>)
-                </h2>
-                <form th:action="@{/cart/clear}" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn làm trống toàn bộ giỏ hàng?');">
-                    <button type="submit" class="btn-secondary-link" style="color: var(--danger); font-size: 13px; border: none; background: none; cursor: pointer;">
-                        Xóa tất cả
-                    </button>
-                </form>
+        <!-- Breadcrumbs -->
+        <div class="pd-breadcrumbs-bar">
+            <nav class="pl-breadcrumbs" aria-label="Breadcrumb">
+                <a th:href="@{/}">Trang chủ</a>
+                <span>&gt;</span>
+                <a th:href="@{/san-pham}">Sản phẩm</a>
+                <span>&gt;</span>
+                <span style="color: var(--color-text-main); font-weight: 600;">Giỏ hàng</span>
+            </nav>
+            <div class="pd-sku-chip" th:if="${cart != null && !cart.isEmpty()}">
+                Đang có <strong th:text="${cart.totalQuantity}">0</strong> sản phẩm trong giỏ
             </div>
+        </div>
 
-            <table class="cart-table">
-                <thead>
-                    <tr>
-                        <th>Sản phẩm</th>
-                        <th>Đơn giá</th>
-                        <th style="width: 140px; text-align: center;">Số lượng</th>
-                        <th style="text-align: right;">Thành tiền</th>
-                        <th style="width: 50px;"></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="item : ${cart.itemList}">
-                        <td>
-                            <div class="item-thumb-box">
-                                <img th:src="${item.imageUrl != null ? item.imageUrl : 'https://placehold.co/100'}"
-                                     th:alt="${item.productName}"
-                                     class="item-img"/>
-                                <div class="item-info">
-                                    <div class="item-name" th:text="${item.productName}">Tên sản phẩm</div>
-                                    <div class="item-code" th:text="'Mã: ' + ${item.productCode}">SP26000001</div>
+        <h1 class="section-title" style="margin-bottom: 24px;">Giỏ Hàng Của Bạn</h1>
+
+        <!-- Alert Messages -->
+        <div th:if="${successMessage}" class="alert alert-success" role="alert">
+            <span th:text="${successMessage}">Thao tác thành công!</span>
+        </div>
+
+        <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+            <span th:text="${errorMessage}">Đã xảy ra lỗi!</span>
+        </div>
+
+        <!-- Empty State -->
+        <div th:if="${cart == null || cart.isEmpty()}" class="pl-empty-state">
+            <div class="pl-empty-state-icon" aria-hidden="true">🛍️</div>
+            <h2 class="pl-empty-state-title">Giỏ hàng của bạn đang trống!</h2>
+            <p class="pl-empty-state-desc">
+                Hãy khám phá bộ sưu tập mỹ phẩm chính hãng tại PinkyCloud và chọn cho mình sản phẩm ưng ý nhé.
+            </p>
+            <a th:href="@{/san-pham}" class="hero-primary-btn">
+                Khám phá sản phẩm ngay
+            </a>
+        </div>
+
+        <!-- Active Cart: Two Column Grid -->
+        <div th:if="${cart != null && !cart.isEmpty()}"
+             class="pd-grid"
+             style="grid-template-columns: 1.65fr 1fr; gap: 28px; align-items: start;">
+
+            <!-- Left Column: Cart Items Table -->
+            <div class="users-table-wrap">
+                <div style="padding: 16px 20px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
+                    <h2 style="font-size: 1.05rem; font-weight: 700; margin: 0; color: var(--color-text-main);">
+                        Danh sách sản phẩm (<span th:text="${cart.totalQuantity}">0</span>)
+                    </h2>
+                    <form th:action="@{/cart/clear}" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn làm trống toàn bộ giỏ hàng?');" style="margin: 0;">
+                        <button type="submit" class="pc-btn-detail" style="color: var(--pl-danger); border-color: #FECACA; background: #FEF2F2; cursor: pointer;">
+                            Xóa tất cả
+                        </button>
+                    </form>
+                </div>
+
+                <table class="users-table">
+                    <thead>
+                        <tr>
+                            <th>Sản phẩm</th>
+                            <th>Đơn giá</th>
+                            <th style="text-align: center;">Số lượng</th>
+                            <th style="text-align: right;">Thành tiền</th>
+                            <th style="text-align: center;">Xóa</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="item : ${cart.itemList}">
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <img th:src="${item.imageUrl != null && !item.imageUrl.isBlank() ? item.imageUrl : '/IMG/default.png'}"
+                                         th:alt="${item.productName}"
+                                         style="width: 60px; height: 60px; object-fit: cover; border-radius: var(--pl-radius-md); border: 1px solid var(--border-subtle); flex-shrink: 0;"/>
+                                    <div>
+                                        <a th:href="@{/san-pham/{id}(id=${item.productId})}"
+                                           style="font-weight: 600; font-size: 0.9375rem; color: var(--color-text-main); display: block; margin-bottom: 2px;"
+                                           th:text="${item.productName}">Tên sản phẩm</a>
+                                        <span style="font-size: 0.78rem; color: var(--color-text-muted);"
+                                              th:text="'Mã: ' + ${item.productCode}">SP26000001</span>
+                                    </div>
                                 </div>
-                            </div>
-                        </td>
-                        <td>
-                            <strong th:text="${#numbers.formatDecimal(item.unitPrice, 0, 'POINT', 0, 'COMMA')} + ' đ'">0 đ</strong>
-                        </td>
-                        <td style="text-align: center;">
-                            <form th:action="@{/cart/update}" method="post" class="qty-control-form" style="justify-content: center;">
-                                <input type="hidden" name="productId" th:value="${item.productId}"/>
-                                <input type="number" name="quantity" th:value="${item.quantity}" min="1" th:max="${item.stockQuantity}" class="qty-input" required/>
-                                <button type="submit" class="btn-update-qty" title="Lưu số lượng">Lưu</button>
-                            </form>
-                        </td>
-                        <td style="text-align: right;">
-                            <strong class="price-accent" th:text="${#numbers.formatDecimal(item.subtotal, 0, 'POINT', 0, 'COMMA')} + ' đ'">0 đ</strong>
-                        </td>
-                        <td style="text-align: center;">
-                            <form th:action="@{/cart/remove}" method="post" onsubmit="return confirm('Xóa sản phẩm này khỏi giỏ?');">
-                                <input type="hidden" name="productId" th:value="${item.productId}"/>
-                                <button type="submit" class="btn-remove-item" aria-label="Xóa sản phẩm">
-                                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                    </svg>
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                            </td>
+                            <td style="white-space: nowrap;">
+                                <strong style="color: var(--color-text-main);"
+                                        th:text="${#numbers.formatDecimal(item.unitPrice, 0, 'POINT', 0, 'COMMA')} + ' đ'">0 đ</strong>
+                            </td>
+                            <td style="text-align: center;">
+                                <form th:action="@{/cart/update}" method="post" class="pc-cart-form" style="justify-content: center; align-items: center;">
+                                    <input type="hidden" name="productId" th:value="${item.productId}"/>
+                                    <input type="number"
+                                           name="quantity"
+                                           th:value="${item.quantity}"
+                                           min="1"
+                                           th:max="${item.stockQuantity != null && item.stockQuantity > 0 ? item.stockQuantity : 99}"
+                                           class="pc-qty-input"
+                                           style="width: 56px; height: 34px;"
+                                           aria-label="Số lượng sản phẩm"
+                                           required/>
+                                    <button type="submit" class="pc-btn-detail" style="flex: 0 0 auto; height: 34px; cursor: pointer;" title="Cập nhật số lượng">
+                                        Lưu
+                                    </button>
+                                </form>
+                            </td>
+                            <td style="text-align: right; white-space: nowrap;">
+                                <strong style="color: var(--color-primary); font-weight: 700;"
+                                        th:text="${#numbers.formatDecimal(item.subtotal, 0, 'POINT', 0, 'COMMA')} + ' đ'">0 đ</strong>
+                            </td>
+                            <td style="text-align: center;">
+                                <form th:action="@{/cart/remove}" method="post" onsubmit="return confirm('Xóa sản phẩm này khỏi giỏ?');" style="margin: 0;">
+                                    <input type="hidden" name="productId" th:value="${item.productId}"/>
+                                    <button type="submit"
+                                            class="pc-btn-detail"
+                                            style="color: var(--pl-danger); border-color: #FECACA; padding: 6px 10px; cursor: pointer;"
+                                            aria-label="Xóa sản phẩm"
+                                            title="Xóa sản phẩm">
+                                        ✕
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Right Column: Order Summary Card -->
+            <div class="pd-info-card"
+                 style="background: var(--surface-card); border: 1px solid var(--border-subtle); padding: 24px; box-shadow: var(--pl-shadow-sm); position: sticky; top: 88px;">
+                <h2 style="font-size: 1.125rem; font-weight: 700; color: var(--color-text-main); margin: 0 0 18px 0; padding-bottom: 12px; border-bottom: 1px solid var(--border-subtle);">
+                    Tóm Tắt Đơn Hàng
+                </h2>
+
+                <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.9rem; color: var(--color-text-body);">
+                    <span>Tổng số lượng:</span>
+                    <strong th:text="${cart.totalQuantity} + ' sản phẩm'">0 sản phẩm</strong>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.9rem; color: var(--color-text-body);">
+                    <span>Tạm tính:</span>
+                    <span th:text="${#numbers.formatDecimal(cart.totalAmount, 0, 'POINT', 0, 'COMMA')} + ' đ'">0 đ</span>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.9rem; color: var(--color-text-body);">
+                    <span>Phí vận chuyển:</span>
+                    <span style="color: var(--pl-success); font-weight: 600;">Miễn phí toàn quốc</span>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: baseline; padding-top: 14px; margin-top: 14px; border-top: 1px solid var(--border-subtle); font-size: 1.05rem; font-weight: 800; color: var(--color-text-main);">
+                    <span>Tổng thanh toán:</span>
+                    <span style="color: var(--color-primary); font-size: 1.25rem;"
+                          th:text="${#numbers.formatDecimal(cart.totalAmount, 0, 'POINT', 0, 'COMMA')} + ' đ'">0 đ</span>
+                </div>
+
+                <div style="margin-top: 22px; display: flex; flex-direction: column; gap: 10px;">
+                    <a th:href="@{/checkout}" class="account-button" style="text-decoration: none;">
+                        Tiến hành thanh toán
+                    </a>
+
+                    <a th:href="@{/san-pham}" class="hero-secondary-btn" style="width: 100%; justify-content: center;">
+                        &larr; Tiếp tục xem sản phẩm
+                    </a>
+                </div>
+            </div>
+
         </div>
-
-        <!-- Right Column: Order Summary Card -->
-        <div class="store-card" style="position: sticky; top: 88px;">
-            <h2 class="card-title">Tóm Tắt Đơn Hàng</h2>
-
-            <div class="summary-row">
-                <span>Tổng số lượng:</span>
-                <strong th:text="${cart.totalQuantity} + ' món'">0 món</strong>
-            </div>
-
-            <div class="summary-row">
-                <span>Tạm tính:</span>
-                <span th:text="${#numbers.formatDecimal(cart.totalAmount, 0, 'POINT', 0, 'COMMA')} + ' đ'">0 đ</span>
-            </div>
-
-            <div class="summary-row">
-                <span>Phí vận chuyển:</span>
-                <span style="color: var(--success); font-weight: 600;">Miễn phí toàn quốc</span>
-            </div>
-
-            <div class="summary-total">
-                <span>Tổng thanh toán:</span>
-                <span class="price-accent" th:text="${#numbers.formatDecimal(cart.totalAmount, 0, 'POINT', 0, 'COMMA')} + ' đ'">0 đ</span>
-            </div>
-
-            <div style="margin-top: 24px;">
-                <a th:href="@{/checkout}" class="btn-primary-block">
-                    Tiến Hành Đặt Hàng
-                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-                    </svg>
-                </a>
-
-                <a th:href="@{/products}" class="btn-secondary-link" style="justify-content: center; width: 100%;">
-                    ← Tiếp tục xem sản phẩm
-                </a>
-            </div>
-        </div>
-
     </div>
-
 </main>
 </html>
