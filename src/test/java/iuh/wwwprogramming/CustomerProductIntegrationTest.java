@@ -1,9 +1,11 @@
 package iuh.wwwprogramming;
 
+import iuh.wwwprogramming.dto.CartDTO;
 import iuh.wwwprogramming.dto.ProductCardDTO;
 import iuh.wwwprogramming.dto.ProductDetailDTO;
 import iuh.wwwprogramming.repository.CategoryRepository;
 import iuh.wwwprogramming.repository.ProductRepository;
+import iuh.wwwprogramming.service.CartService;
 import iuh.wwwprogramming.service.ProductService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,12 +13,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -38,13 +44,15 @@ class CustomerProductIntegrationTest {
     @Test
     @DisplayName("Nhiệm vụ 3: Trang chủ hiển thị thành công và thanh tìm kiếm điều hướng chuẩn")
     void testHomePageAndSearchRedirect() throws Exception {
-        // 1. Vào trang chủ
+        // 1. Vào trang chủ và đảm bảo đã bỏ phần Hệ thống chi nhánh & Modal đặt hẹn tư vấn
         mockMvc.perform(get("/"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("customer/home"))
                 .andExpect(model().attributeExists("categories"))
                 .andExpect(model().attributeExists("hotProducts"))
-                .andExpect(model().attributeExists("newProducts"));
+                .andExpect(model().attributeExists("newProducts"))
+                .andExpect(content().string(not(containsString("id=\"office\""))))
+                .andExpect(content().string(not(containsString("id=\"bookingModal\""))));
 
         // 2. Tìm kiếm ngoài trang chủ điều hướng sang /san-pham?keyword=...
         mockMvc.perform(get("/").param("keyword", "Anessa"))
@@ -134,5 +142,61 @@ class CustomerProductIntegrationTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/san-pham"))
                 .andExpect(flash().attributeExists("errorMessage"));
+    }
+
+    @Test
+    @DisplayName("Nhiệm vụ 2: Nút Thêm vào giỏ & Mua ngay ở Chi tiết SP truyền đúng productId và quantity sang /cart")
+    void testProductDetailAddToCartAndBuyNowHandoff() throws Exception {
+        var product = productRepository.findAll().stream()
+                .filter(p -> Boolean.TRUE.equals(p.getActive()) && p.getStockQuantity() != null && p.getStockQuantity() >= 5)
+                .findFirst()
+                .orElseThrow();
+
+        // 1. HTML trang Chi tiết SP chứa đúng form /cart/add, productId, quantity, action=add và action=buyNow
+        mockMvc.perform(get("/san-pham/" + product.getId()))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("action=\"/cart/add\"")))
+                .andExpect(content().string(containsString("name=\"productId\"")))
+                .andExpect(content().string(containsString("value=\"" + product.getId() + "\"")))
+                .andExpect(content().string(containsString("name=\"quantity\"")))
+                .andExpect(content().string(containsString("value=\"add\"")))
+                .andExpect(content().string(containsString("value=\"buyNow\"")));
+
+        // 2. Bấm "Thêm vào giỏ" với số lượng = 3 -> lưu đúng ID + số lượng vào HttpSession SESSION_CART
+        MockHttpSession session = new MockHttpSession();
+        mockMvc.perform(post("/cart/add")
+                        .session(session)
+                        .header("Referer", "/san-pham/" + product.getId())
+                        .param("productId", product.getId())
+                        .param("quantity", "3")
+                        .param("action", "add"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/san-pham/" + product.getId()))
+                .andExpect(flash().attributeExists("successMessage"));
+
+        CartDTO cartAfterAdd = (CartDTO) session.getAttribute(CartService.CART_SESSION_KEY);
+        assertThat(cartAfterAdd).isNotNull();
+        assertThat(cartAfterAdd.getItems()).containsKey(product.getId());
+        assertThat(cartAfterAdd.getItems().get(product.getId()).getQuantity()).isEqualTo(3);
+
+        // Kiểm tra trang /cart hiển thị sản phẩm đã thêm
+        mockMvc.perform(get("/cart").session(session))
+                .andExpect(status().isOk())
+                .andExpect(view().name("cart/cart-view"))
+                .andExpect(content().string(containsString(product.getName())));
+
+        // 3. Bấm "Mua ngay" với số lượng = 2 -> cộng dồn số lượng vào SESSION_CART và chuyển thẳng /checkout
+        mockMvc.perform(post("/cart/add")
+                        .session(session)
+                        .header("Referer", "/san-pham/" + product.getId())
+                        .param("productId", product.getId())
+                        .param("quantity", "2")
+                        .param("action", "buyNow"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/checkout"));
+
+        CartDTO cartAfterBuyNow = (CartDTO) session.getAttribute(CartService.CART_SESSION_KEY);
+        assertThat(cartAfterBuyNow).isNotNull();
+        assertThat(cartAfterBuyNow.getItems().get(product.getId()).getQuantity()).isEqualTo(5);
     }
 }
