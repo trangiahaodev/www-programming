@@ -3,13 +3,19 @@
     <h1>NGƯỜI DÙNG</h1>
     <p th:if="${successMessage}" th:text="${successMessage}" role="status"></p>
     <p th:if="${errorMessage}" th:text="${errorMessage}" class="account-error" role="alert"></p>
-    <form th:action="@{/admin/users}" method="get" th:object="${query}" class="users-search">
-        <label for="keyword">Tìm theo mã, tên hoặc email</label>
-        <input th:field="*{keyword}" maxlength="100" type="search">
-        <label for="size">Số dòng</label>
-        <select th:field="*{size}"><option value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option></select>
-        <button class="account-button" type="submit">Tìm kiếm</button>
-        <a class="account-button secondary" th:href="@{/admin/users}">Xóa bộ lọc</a>
+    <form th:action="@{/admin/users}" method="get" th:object="${query}" class="filter-bar">
+        <div class="filter-field filter-field-keyword">
+            <label for="keyword">Tìm theo mã, tên hoặc email</label>
+            <input th:field="*{keyword}" maxlength="100" type="search">
+        </div>
+        <div class="filter-field filter-field-size">
+            <label for="size">Số dòng</label>
+            <select th:field="*{size}"><option value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option></select>
+        </div>
+        <div class="filter-actions">
+            <button class="btn btn-primary" type="submit">Tìm kiếm</button>
+            <a class="btn btn-secondary" th:href="@{/admin/users}">Xóa bộ lọc</a>
+        </div>
     </form>
     <div class="users-table-wrap">
         <table class="users-table">
@@ -20,8 +26,8 @@
                 <td th:text="${user.userCode}"></td><td th:text="${user.fullName}"></td><td th:text="${user.email}"></td>
                 <td th:text="${user.phone}"></td><td th:text="${user.role == 'ROLE_ADMIN' ? 'Admin' : 'Khách hàng'}"></td>
                 <td th:text="${user.active ? 'Hoạt động' : 'Đã khóa'}"></td>
-                <td><a class="account-button secondary" th:href="@{/admin/users/{id}/edit(id=${user.id})}">Sửa</a>
-                    <button type="button" class="account-button danger" data-user-delete
+                <td class="actions-cell"><a class="btn btn-secondary" th:href="@{/admin/users/{id}/edit(id=${user.id})}">Sửa</a>
+                    <button type="button" class="btn btn-danger" data-user-delete
                         th:data-delete-url="@{/admin/users/{id}/delete(id=${user.id})}"
                         th:data-user-name="${user.fullName}" th:data-user-code="${user.userCode}">Xóa</button>
                 </td>
@@ -45,8 +51,8 @@
             <input type="hidden" name="page" th:value="${users.number}">
             <input type="hidden" name="size" th:value="${users.size}">
             <div class="user-actions">
-                <button type="button" class="account-button secondary" id="cancelUserDelete" autofocus>Hủy</button>
-                <button type="submit" class="account-button danger" id="confirmUserDelete" disabled>Xóa người dùng</button>
+                <button type="button" class="btn btn-secondary" id="cancelUserDelete" autofocus>Hủy</button>
+                <button type="submit" class="btn btn-danger" id="confirmUserDelete" disabled>Xóa người dùng</button>
             </div>
         </form>
     </dialog>
