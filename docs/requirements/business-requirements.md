@@ -102,19 +102,18 @@ $$\textbf{TỔNG TIỀN THANH TOÁN CUỐI CÙNG}$$
 Mọi đơn hàng trong hệ thống PinkyCloud trải qua các trạng thái tuần tự và chặt chẽ:
 
 ```
-[Chờ xác nhận] ──────► [Đang chuẩn bị hàng] ──────► [Đang giao hàng] ──────► [Hoàn tất]
-       │                        │
-       ▼                        ▼
-    [Đã hủy]                 [Đã hủy]
- (Khách tự hủy/            (Quản trị hủy do
-  Quản trị hủy)             hết hàng/sự cố)
+[Chờ xác nhận] ──────► [Đang xử lý] ──────► [Đang giao hàng] ──────► [Đã giao hàng]
+       │                       │                    │
+       ▼                       ▼                    ▼
+    [Đã hủy]                [Đã hủy]             [Đã hủy]
 ```
 
 1. **Chờ xác nhận:** Đơn hàng vừa được khách đặt thành công, bộ phận bán hàng đang kiểm tra thông tin địa chỉ và tồn kho.
-2. **Đang chuẩn bị hàng:** Đơn hàng đã được duyệt, nhân viên kho đang in phiếu xuất và bốc hàng đóng gói vào hộp carton.
+2. **Đang xử lý:** Đơn hàng đã được duyệt, nhân viên kho đang in phiếu xuất và bốc hàng đóng gói vào hộp carton.
 3. **Đang giao hàng:** Đơn hàng đã được bàn giao cho đơn vị bưu tá vận chuyển và đang trên đường chuyển phát tới khách.
-4. **Hoàn tất:** Khách hàng đã nhận hàng và thanh toán tiền thành công (COD hoặc đã chuyển khoản).
+4. **Đã giao hàng:** Khách hàng đã nhận hàng và thanh toán tiền thành công (COD hoặc đã chuyển khoản).
 5. **Đã hủy:** Đơn hàng bị chấm dứt do khách yêu cầu hủy, không liên lạc được với khách, hoặc các lý do bất khả kháng.
+6. **Quy tắc cập nhật trạng thái:** Quản trị viên chỉ được chuyển đơn sang trạng thái kế tiếp trong luồng trên; không được chuyển lùi hoặc bỏ qua trạng thái. Có thể hủy đơn ở trạng thái Chờ xác nhận, Đang xử lý hoặc Đang giao hàng. Đơn Đã giao hàng và Đã hủy là trạng thái kết thúc, không thể cập nhật tiếp.
 
 ### Điều 9. Quyền hạn Hủy đơn & Quy tắc Hoàn trả Tài nguyên (Refund & Restock)
 1. **Quyền hủy đơn của Khách hàng:** Khách hàng chỉ được quyền tự hủy đơn hàng trực tuyến khi đơn hàng đang ở trạng thái **"Chờ xác nhận"**. Khi đơn đã chuyển sang "Đang chuẩn bị hàng" hoặc "Đang giao hàng", khách muốn hủy bắt buộc phải gọi điện trực tiếp tới tổng đài hỗ trợ để nhân viên xử lý dừng giao.
@@ -199,12 +198,7 @@ Dưới đây là 5 câu hỏi tình huống thực chiến hóc búa nhất mà
   *"Khi khách hàng đã đặt đơn gồm 03 thỏi son, nhưng sau đó gọi điện cho nhân viên xin giảm xuống 01 thỏi son vì đổi ý. Lúc này quản trị viên vào trang quản trị để sửa số lượng từ 3 thành 1. Hệ thống xử lý cập nhật đơn hàng, hoàn trả tồn kho của 2 thỏi son còn lại và tính toán lại tiền đơn hàng như thế nào?"*
 
 * **Cách Sinh viên Đáp trả tự tin:**  
-  > "Dạ thưa Thầy/Cô, tình huống này được định nghĩa chuẩn xác trong **Nghiệp vụ Quản lý Chi tiết Đơn hàng (Quy định 1.4 và Mục b.4 của Tài liệu Yêu cầu)**:
-  > 1. Khi quản trị viên nhập số lượng mới là 1 và nhấn 'Cập nhật', hệ thống sẽ kiểm tra độ chênh lệch số lượng: $\Delta = 3 - 1 = 2$ sản phẩm.
-  > 2. Hệ thống lập tức thực hiện cộng hoàn trả 2 đơn vị sản phẩm này trở lại vào tồn kho thực tế của mã son đó để phục vụ khách hàng khác.
-  > 3. Hệ thống tính lại thành tiền của dòng sản phẩm theo giá bán tại thời điểm đặt đơn ($1 \times \text{Đơn giá lịch sử}$), sau đó cập nhật lại Tổng tiền thanh toán của toàn bộ đơn hàng.
-  > 4. Nếu đơn hàng này ban đầu $> 500.000$ VNĐ được miễn phí vận chuyển, nhưng sau khi giảm số lượng khiến tổng tiền $< 500.000$ VNĐ, hệ thống sẽ tự động cộng thêm phí vận chuyển tiêu chuẩn theo đúng chính sách khu vực.
-  > Toàn bộ quy trình này đảm bảo phiếu xuất kho đưa cho bộ phận đóng gói và số tiền thu hộ COD của bưu tá luôn khớp đúng 100% với thực tế hàng xuất."
+  > "Dạ thưa Thầy/Cô, theo phạm vi hiện tại, hệ thống không cho phép thay đổi số lượng của đơn hàng sau khi khách xác nhận. Trang quản trị chỉ hiển thị số lượng, đơn giá, thành tiền và tổng tiền đã lưu; không có thao tác cập nhật hoặc tính lại các giá trị này. Vì vậy, chi tiết đơn hàng luôn phản ánh nội dung khách đã đặt."
 
 ---
 

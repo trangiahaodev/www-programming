@@ -2,16 +2,12 @@ package iuh.wwwprogramming.service.impl;
 
 import iuh.wwwprogramming.dto.OrderDetailResponseDTO;
 import iuh.wwwprogramming.dto.OrderFilterDTO;
-import iuh.wwwprogramming.dto.OrderItemQuantityUpdateDTO;
-import iuh.wwwprogramming.dto.OrderQuantityUpdateRequestDTO;
 import iuh.wwwprogramming.dto.TopProductStatDTO;
 import iuh.wwwprogramming.entity.Order;
 import iuh.wwwprogramming.entity.OrderItem;
 import iuh.wwwprogramming.entity.OrderStatus;
 import iuh.wwwprogramming.entity.Product;
-import iuh.wwwprogramming.exception.InvalidOrderItemException;
 import iuh.wwwprogramming.exception.InvalidOrderStatusException;
-import iuh.wwwprogramming.exception.OrderItemNotFoundException;
 import iuh.wwwprogramming.exception.OrderNotFoundException;
 import iuh.wwwprogramming.repository.OrderItemRepository;
 import iuh.wwwprogramming.repository.OrderRepository;
@@ -43,6 +39,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -261,311 +258,83 @@ class OrderServiceImplTest {
     }
 
     @Test
-    void shouldUpdateOrderQuantitiesAndRecalculateTotalsSuccessfully() {
-        String orderId = "order-update-1";
+    void shouldAdvanceOrderStatusToNextAllowedStatus() {
+        String orderId = "order-status-1";
         Order order = Order.builder()
                 .id(orderId)
-                .orderCode("ORD26000001")
-                .customerName("Nguyễn Thị Lan")
-                .customerPhone("0987654321")
-                .shippingAddress("12 Nguyễn Văn Bảo")
-                .totalAmount(new BigDecimal("650000.00"))
                 .status(OrderStatus.PENDING)
-                .createdAt(LocalDateTime.now())
+                .items(new ArrayList<>())
                 .build();
-
-        OrderItem item1 = OrderItem.builder()
-                .id("item-1")
-                .order(order)
-                .productCode("SP001")
-                .productName("Sản phẩm A")
-                .unitPrice(new BigDecimal("200000.00"))
-                .quantity(2)
-                .subtotal(new BigDecimal("400000.00"))
-                .build();
-
-        OrderItem item2 = OrderItem.builder()
-                .id("item-2")
-                .order(order)
-                .productCode("SP002")
-                .productName("Sản phẩm B")
-                .unitPrice(new BigDecimal("250000.00"))
-                .quantity(1)
-                .subtotal(new BigDecimal("250000.00"))
-                .build();
-
-        order.setItems(new ArrayList<>(List.of(item1, item2)));
-
         when(orderRepository.findByIdWithItems(orderId)).thenReturn(Optional.of(order));
 
-        OrderQuantityUpdateRequestDTO request = OrderQuantityUpdateRequestDTO.builder()
-                .orderId(orderId)
-                .items(List.of(
-                        OrderItemQuantityUpdateDTO.builder().orderItemId("item-1").quantity(3).build(),
-                        OrderItemQuantityUpdateDTO.builder().orderItemId("item-2").quantity(2).build()
-                ))
-                .build();
+        OrderDetailResponseDTO response = orderService.updateOrderStatus(orderId, OrderStatus.PROCESSING);
 
-        OrderDetailResponseDTO response = orderService.updateOrderQuantities(orderId, request);
-
-        assertThat(response).isNotNull();
-        assertThat(item1.getQuantity()).isEqualTo(3);
-        assertThat(item1.getSubtotal()).isEqualByComparingTo(new BigDecimal("600000.00"));
-        assertThat(item2.getQuantity()).isEqualTo(2);
-        assertThat(item2.getSubtotal()).isEqualByComparingTo(new BigDecimal("500000.00"));
-        assertThat(order.getTotalAmount()).isEqualByComparingTo(new BigDecimal("1100000.00"));
-        assertThat(response.getTotalAmount()).isEqualByComparingTo(new BigDecimal("1100000.00"));
-        assertThat(response.getTotalItems()).isEqualTo(5);
+        assertThat(response.getStatus()).isEqualTo(OrderStatus.PROCESSING);
         verify(orderRepository).save(order);
     }
 
     @Test
-    void shouldThrowInvalidOrderStatusExceptionWhenOrderIsDelivered() {
-        String orderId = "order-delivered";
+    void shouldRejectSkippingOrderStatusTransition() {
+        String orderId = "order-status-skip";
         Order order = Order.builder()
                 .id(orderId)
-                .orderCode("ORD26000002")
-                .customerName("Lê Văn C")
-                .totalAmount(new BigDecimal("500000.00"))
-                .status(OrderStatus.DELIVERED)
-                .items(new ArrayList<>(List.of(
-                        OrderItem.builder().id("item-1").unitPrice(new BigDecimal("100000.00")).quantity(5).subtotal(new BigDecimal("500000.00")).build()
-                )))
+                .status(OrderStatus.PENDING)
+                .items(new ArrayList<>())
                 .build();
-
         when(orderRepository.findByIdWithItems(orderId)).thenReturn(Optional.of(order));
 
-        OrderQuantityUpdateRequestDTO request = OrderQuantityUpdateRequestDTO.builder()
-                .orderId(orderId)
-                .items(List.of(OrderItemQuantityUpdateDTO.builder().orderItemId("item-1").quantity(2).build()))
-                .build();
-
-        assertThatThrownBy(() -> orderService.updateOrderQuantities(orderId, request))
+        assertThatThrownBy(() -> orderService.updateOrderStatus(orderId, OrderStatus.SHIPPED))
                 .isInstanceOf(InvalidOrderStatusException.class)
-                .hasMessageContaining("không được phép thay đổi số lượng sản phẩm");
-    }
-
-    @Test
-    void shouldThrowInvalidOrderItemExceptionWhenItemBelongsToDifferentOrder() {
-        String orderId = "order-1";
-        Order order = Order.builder()
-                .id(orderId)
-                .orderCode("ORD26000001")
-                .status(OrderStatus.PROCESSING)
-                .items(new ArrayList<>(List.of(
-                        OrderItem.builder().id("item-1").unitPrice(new BigDecimal("100000.00")).quantity(1).subtotal(new BigDecimal("100000.00")).build()
-                )))
-                .build();
-
-        when(orderRepository.findByIdWithItems(orderId)).thenReturn(Optional.of(order));
-        when(orderItemRepository.existsById("item-malicious")).thenReturn(true);
-
-        OrderQuantityUpdateRequestDTO request = OrderQuantityUpdateRequestDTO.builder()
-                .orderId(orderId)
-                .items(List.of(OrderItemQuantityUpdateDTO.builder().orderItemId("item-malicious").quantity(5).build()))
-                .build();
-
-        assertThatThrownBy(() -> orderService.updateOrderQuantities(orderId, request))
-                .isInstanceOf(InvalidOrderItemException.class)
-                .hasMessageContaining("Mặt hàng cập nhật không thuộc về đơn hàng này");
-    }
-
-    @Test
-    void shouldThrowOrderItemNotFoundExceptionWhenItemNotFoundAnywhere() {
-        String orderId = "order-1";
-        Order order = Order.builder()
-                .id(orderId)
-                .orderCode("ORD26000001")
-                .status(OrderStatus.PENDING)
-                .items(new ArrayList<>(List.of(
-                        OrderItem.builder().id("item-1").unitPrice(new BigDecimal("100000.00")).quantity(1).subtotal(new BigDecimal("100000.00")).build()
-                )))
-                .build();
-
-        when(orderRepository.findByIdWithItems(orderId)).thenReturn(Optional.of(order));
-        when(orderItemRepository.existsById("item-ghost")).thenReturn(false);
-
-        OrderQuantityUpdateRequestDTO request = OrderQuantityUpdateRequestDTO.builder()
-                .orderId(orderId)
-                .items(List.of(OrderItemQuantityUpdateDTO.builder().orderItemId("item-ghost").quantity(3).build()))
-                .build();
-
-        assertThatThrownBy(() -> orderService.updateOrderQuantities(orderId, request))
-                .isInstanceOf(OrderItemNotFoundException.class)
-                .hasMessageContaining("Không tìm thấy mặt hàng cần cập nhật");
-    }
-
-    @Test
-    void shouldAdjustInventoryAndSoldCountsWhenAdminIncreasesQuantity() {
-        String orderId = "order-inventory-delta";
-        Order order = Order.builder()
-                .id(orderId)
-                .orderCode("ORD26000088")
-                .customerName("Trần Thị Hoa")
-                .totalAmount(new BigDecimal("200000.00"))
-                .status(OrderStatus.PENDING)
-                .build();
-
-        Product product = Product.builder()
-                .id("prod-100")
-                .productCode("SP100")
-                .name("Kem Dưỡng Ẩm")
-                .stockQuantity(15)
-                .soldCount(5)
-                .price(new BigDecimal("100000.00"))
-                .build();
-
-        OrderItem item = OrderItem.builder()
-                .id("item-100")
-                .order(order)
-                .productId("prod-100")
-                .product(product)
-                .productCode("SP100")
-                .productName("Kem Dưỡng Ẩm")
-                .unitPrice(new BigDecimal("100000.00"))
-                .quantity(2)
-                .subtotal(new BigDecimal("200000.00"))
-                .build();
-
-        order.setItems(new ArrayList<>(List.of(item)));
-
-        when(orderRepository.findByIdWithItems(orderId)).thenReturn(Optional.of(order));
-
-        // Tăng từ 2 lên 5 (delta = +3)
-        OrderQuantityUpdateRequestDTO request = OrderQuantityUpdateRequestDTO.builder()
-                .orderId(orderId)
-                .items(List.of(
-                        OrderItemQuantityUpdateDTO.builder().orderItemId("item-100").quantity(5).build()
-                ))
-                .build();
-
-        OrderDetailResponseDTO response = orderService.updateOrderQuantities(orderId, request);
-
-        assertThat(response).isNotNull();
-        // Kiểm tra tồn kho giảm đúng bằng delta (15 - 3 = 12)
-        assertThat(product.getStockQuantity()).isEqualTo(12);
-        // Kiểm tra soldCount tăng đúng bằng delta (5 + 3 = 8)
-        assertThat(product.getSoldCount()).isEqualTo(8);
-        verify(productRepository).save(product);
-
-        // Kiểm tra dòng hàng và tổng tiền đơn hàng
-        assertThat(item.getQuantity()).isEqualTo(5);
-        assertThat(item.getSubtotal()).isEqualByComparingTo(new BigDecimal("500000.00"));
-        assertThat(order.getTotalAmount()).isEqualByComparingTo(new BigDecimal("500000.00"));
-        verify(orderRepository).save(order);
-    }
-
-    @Test
-    void shouldThrowExceptionWhenAdminIncreasesQuantityBeyondAvailableStock() {
-        String orderId = "order-out-of-stock";
-        Order order = Order.builder()
-                .id(orderId)
-                .orderCode("ORD26000089")
-                .customerName("Phạm Văn Nam")
-                .totalAmount(new BigDecimal("200000.00"))
-                .status(OrderStatus.PROCESSING)
-                .build();
-
-        Product product = Product.builder()
-                .id("prod-200")
-                .productCode("SP200")
-                .name("Son Dưỡng")
-                .stockQuantity(2) // Chỉ còn 2 sản phẩm trong kho
-                .soldCount(10)
-                .price(new BigDecimal("100000.00"))
-                .build();
-
-        OrderItem item = OrderItem.builder()
-                .id("item-200")
-                .order(order)
-                .product(product)
-                .productId("prod-200")
-                .productCode("SP200")
-                .productName("Son Dưỡng")
-                .unitPrice(new BigDecimal("100000.00"))
-                .quantity(1)
-                .subtotal(new BigDecimal("100000.00"))
-                .build();
-
-        order.setItems(new ArrayList<>(List.of(item)));
-
-        when(orderRepository.findByIdWithItems(orderId)).thenReturn(Optional.of(order));
-
-        // Muốn tăng từ 1 lên 5 (cần thêm delta = 4, trong khi kho chỉ còn 2)
-        OrderQuantityUpdateRequestDTO request = OrderQuantityUpdateRequestDTO.builder()
-                .orderId(orderId)
-                .items(List.of(
-                        OrderItemQuantityUpdateDTO.builder().orderItemId("item-200").quantity(5).build()
-                ))
-                .build();
-
-        assertThatThrownBy(() -> orderService.updateOrderQuantities(orderId, request))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("không đủ để tăng thêm")
-                .hasMessageContaining("tồn kho hiện tại: 2, cần thêm: 4");
-
-        // Đảm bảo không lưu product và không lưu order
-        verify(productRepository, never()).save(product);
+                .hasMessageContaining("Không thể chuyển trạng thái đơn hàng");
         verify(orderRepository, never()).save(order);
     }
 
     @Test
-    void shouldReleaseInventoryWhenAdminDecreasesQuantity() {
-        String orderId = "order-inventory-decrease";
+    void shouldRestockInventoryWhenOrderStatusChangesToCancelled() {
+        String orderId = "order-status-cancel";
+        Product product = Product.builder()
+                .id("prod-status-cancel")
+                .stockQuantity(4)
+                .soldCount(6)
+                .build();
         Order order = Order.builder()
                 .id(orderId)
-                .orderCode("ORD26000090")
-                .customerName("Hoàng Yến")
-                .totalAmount(new BigDecimal("500000.00"))
-                .status(OrderStatus.PENDING)
+                .status(OrderStatus.PROCESSING)
+                .items(new ArrayList<>())
                 .build();
-
-        Product product = Product.builder()
-                .id("prod-300")
-                .productCode("SP300")
-                .name("Tẩy Trang")
-                .stockQuantity(10)
-                .soldCount(20)
-                .price(new BigDecimal("100000.00"))
-                .build();
-
         OrderItem item = OrderItem.builder()
-                .id("item-300")
+                .id("item-status-cancel")
                 .order(order)
                 .product(product)
-                .productId("prod-300")
-                .productCode("SP300")
-                .productName("Tẩy Trang")
-                .unitPrice(new BigDecimal("100000.00"))
-                .quantity(5)
-                .subtotal(new BigDecimal("500000.00"))
+                .quantity(2)
                 .build();
-
         order.setItems(new ArrayList<>(List.of(item)));
-
         when(orderRepository.findByIdWithItems(orderId)).thenReturn(Optional.of(order));
 
-        // Giảm từ 5 xuống 2 (delta = -3, hoàn lại 3 cái vào kho)
-        OrderQuantityUpdateRequestDTO request = OrderQuantityUpdateRequestDTO.builder()
-                .orderId(orderId)
-                .items(List.of(
-                        OrderItemQuantityUpdateDTO.builder().orderItemId("item-300").quantity(2).build()
-                ))
-                .build();
+        OrderDetailResponseDTO response = orderService.updateOrderStatus(orderId, OrderStatus.CANCELLED);
 
-        OrderDetailResponseDTO response = orderService.updateOrderQuantities(orderId, request);
-
-        assertThat(response).isNotNull();
-        // Tồn kho được hoàn lại: 10 + 3 = 13
-        assertThat(product.getStockQuantity()).isEqualTo(13);
-        // soldCount giảm tương ứng: 20 - 3 = 17
-        assertThat(product.getSoldCount()).isEqualTo(17);
+        assertThat(response.getStatus()).isEqualTo(OrderStatus.CANCELLED);
+        assertThat(product.getStockQuantity()).isEqualTo(6);
+        assertThat(product.getSoldCount()).isEqualTo(4);
         verify(productRepository).save(product);
-
-        assertThat(item.getQuantity()).isEqualTo(2);
-        assertThat(item.getSubtotal()).isEqualByComparingTo(new BigDecimal("200000.00"));
-        assertThat(order.getTotalAmount()).isEqualByComparingTo(new BigDecimal("200000.00"));
         verify(orderRepository).save(order);
+    }
+
+    @Test
+    void shouldTreatCurrentOrderStatusAsIdempotent() {
+        String orderId = "order-status-current";
+        Order order = Order.builder()
+                .id(orderId)
+                .status(OrderStatus.CANCELLED)
+                .items(new ArrayList<>())
+                .build();
+        when(orderRepository.findByIdWithItems(orderId)).thenReturn(Optional.of(order));
+
+        OrderDetailResponseDTO response = orderService.updateOrderStatus(orderId, OrderStatus.CANCELLED);
+
+        assertThat(response.getStatus()).isEqualTo(OrderStatus.CANCELLED);
+        verify(orderRepository, never()).save(order);
+        verifyNoInteractions(productRepository);
     }
 
     @Test

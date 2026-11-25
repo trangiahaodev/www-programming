@@ -105,9 +105,11 @@ Trước đây, cửa hàng chưa có quy chuẩn phân loại danh mục khoa h
 #### Quản lý đơn hàng & Chi tiết đơn hàng:
 Đơn hàng là chứng từ xác nhận giao dịch thương mại giữa khách hàng và cửa hàng PinkyCloud. Mỗi đơn hàng lưu trữ đầy đủ các thông tin: Mã đơn hàng duy nhất, Thời gian tạo đơn, Thông tin người nhận hàng (Họ tên, SĐT, Địa chỉ, Ghi chú), Hình thức thanh toán đã chọn, Danh sách chi tiết các mặt hàng đặt mua (Tên sản phẩm, Đơn giá tại thời điểm mua, Số lượng đặt, Thành tiền từng dòng) và Tổng giá trị tiền cần thu.
 
-Trong thực tế vận hành, có rất nhiều trường hợp sau khi đặt hàng trực tuyến xong, khách hàng liên hệ lại qua điện thoại để xin thay đổi số lượng (ví dụ: muốn giảm từ 3 thỏi son xuống 2 thỏi vì lý do tài chính, hoặc tăng thêm 1 chai nước hoa hồng để dùng cùng người thân). Trước đây, nhân viên phải lấy bút gạch xóa trên phiếu in giấy, rất dễ quên khi bốc hàng đóng gói và làm sai lệch số tiền thu hộ của bên giao vận (COD).
+Trong quá trình vận hành, khách hàng có thể liên hệ sau khi đặt hàng để hỏi về việc thay đổi số lượng. Để bảo đảm tính toàn vẹn của giao dịch đã xác nhận, hệ thống không cho phép chỉnh sửa trực tiếp các dòng hàng của đơn đã tạo; quản trị viên chỉ tra cứu và xem thông tin đơn hàng.
 
-Hệ thống mới cung cấp tính năng Quản lý Chi tiết Đơn hàng: Quản trị viên có thể tra cứu đơn hàng theo mã đơn hoặc số điện thoại, mở xem chi tiết từng món hàng và trực tiếp điều chỉnh số lượng thực tế của từng sản phẩm trong đơn theo đúng thỏa thuận với khách. Hệ thống sẽ tự động tính lại thành tiền của từng dòng và cập nhật lại Tổng tiền thanh toán của toàn bộ đơn hàng một cách chính xác, đảm bảo phiếu xuất kho và số tiền thu của khách luôn khớp nhau tuyệt đối.
+Hệ thống mới cung cấp tính năng Quản lý Chi tiết Đơn hàng: Quản trị viên có thể tra cứu đơn hàng theo mã đơn hoặc số điện thoại và xem thông tin từng món hàng, bao gồm số lượng đã đặt, đơn giá tại thời điểm mua, thành tiền và tổng tiền. Chi tiết đơn hàng được giữ nguyên sau khi khách xác nhận đặt hàng; quản trị viên không thể thay đổi số lượng trên hệ thống.
+
+Quản trị viên có thể cập nhật trạng thái đơn hàng theo đúng thứ tự Chờ xác nhận → Đang xử lý → Đang giao hàng → Đã giao hàng; đơn có thể được chuyển sang Đã hủy khi chưa hoàn tất giao hàng. Không cho phép chuyển lùi, bỏ qua trạng thái hoặc cập nhật đơn đã ở trạng thái kết thúc.
 
 ---
 
@@ -261,12 +263,10 @@ Hệ thống mới tự động tổng hợp toàn bộ các đơn hàng đã ph
 
 ---
 
-#### c.3. Quy định về Quản lý Đơn hàng & Cập nhật số lượng:
+#### c.3. Quy định về Quản lý Đơn hàng:
 - **Tính toàn vẹn giá đơn hàng:** Giá sản phẩm ghi trên chi tiết đơn hàng là **giá tại thời điểm khách bấm đặt hàng**. Khi cửa hàng thay đổi giá niêm yết của sản phẩm sau này, giá trên các đơn hàng đã tạo trong quá khứ tuyệt đối không bị thay đổi.
-- **Quy định điều chỉnh số lượng đơn hàng:**
-  - Chỉ nhân viên quản trị có thẩm quyền mới được phép điều chỉnh số lượng sản phẩm trong đơn hàng.
-  - Số lượng sau khi chỉnh sửa phải là số nguyên dương ($> 0$). Trường hợp khách muốn hủy hẳn món hàng đó khỏi đơn, phải thực hiện xóa dòng chi tiết tương ứng.
-  - Sau khi thay đổi số lượng, hệ thống bắt buộc phải tính toán lại thành tiền từng dòng và cập nhật lại Tổng tiền thanh toán của toàn bộ đơn hàng.
+- **Tính toàn vẹn số lượng:** Số lượng sản phẩm và các giá trị thành tiền được lưu theo đơn khách đã xác nhận; quản trị viên chỉ được xem, không được chỉnh sửa chi tiết này trên hệ thống.
+- **Cập nhật trạng thái:** Quản trị viên chỉ được chuyển trạng thái theo thứ tự Chờ xác nhận → Đang xử lý → Đang giao hàng → Đã giao hàng, hoặc hủy đơn chưa hoàn tất giao hàng. Không được chuyển lùi, bỏ qua trạng thái hoặc thay đổi đơn Đã giao hàng/Đã hủy.
 
 ---
 
@@ -297,7 +297,7 @@ Hệ thống mới tự động tổng hợp toàn bộ các đơn hàng đã ph
 | **1.** | Khách hàng của PinkyCloud chủ yếu là đối tượng nào và cửa hàng có yêu cầu đặc biệt gì về phong cách hiển thị hình ảnh, thông tin sản phẩm trên website? | Đối tượng khách hàng chính của PinkyCloud là giới trẻ (học sinh, sinh viên, nhân viên văn phòng trẻ tuổi từ 18–30 tuổi). Cửa hàng yêu cầu phong cách hiển thị phải trẻ trung, hiện đại, sử dụng các khối thẻ sản phẩm có đường viền đậm rõ ràng, màu sắc tương phản cao và nút bấm to bản để các mặt hàng mỹ phẩm nổi bật, giúp khách dễ phân biệt nhanh giữa các mã màu son, loại dung tích và thao tác mua sắm trên điện thoại không bị nhầm lẫn. | *Người hỏi: Trần Gia Hào* |
 | **2.** | Về thói quen mua sắm của khách hàng qua thiết bị di động, cửa hàng đặt ra yêu cầu gì về tốc độ hiển thị và khả năng tiếp cận thông tin sản phẩm? | Đại đa số khách hàng truy cập website bằng điện thoại qua mạng di động (3G/4G). Cửa hàng yêu cầu trang web phải hiển thị đầy đủ hình ảnh, bảng giá và nội dung sản phẩm ngay lập tức khi vừa mở trang (thời gian dưới 1.5 giây), không để xảy ra tình trạng màn hình trắng chờ tải dữ liệu làm khách nản lòng rời đi, đồng thời thông tin sản phẩm phải dễ dàng tìm thấy trên các công cụ tìm kiếm của người dùng. | *Người hỏi: Phạm Thanh Huy* |
 | **3.** | Khi hai khách hàng cùng truy cập và nhấn mua một sản phẩm mỹ phẩm cuối cùng trong kho tại cùng một thời điểm, cửa hàng muốn hệ thống xử lý như thế nào? | Hệ thống lưu giữ hàng trong giỏ mua sắm tạm thời của khách và chưa trừ tồn kho ngay để tránh giữ ảo hàng hóa. Việc trừ tồn kho chỉ diễn ra khi khách hàng nhấn nút "Xác nhận Đặt hàng". Đơn hàng của khách nào gửi yêu cầu xác nhận trước sẽ được tạo thành công và trừ kho; khách hàng gửi sau sẽ nhận được thông báo mặt hàng đã hết để đảm bảo tính công bằng và chính xác tồn kho thực tế. | *Người hỏi: Trình Hoàng Kỳ* |
-| **4.** | Khi khách hàng đã đặt hàng trực tuyến nhưng sau đó gọi điện yêu cầu đổi số lượng (tăng hoặc giảm số lượng món hàng), nhân viên xử lý ra sao trên hệ thống? | Quản trị viên chỉ cần truy cập vào mục "Quản lý Đơn hàng", chọn xem chi tiết đơn hàng đó và nhập số lượng mới vào ô số lượng của dòng sản phẩm mong muốn rồi bấm "Cập nhật". Hệ thống sẽ tự động tính lại thành tiền của dòng sản phẩm đó và tính lại tổng tiền thanh toán của toàn bộ đơn hàng mà không cần phải hủy bỏ đơn đi lập lại từ đầu. | *Người hỏi: Nguyễn Công Huy* |
+| **4.** | Khi khách hàng đã đặt hàng trực tuyến nhưng sau đó gọi điện yêu cầu đổi số lượng (tăng hoặc giảm số lượng món hàng), nhân viên xử lý ra sao trên hệ thống? | Hệ thống chỉ cho phép quản trị viên xem số lượng khách đã xác nhận khi đặt hàng; không hỗ trợ chỉnh sửa số lượng hoặc tính lại tiền trên đơn hàng đã tạo. | *Người hỏi: Nguyễn Công Huy* |
 | **5.** | Khi thêm mới một sản phẩm mỹ phẩm vào hệ thống, các ràng buộc dữ liệu bắt buộc nào phải được kiểm tra? | Cửa hàng yêu cầu kiểm tra chặt chẽ: Tên sản phẩm không được để trống; Phải chọn một danh mục cha hợp lệ; Đơn giá bán phải là số tiền lớn hơn 0 VNĐ; Số lượng tồn kho ban đầu khi nhập hàng phải là số không âm ($\ge 0$); Hình ảnh đại diện phải rõ ràng và phần mô tả phải có đầy đủ thông tin về công dụng, thành phần để khách hàng yên tâm mua sắm. | *Người hỏi: Trần Gia Hào* |
 | **6.** | Cửa hàng có áp dụng chính sách giới hạn số lượng mua tối đa cho mỗi mặt hàng trong một đơn hàng không? | Có. Nhằm tránh hiện tượng các đối tượng ôm hàng số lượng lớn trong các đợt mở bán mỹ phẩm hot hoặc các chương trình giảm giá sâu làm hết hàng của khách lẻ khác, cửa hàng quy định mỗi lần mua một mã sản phẩm tối đa là 10 đơn vị. | *Người hỏi: Trình Hoàng Kỳ* |
 | **7.** | Hệ thống quản lý danh mục có cho phép xóa một danh mục đang chứa các sản phẩm mỹ phẩm bên trong không? | Tuyệt đối không. Để đảm bảo không làm mất thông tin hàng hóa, nếu một danh mục đang có sản phẩm liên kết thì hệ thống sẽ chặn thao tác xóa và hiển thị cảnh báo yêu cầu quản trị viên phải di chuyển hoặc xóa các sản phẩm trực thuộc trước khi xóa danh mục đó. | *Người hỏi: Phạm Thanh Huy* |
@@ -397,8 +397,7 @@ HỆ THỐNG QUẢN LÝ & BÁN MỸ PHẨM PINKYCLOUD
 
 ### Quản lý Đơn hàng & Chi tiết Đơn:
 - Cung cấp công cụ theo dõi danh sách toàn bộ các đơn hàng phát sinh từ kênh trực tuyến.
-- Hiển thị chi tiết từng dòng sản phẩm trong đơn, cho phép quản trị viên chủ động điều chỉnh số lượng hàng thực xuất theo yêu cầu của khách hàng trước khi giao cho đơn vị vận chuyển.
-- Tự động tính toán lại thành tiền từng món và tổng giá trị đơn hàng một cách minh bạch, chính xác tuyệt đối.
+- Hiển thị chi tiết từng dòng sản phẩm trong đơn, bao gồm số lượng khách đã đặt, đơn giá, thành tiền và tổng giá trị đơn hàng ở chế độ chỉ đọc.
 
 ### Quản lý Hóa đơn & Báo cáo Doanh thu:
 - Lưu trữ toàn bộ lịch sử giao dịch bán lẻ làm căn cứ đối soát tài chính.

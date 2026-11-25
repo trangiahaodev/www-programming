@@ -3,10 +3,10 @@ package iuh.wwwprogramming.service;
 import iuh.wwwprogramming.dto.CheckoutRequestDTO;
 import iuh.wwwprogramming.dto.OrderDetailResponseDTO;
 import iuh.wwwprogramming.dto.OrderFilterDTO;
-import iuh.wwwprogramming.dto.OrderQuantityUpdateRequestDTO;
 import iuh.wwwprogramming.dto.OrderResponseDTO;
 import iuh.wwwprogramming.dto.TopProductStatDTO;
 import iuh.wwwprogramming.dto.OrderAnalyticsDTO;
+import iuh.wwwprogramming.entity.OrderStatus;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,7 +32,7 @@ public interface OrderService {
 
     OrderDetailResponseDTO getOrderDetailById(String id);
 
-    OrderDetailResponseDTO updateOrderQuantities(String orderId, OrderQuantityUpdateRequestDTO requestDTO);
+    OrderDetailResponseDTO updateOrderStatus(String orderId, OrderStatus status);
 
     OrderDetailResponseDTO cancelOrder(String orderId);
 

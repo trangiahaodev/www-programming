@@ -1639,6 +1639,17 @@ tbody tr:last-child td {
 .order-info-label { color: var(--color-text-secondary); font-weight: 500; }
 .order-info-value { color: var(--color-text-primary); font-weight: 500; }
 
+.order-status-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--space-3);
+    margin-bottom: var(--space-6);
+}
+
+.order-status-form .filter-select { min-width: 220px; }
+
 .order-items-card {
     background-color: var(--color-white);
     border-radius: var(--radius-base);
@@ -1656,42 +1667,6 @@ tbody tr:last-child td {
 
 .order-table-total-label { text-align: right; font-weight: 700; padding: 16px 20px; font-size: 14px; }
 .order-table-total-amount { text-align: right; font-weight: 800; font-size: 18px; color: var(--color-primary); padding: 16px 20px; }
-
-/* 5. Quantity Stepper Controls (Thiết kế phẳng) */
-.quantity-stepper {
-    display: inline-flex;
-    align-items: center;
-    border: var(--border-width) solid var(--color-border);
-    border-radius: var(--radius-base);
-    background-color: var(--color-white);
-    overflow: hidden;
-}
-
-.btn-stepper {
-    width: 32px; height: 32px;
-    background-color: var(--color-surface-subtle);
-    border: none; cursor: pointer;
-    font-weight: 700;
-}
-.btn-stepper:hover { background-color: var(--color-border); }
-
-.input-quantity {
-    width: 48px; height: 32px;
-    text-align: center;
-    border: none;
-    border-left: var(--border-width) solid var(--color-border);
-    border-right: var(--border-width) solid var(--color-border);
-    font-weight: 600;
-}
-.input-quantity:focus { outline: none; }
-
-.badge-change-count {
-    background-color: var(--color-primary-light);
-    color: var(--color-primary);
-    border-radius: var(--radius-full);
-    padding: 2px 8px; font-size: 11px; font-weight: 800;
-}
-.price-changed-highlight { color: var(--color-success) !important; }
 
 /* -------------------------------------------------------------
  * 16. PRODUCT CATALOG & FORM COMPONENTS

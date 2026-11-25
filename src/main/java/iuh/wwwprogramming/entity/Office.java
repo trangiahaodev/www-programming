@@ -19,9 +19,8 @@ import java.util.List;
 @Builder
 public class Office {
 
-    // 1. Surrogate Key
+    // IDs are supplied by seed data and must remain stable across runs.
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(length = 36, updatable = false, nullable = false)
     private String id;
 

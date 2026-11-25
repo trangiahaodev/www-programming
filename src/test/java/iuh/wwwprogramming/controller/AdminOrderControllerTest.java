@@ -4,6 +4,7 @@ import iuh.wwwprogramming.dto.OrderDetailResponseDTO;
 import iuh.wwwprogramming.dto.OrderFilterDTO;
 import iuh.wwwprogramming.dto.OrderResponseDTO;
 import iuh.wwwprogramming.entity.OrderStatus;
+import iuh.wwwprogramming.exception.InvalidOrderStatusException;
 import iuh.wwwprogramming.exception.OrderNotFoundException;
 import iuh.wwwprogramming.service.OrderService;
 import org.junit.jupiter.api.BeforeEach;
@@ -134,7 +135,39 @@ class AdminOrderControllerTest {
 
         assertThat(view).isEqualTo("admin/order-detail");
         assertThat(model.getAttribute("order")).isEqualTo(detailDTO);
+        assertThat(model.containsAttribute("updateRequest")).isFalse();
+        assertThat(model.getAttribute("availableOrderStatuses"))
+                .isEqualTo(List.of(OrderStatus.PROCESSING, OrderStatus.CANCELLED));
         verify(orderService).getOrderDetailById(validUuid);
+    }
+
+    @Test
+    void shouldUpdateOrderStatusAndRedirectWithSuccessMessage() {
+        String validUuid = "a3c4db73-b25d-4662-b49e-6b5b696e99fb";
+        RedirectAttributesModelMap redirectAttributes = new RedirectAttributesModelMap();
+        when(orderService.updateOrderStatus(validUuid, OrderStatus.PROCESSING))
+                .thenReturn(OrderDetailResponseDTO.builder().id(validUuid).status(OrderStatus.PROCESSING).build());
+
+        String view = controller.updateOrderStatus(validUuid, OrderStatus.PROCESSING, redirectAttributes);
+
+        assertThat(view).isEqualTo("redirect:/admin/orders/" + validUuid);
+        assertThat(redirectAttributes.getFlashAttributes().get("successMessage"))
+                .isEqualTo("Trạng thái đơn hàng đã được cập nhật.");
+        verify(orderService).updateOrderStatus(validUuid, OrderStatus.PROCESSING);
+    }
+
+    @Test
+    void shouldRedirectWithErrorWhenOrderStatusTransitionIsInvalid() {
+        String validUuid = "a3c4db73-b25d-4662-b49e-6b5b696e99fb";
+        RedirectAttributesModelMap redirectAttributes = new RedirectAttributesModelMap();
+        when(orderService.updateOrderStatus(validUuid, OrderStatus.SHIPPED))
+                .thenThrow(new InvalidOrderStatusException("Không thể chuyển trạng thái đơn hàng."));
+
+        String view = controller.updateOrderStatus(validUuid, OrderStatus.SHIPPED, redirectAttributes);
+
+        assertThat(view).isEqualTo("redirect:/admin/orders/" + validUuid);
+        assertThat(redirectAttributes.getFlashAttributes().get("errorMessage"))
+                .isEqualTo("Không thể chuyển trạng thái đơn hàng.");
     }
 
     @Test
@@ -153,63 +186,4 @@ class AdminOrderControllerTest {
                 .isEqualTo("Đơn hàng không tồn tại");
     }
 
-    @Test
-    void shouldRedirectWithSuccessMessageOnSuccessfulQuantityUpdate() {
-        String validUuid = "a3c4db73-b25d-4662-b49e-6b5b696e99fb";
-        iuh.wwwprogramming.dto.OrderQuantityUpdateRequestDTO request = iuh.wwwprogramming.dto.OrderQuantityUpdateRequestDTO.builder()
-                .orderId(validUuid)
-                .items(List.of(iuh.wwwprogramming.dto.OrderItemQuantityUpdateDTO.builder()
-                        .orderItemId("7e91a0c4-1234-5678-abcd-ef0123456789")
-                        .quantity(3)
-                        .build()))
-                .build();
-        BindingResult bindingResult = new BeanPropertyBindingResult(request, "updateRequest");
-        RedirectAttributesModelMap redirectAttributes = new RedirectAttributesModelMap();
-
-        String view = controller.updateOrderQuantities(validUuid, request, bindingResult, redirectAttributes);
-
-        assertThat(view).isEqualTo("redirect:/admin/orders/" + validUuid);
-        assertThat(redirectAttributes.getFlashAttributes().get("successMessage"))
-                .isEqualTo("Cập nhật số lượng sản phẩm và tính lại tổng tiền đơn hàng thành công.");
-        verify(orderService).updateOrderQuantities(validUuid, request);
-    }
-
-    @Test
-    void shouldRedirectWithErrorMessageWhenBindingResultHasErrors() {
-        String validUuid = "a3c4db73-b25d-4662-b49e-6b5b696e99fb";
-        iuh.wwwprogramming.dto.OrderQuantityUpdateRequestDTO request = iuh.wwwprogramming.dto.OrderQuantityUpdateRequestDTO.builder()
-                .orderId(validUuid)
-                .build();
-        BindingResult bindingResult = new BeanPropertyBindingResult(request, "updateRequest");
-        bindingResult.rejectValue("items", "items.empty", "Danh sách cập nhật không được để trống");
-        RedirectAttributesModelMap redirectAttributes = new RedirectAttributesModelMap();
-
-        String view = controller.updateOrderQuantities(validUuid, request, bindingResult, redirectAttributes);
-
-        assertThat(view).isEqualTo("redirect:/admin/orders/" + validUuid);
-        assertThat(redirectAttributes.getFlashAttributes().get("errorMessage"))
-                .isEqualTo("Danh sách cập nhật không được để trống");
-        verifyNoInteractions(orderService);
-    }
-
-    @Test
-    void shouldReturnOkResponseOnSuccessfulJsonQuantityUpdate() {
-        String validUuid = "a3c4db73-b25d-4662-b49e-6b5b696e99fb";
-        iuh.wwwprogramming.dto.OrderQuantityUpdateRequestDTO request = iuh.wwwprogramming.dto.OrderQuantityUpdateRequestDTO.builder()
-                .orderId(validUuid)
-                .items(List.of(iuh.wwwprogramming.dto.OrderItemQuantityUpdateDTO.builder()
-                        .orderItemId("7e91a0c4-1234-5678-abcd-ef0123456789")
-                        .quantity(3)
-                        .build()))
-                .build();
-        BindingResult bindingResult = new BeanPropertyBindingResult(request, "requestDTO");
-        OrderDetailResponseDTO responseDTO = OrderDetailResponseDTO.builder().id(validUuid).build();
-
-        when(orderService.updateOrderQuantities(validUuid, request)).thenReturn(responseDTO);
-
-        org.springframework.http.ResponseEntity<?> response = controller.updateOrderQuantitiesJson(validUuid, request, bindingResult);
-
-        assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();
-        assertThat(response.getBody()).isEqualTo(responseDTO);
-    }
 }

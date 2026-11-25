@@ -1,6 +1,6 @@
 # Mermaid Diagrams: admin-order-detail-d
 
-Tài liệu thiết kế kiến trúc và mô hình luồng tương tác chi tiết cho Use Case **Quản trị viên xem chi tiết một đơn hàng trực tuyến** (`admin-order-detail-d` / `uc002d-admin-order-detail`).
+Tài liệu thiết kế kiến trúc và mô hình luồng tương tác chi tiết cho Use Case **Quản trị viên xem chi tiết và cập nhật trạng thái đơn hàng** (`admin-order-detail-d` / `uc002d-admin-order-detail`).
 
 ---
 
@@ -13,9 +13,9 @@ flowchart TD
     Client["Browser (Admin Client)"]
     Security["Spring Security Filter Chain<br>(Role Check: ROLE_ADMIN)"]
     Controller["AdminOrderController<br>(Spring MVC @Controller)"]
-    Service["OrderService / OrderServiceImpl<br>(Service Layer @Transactional readOnly)"]
-    Repository["OrderRepository<br>(Spring Data JPA / Hibernate)"]
-    Database[("Microsoft SQL Server<br>(Tables: orders, order_items)")]
+    Service["OrderService / OrderServiceImpl<br>(Service Layer @Transactional)"]
+    Repositories["OrderRepository + ProductRepository<br>(Spring Data JPA / Hibernate)"]
+    Database[("Microsoft SQL Server<br>(Tables: orders, order_items, products)")]
     View["Thymeleaf Template Engine<br>(admin/order-detail.html)"]
 
     Client -->|"HTTP GET /admin/orders/{id}"| Security
@@ -23,13 +23,18 @@ flowchart TD
     Security -.->|"Unauthorized / Expired Session (HTTP 302 /login)"| Client
     Controller -->|"Validate ID (blank & UUID regex)"| Controller
     Controller -->|"getOrderDetailById(trimmedId)"| Service
-    Service -->|"findByIdWithItems(id)"| Repository
-    Repository -->|"JPQL: SELECT o FROM Order o LEFT JOIN FETCH o.items WHERE o.id = :id"| Database
-    Database -->|"ResultSet (order record & order_items records)"| Repository
-    Repository -->|"Optional[Order]"| Service
+    Service -->|"findByIdWithItems(id)"| Repositories
+    Repositories -->|"JPQL: SELECT o FROM Order o LEFT JOIN FETCH o.items WHERE o.id = :id"| Database
+    Database -->|"ResultSet (order record & order_items records)"| Repositories
+    Repositories -->|"Optional[Order]"| Service
     Service -->|"Map Entity to OrderDetailResponseDTO + List[OrderItemResponseDTO]"| Controller
     Controller -->|"Model attribute 'order' (OrderDetailResponseDTO)"| View
     View -->|"Rendered HTML Response"| Client
+    Client -->|"HTTP POST /admin/orders/{id}/status"| Security
+    Security -->|"Authenticated (ROLE_ADMIN)"| Controller
+    Controller -->|"updateOrderStatus(id, status)"| Service
+    Service -->|"Validate allowed transition and save order"| Repositories
+    Service -->|"When cancelled: restore stock and sold counts"| Repositories
 ```
 
 ---
@@ -37,6 +42,8 @@ flowchart TD
 ## 2. Sequence Diagram
 
 Mô tả chu kỳ vòng đời của một Request-Response từ lúc Quản trị viên nhấp xem chi tiết một đơn hàng, biểu diễn đầy đủ Main Flow, Alternate Flows (truy cập trực tiếp URL, quay lại danh sách qua nút/breadcrumb) và Exception Flows (hết hạn phiên/thiếu quyền, mã đơn rỗng, mã đơn sai định dạng UUID, đơn hàng không tồn tại, đơn hàng không có mặt hàng, lỗi kết nối CSDL).
+
+Bảng mặt hàng chỉ hiển thị số lượng và giá trị đã ghi nhận khi đặt hàng; quản trị viên chỉ có thể cập nhật trạng thái theo luồng nghiệp vụ cho phép.
 
 ```mermaid
 sequenceDiagram
@@ -120,9 +127,56 @@ sequenceDiagram
 
 ---
 
-## 3. Class Diagram
+## 3. Sequence Diagram: Update Order Status
 
-Mô hình hóa các thực thể JPA (`<<entity>>`), kiểu liệt kê trạng thái (`<<enumeration>>`) và các lớp truyền tải dữ liệu (`<<DTO>>`) tham gia trực tiếp vào Use Case xem chi tiết đơn hàng.
+Quản trị viên chỉ được chuyển sang trạng thái hợp lệ tiếp theo. Hủy đơn sẽ hoàn trả tồn kho và cập nhật số lượng đã bán trong cùng giao dịch.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Admin as Quản trị viên
+    participant Browser as Trình duyệt
+    participant Security as Spring Security
+    participant Controller as AdminOrderController
+    participant Service as OrderServiceImpl
+    participant OrderRepository
+    participant ProductRepository
+    participant DB as SQL Server
+
+    Admin->>Browser: Chọn trạng thái tiếp theo và gửi biểu mẫu
+    Browser->>Security: HTTP POST /admin/orders/{id}/status
+    Security->>Controller: updateOrderStatus(id, status)
+    Controller->>Service: updateOrderStatus(id, status)
+    Service->>OrderRepository: findByIdWithItems(id)
+    OrderRepository->>DB: Tải đơn hàng và các mặt hàng
+    DB-->>OrderRepository: Order và OrderItems
+    OrderRepository-->>Service: Order
+
+    alt Trạng thái không hợp lệ hoặc đơn đã kết thúc
+        Service-->>Controller: Ném InvalidOrderStatusException
+        Controller-->>Browser: Redirect về chi tiết với thông báo lỗi
+    else Chuyển trạng thái hợp lệ
+        alt Trạng thái mới là CANCELLED
+            loop Từng mặt hàng trong đơn
+                Service->>ProductRepository: Hoàn tồn kho và giảm số lượng đã bán
+                ProductRepository->>DB: Lưu sản phẩm
+                DB-->>ProductRepository: Xác nhận lưu
+            end
+        end
+        Service->>OrderRepository: Lưu trạng thái mới
+        OrderRepository->>DB: UPDATE order
+        DB-->>OrderRepository: Xác nhận lưu
+        Service-->>Controller: Trả về chi tiết đơn hàng
+        Controller-->>Browser: Redirect về chi tiết với thông báo thành công
+    end
+    Browser-->>Admin: Hiển thị chi tiết đơn hàng đã cập nhật
+```
+
+---
+
+## 4. Class Diagram
+
+Mô hình hóa các thực thể JPA (`<<entity>>`), kiểu liệt kê trạng thái (`<<enumeration>>`) và các lớp truyền tải dữ liệu (`<<DTO>>`) tham gia trực tiếp vào Use Case xem chi tiết và cập nhật trạng thái đơn hàng.
 
 ```mermaid
 classDiagram

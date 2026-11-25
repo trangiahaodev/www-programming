@@ -7,9 +7,7 @@ import iuh.wwwprogramming.entity.OrderStatus;
 import iuh.wwwprogramming.entity.Product;
 import iuh.wwwprogramming.entity.User;
 import iuh.wwwprogramming.event.OrderPlacedEvent;
-import iuh.wwwprogramming.exception.InvalidOrderItemException;
 import iuh.wwwprogramming.exception.InvalidOrderStatusException;
-import iuh.wwwprogramming.exception.OrderItemNotFoundException;
 import iuh.wwwprogramming.exception.OrderNotFoundException;
 import iuh.wwwprogramming.repository.OrderItemRepository;
 import iuh.wwwprogramming.repository.OrderRepository;
@@ -181,114 +179,34 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public OrderDetailResponseDTO updateOrderQuantities(String orderId, OrderQuantityUpdateRequestDTO requestDTO) {
+    public OrderDetailResponseDTO updateOrderStatus(String orderId, OrderStatus newStatus) {
         if (orderId == null || orderId.trim().isEmpty()) {
             throw new IllegalArgumentException("Mã đơn hàng không được để trống.");
         }
-        if (requestDTO == null || requestDTO.getItems() == null || requestDTO.getItems().isEmpty()) {
-            throw new IllegalArgumentException("Danh sách mặt hàng cập nhật không được để trống.");
-        }
-        if (requestDTO.getOrderId() != null && !requestDTO.getOrderId().trim().equalsIgnoreCase(orderId.trim())) {
-            throw new IllegalArgumentException("Mã đơn hàng trong URL và nội dung yêu cầu không khớp.");
+        if (newStatus == null) {
+            throw new IllegalArgumentException("Trạng thái đơn hàng không được để trống.");
         }
 
         Order order = orderRepository.findByIdWithItems(orderId.trim())
                 .orElseThrow(() -> new OrderNotFoundException("Đơn hàng yêu cầu không tồn tại hoặc đã bị xóa khỏi hệ thống."));
 
-        if (order.getStatus() == OrderStatus.DELIVERED || order.getStatus() == OrderStatus.CANCELLED || order.getStatus() == OrderStatus.SHIPPED) {
-            String statusName = order.getStatus() != null ? order.getStatus().getDisplayName() : "không xác định";
-            throw new InvalidOrderStatusException("Đơn hàng ở trạng thái " + statusName + " không được phép thay đổi số lượng sản phẩm.");
+        OrderStatus currentStatus = order.getStatus();
+        if (currentStatus == newStatus) {
+            return convertToOrderDetailResponseDTO(order);
+        }
+        if (currentStatus == null || !currentStatus.getAllowedTransitions().contains(newStatus)) {
+            String currentDisplay = currentStatus != null ? currentStatus.getDisplayName() : "không xác định";
+            throw new InvalidOrderStatusException(
+                    "Không thể chuyển trạng thái đơn hàng từ '" + currentDisplay + "' sang '" + newStatus.getDisplayName() + "'."
+            );
         }
 
-        List<OrderItem> items = order.getItems();
-        if (items == null || items.isEmpty()) {
-            throw new IllegalStateException("Đơn hàng không có sản phẩm nào để cập nhật.");
+        if (newStatus == OrderStatus.CANCELLED) {
+            cancelOrderAndRestock(order);
+        } else {
+            order.setStatus(newStatus);
+            orderRepository.save(order);
         }
-
-        Map<String, OrderItem> orderItemMap = items.stream()
-                .collect(Collectors.toMap(OrderItem::getId, item -> item));
-
-        Set<String> seenIds = new HashSet<>();
-        for (OrderItemQuantityUpdateDTO itemUpdate : requestDTO.getItems()) {
-            String itemId = itemUpdate.getOrderItemId();
-            if (itemId == null || itemId.trim().isEmpty()) {
-                throw new IllegalArgumentException("Mã chi tiết đơn hàng không được để trống.");
-            }
-            itemId = itemId.trim();
-
-            if (!seenIds.add(itemId)) {
-                throw new IllegalArgumentException("Danh sách cập nhật chứa mã sản phẩm trùng lặp: " + itemId);
-            }
-
-            Integer newQuantity = itemUpdate.getQuantity();
-            if (newQuantity == null || newQuantity < 1 || newQuantity > 999) {
-                throw new IllegalArgumentException("Dữ liệu cập nhật không hợp lệ. Số lượng sản phẩm phải là số nguyên từ 1 đến 999.");
-            }
-
-            OrderItem orderItem = orderItemMap.get(itemId);
-            if (orderItem == null) {
-                boolean itemExists = orderItemRepository.existsById(itemId);
-                if (itemExists) {
-                    log.warn("Security Alert (IDOR detected): Mặt hàng {} không thuộc về đơn hàng {}", itemId, orderId);
-                    throw new InvalidOrderItemException("Mặt hàng cập nhật không thuộc về đơn hàng này.");
-                } else {
-                    throw new OrderItemNotFoundException("Không tìm thấy mặt hàng cần cập nhật trong hệ thống.");
-                }
-            }
-
-            int oldQuantity = orderItem.getQuantity() != null ? orderItem.getQuantity() : 0;
-            int delta = newQuantity - oldQuantity;
-
-            // Bù trừ Delta Tồn kho & Cập nhật Sold Count an toàn
-            if (delta != 0) {
-                Product product = orderItem.getProduct();
-                if (product == null && orderItem.getProductId() != null && !orderItem.getProductId().isBlank()) {
-                    product = productRepository.findById(orderItem.getProductId()).orElse(null);
-                }
-                if (product == null && orderItem.getProductCode() != null && !orderItem.getProductCode().isBlank()) {
-                    product = productRepository.findByProductCode(orderItem.getProductCode()).orElse(null);
-                }
-
-                if (product != null) {
-                    int availableStock = product.getStockQuantity() != null ? product.getStockQuantity() : 0;
-                    if (delta > 0) {
-                        // Tăng số lượng mua -> Kiểm tra tồn kho khả dụng
-                        if (availableStock < delta) {
-                            String prodName = (product.getName() != null && !product.getName().isBlank())
-                                    ? product.getName()
-                                    : (orderItem.getProductName() != null ? orderItem.getProductName() : product.getProductCode());
-                            throw new IllegalArgumentException(
-                                    "Số lượng tồn kho của sản phẩm '" + prodName + "' không đủ để tăng thêm (tồn kho hiện tại: "
-                                            + availableStock + ", cần thêm: " + delta + ")!"
-                            );
-                        }
-                        product.setStockQuantity(availableStock - delta);
-                        int currentSold = product.getSoldCount() != null ? product.getSoldCount() : 0;
-                        product.setSoldCount(currentSold + delta);
-                        productRepository.save(product);
-                    } else {
-                        // Giảm số lượng mua -> Hoàn trả tồn kho và giảm soldCount
-                        int release = Math.abs(delta);
-                        product.setStockQuantity(availableStock + release);
-                        int currentSold = product.getSoldCount() != null ? product.getSoldCount() : 0;
-                        product.setSoldCount(Math.max(0, currentSold - release));
-                        productRepository.save(product);
-                    }
-                }
-            }
-
-            orderItem.setQuantity(newQuantity);
-            BigDecimal unitPrice = orderItem.getUnitPrice() != null ? orderItem.getUnitPrice() : BigDecimal.ZERO;
-            BigDecimal subtotal = unitPrice.multiply(BigDecimal.valueOf(newQuantity));
-            orderItem.setSubtotal(subtotal);
-        }
-
-        BigDecimal newTotalAmount = items.stream()
-                .map(it -> it.getSubtotal() != null ? it.getSubtotal() : BigDecimal.ZERO)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-        order.setTotalAmount(newTotalAmount);
-
-        orderRepository.save(order);
 
         return convertToOrderDetailResponseDTO(order);
     }
@@ -312,6 +230,12 @@ public class OrderServiceImpl implements OrderService {
             throw new InvalidOrderStatusException("Không thể hủy đơn hàng đã hoàn tất giao hàng.");
         }
 
+        cancelOrderAndRestock(order);
+
+        return convertToOrderDetailResponseDTO(order);
+    }
+
+    private void cancelOrderAndRestock(Order order) {
         List<OrderItem> items = order.getItems();
         if (items != null) {
             for (OrderItem item : items) {
@@ -338,8 +262,6 @@ public class OrderServiceImpl implements OrderService {
 
         order.setStatus(OrderStatus.CANCELLED);
         orderRepository.save(order);
-
-        return convertToOrderDetailResponseDTO(order);
     }
 
     // =========================================================================
